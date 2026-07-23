@@ -156,6 +156,17 @@ generates on the test split, and scores with `pop eval` — landing `results/lor
 the same schema as the other arms. Run it end to end with `colab_lora.ipynb` (train → generate →
 eval); see `docs/gpu-runbook-final.md` Step 3 for the exact cells.
 
+## Optional: arm-B execution point (`colab_execbench.ipynb`)
+
+The execution-eval notebook runs arms A/C/D over the 201 QuixBugs + HumanEval-Java bugs. Arm B's
+execution point is **optional** (its CodeBLEU is near-identical to arm A's), so the four-arm story
+holds without it — but the report currently hedges "arm B was not run … an expectation, not a
+measurement." To remove that hedge, run the **"Arm B — from-scratch T5"** cells in
+`colab_execbench.ipynb` (finetune `configs/finetune_B_seed0.yaml` from a random init → generate over
+both benches → score → `results/execbench_B.json`). When it lands: download `results/` to your clone,
+rerun `python scripts/figures/make_all.py` (arm B's point appears in Figure 3 automatically), and
+replace the report's arm-B hedges with the measured pass@1.
+
 ## What to bring back, in general
 
 For every phase: the `results/<name>.json` file(s) (schema: `pop.eval.metrics.write_results` --
