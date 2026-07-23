@@ -1,9 +1,10 @@
 # Phase 2 results — pretrain-vs-scratch T5 on CodeXGLUE refinement (medium, Java)
 
 **Run:** Google Colab A100, 2026-07-18 02:35→06:14 UTC (~3 h 40 m end-to-end), all six
-systems completed, no gate halt. Produced by `scripts/run_training.py` from the code in
-`dist/pop_repo.zip` built at commit `12d555c` (the results JSONs record `git_sha: unknown`
-because Colab ran from the zip, which carries no `.git`; provenance is this commit).
+systems completed, no gate halt. Produced by `scripts/run_training.py` from an uploaded
+`dist/pop_repo.zip` of the repo code. The results JSONs record `git_sha: unknown` because Colab
+ran from the zip, which carries no `.git`; the committed `results/finetune_{A,B}_*_test.json` are
+the source of truth for the numbers below.
 
 Test split: 6,545 CodeXGLUE `code_x_glue_cc_code_refinement` (medium) pairs. Generation:
 greedy (`num_beams=1`), `max_new_tokens=256`.

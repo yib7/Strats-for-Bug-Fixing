@@ -237,12 +237,13 @@ bring in C and D). They are stated as honest negatives.
   files during training, so it should not be judged on whole files as if it had been. A fair execution
   comparison for arm A would need method-level extraction and splicing back into the surrounding file —
   out of scope here.
-- **Provenance caveat.** The A/B `results/*.json` carry `git_sha: unknown` because Colab ran from an
-  uploaded zip with no `.git`; provenance for that batch is pinned to commit `12d555c` in
-  `results/phase2_summary.md`. The C/D/execbench/scaling `results/*.json` from the later Colab batch
-  carry the same `git_sha: unknown` placeholder but have no equivalent pinned-commit summary doc —
-  every value in this report was cross-checked directly against its source `results/*.json` file, but
-  the exact commit that produced that later batch is not separately recorded.
+- **Provenance caveat.** Every `results/*.json` carries `git_sha: unknown`: the Colab runs executed
+  from an uploaded code zip with no `.git`, so the exact commit that produced each batch is not
+  embedded in the artifacts. The committed `results/*.json` are therefore the source of truth, and
+  every number in this report was cross-checked directly against its source file (the A/B finetune
+  batch is additionally written up in `results/phase2_summary.md`). Reproducing the runs from
+  scratch — rather than trusting the committed JSONs — requires re-executing the notebooks on a GPU
+  (`docs/handoff.md`).
 
 ## Reproducing the figures
 
