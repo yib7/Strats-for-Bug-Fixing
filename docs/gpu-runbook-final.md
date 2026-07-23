@@ -14,8 +14,9 @@ in *your* Colab account. No secrets: W&B stays optional and is never required by
 - **Inventory of what "done" means:** [`docs/results-manifest.md`](results-manifest.md).
 - **Cycle-2 background** (GPU choice table, disconnect/resume mechanics, EM-gate meaning):
   [`docs/colab-runbook.md`](colab-runbook.md).
-- **The report the results flow into:** [`docs/report.md`](report.md) (placeholders marked
-  `⟨pending GPU batch⟩` get filled once these results land).
+- **The report the results flow into:** [`docs/report.md`](report.md) — already filled with the
+  committed numbers; re-running this batch reproduces them from scratch rather than trusting the
+  committed `results/*.json`.
 
 ## Before you start — build & upload the Colab payload
 
@@ -260,7 +261,7 @@ python scripts/figures/make_all.py                # -> docs/figures/*.png (real 
 | | |
 |---|---|
 | **Expected artifacts** | `results/scaling_data.csv`, `results/execbench_agreement.csv`; refreshed `docs/figures/{four_arm_comparison,scaling_curves,execution_vs_codebleu}.png` |
-| **Verify (one line)** | `scaling_data.csv` has data rows at x∈{1000,5000,15000,52364} for A/B and ptcompute rows at x∈{1,3,10}; the figures lose their "illustrative fixture"/"pending" labels |
+| **Verify (one line)** | `scaling_data.csv` has data rows at x∈{1000,5000,15000,52364} for A/B and ptcompute rows at x∈{1,3,10}; the figures render from real data (no "illustrative fixture" label — the committed CSVs already guarantee this, `make_all.py` rebuilds them) |
 | **Resume after disconnect** | Fully deterministic and idempotent — just re-run. The builders are graceful-partial, so running them after only some arms are done still writes a valid (partial) CSV + figure. |
 
 Both builders read whatever `results/*.json` exist and emit only rows they can back with data, so
