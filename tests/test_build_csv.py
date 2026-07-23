@@ -191,9 +191,9 @@ def test_execbench_agreement_csv_matches_figure_schema(tmp_path):
 def test_committed_execbench_agreement_csv_in_sync_with_builder(tmp_path):
     """Drift guard: the committed results/execbench_agreement.csv must equal the builder's
     output from the committed result JSONs (rebuilt by make_all.py). Guards against the
-    figure silently rendering a stale scatter after a result JSON changes. Arm B is absent
-    until its optional execution run lands -- the builder simply omits it, and so must the
-    committed CSV. Compared via the figure's loader (line-ending agnostic)."""
+    figure silently rendering a stale scatter after a result JSON changes. All four arms
+    (A/B/C/D) now have committed execbench results, so the builder emits four rows and the
+    committed CSV must match. Compared via the figure's loader (line-ending agnostic)."""
     committed = RESULTS_DIR / "execbench_agreement.csv"
     assert committed.is_file(), "results/execbench_agreement.csv must be committed (not gitignored)"
     fresh = tmp_path / "execbench_agreement.csv"

@@ -158,14 +158,14 @@ eval); see `docs/gpu-runbook-final.md` Step 3 for the exact cells.
 
 ## Optional: arm-B execution point (`colab_execbench.ipynb`)
 
-The execution-eval notebook runs arms A/C/D over the 201 QuixBugs + HumanEval-Java bugs. Arm B's
-execution point is **optional** (its CodeBLEU is near-identical to arm A's), so the four-arm story
-holds without it — but the report currently hedges "arm B was not run … an expectation, not a
-measurement." To remove that hedge, run the **"Arm B — from-scratch T5"** cells in
-`colab_execbench.ipynb` (finetune `configs/finetune_B_seed0.yaml` from a random init → generate over
-both benches → score → `results/execbench_B.json`). When it lands: download `results/` to your clone,
-rerun `python scripts/figures/make_all.py` (arm B's point appears in Figure 3 automatically), and
-replace the report's arm-B hedges with the measured pass@1.
+The execution-eval notebook runs all four arms over the 201 QuixBugs + HumanEval-Java bugs. Arm B's
+execution point **has now been run** (via the **"Arm B — from-scratch T5"** cells in
+`colab_execbench.ipynb`: finetune `configs/finetune_B_seed0.yaml` from a random init → generate over
+both benches → score → `results/execbench_B.json`). The result: **0.0% compile / 0.0% pass**, identical
+to arm A — confirming the whole-file-vs-method mismatch is shared by both T5 arms. `execbench_B.json` is
+committed, Figure 3 now shows the fourth point, and the report states the measured number rather than an
+expectation. To reproduce, rerun those cells (idempotent — they skip if the artifact is already on
+Drive) and `python scripts/figures/make_all.py` locally.
 
 ## What to bring back, in general
 

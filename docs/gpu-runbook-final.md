@@ -208,8 +208,8 @@ cat outputs/execbench/A_quixbugs.jsonl outputs/execbench/A_humaneval_java.jsonl 
 pop execbench --predictions outputs/execbench/A_all.jsonl --name execbench_A
 ```
 
-**Arm B (from-scratch T5)** — *optional* (near-identical CodeBLEU to A). Same as arm A but
-`--model outputs/finetune_B_seed0/best` and `--name execbench_B`.
+**Arm B (from-scratch T5)** — run (result: 0.0% compile / 0.0% pass, identical to arm A). Same as arm A
+but `--model outputs/finetune_B_seed0/best` and `--name execbench_B`.
 
 **Arm C (RAG Qwen)** — pick the best RAG config from Step 1 (highest CodeBLEU; e.g. `rag_bm25_k3`):
 
@@ -301,11 +301,11 @@ Tick each once its file exists on Drive. Full inventory with status also in
 **Step 3 — LoRA (1):**
 - [ ] `results/lora_qwen_test.json`
 
-**Step 4 — Execution-eval (3 required + 1 optional):**
-- [ ] `results/execbench_A.json`   (arm A T5, required)
-- [ ] `results/execbench_C.json`   (arm C RAG, required)
-- [ ] `results/execbench_D.json`   (arm D LoRA, required)
-- [ ] `results/execbench_B.json`   (arm B T5, optional)
+**Step 4 — Execution-eval (all 4 arms):**
+- [ ] `results/execbench_A.json`   (arm A T5)
+- [ ] `results/execbench_B.json`   (arm B T5)
+- [ ] `results/execbench_C.json`   (arm C RAG)
+- [ ] `results/execbench_D.json`   (arm D LoRA)
 
 **Step 5 — Derived (2 CSVs, regenerated locally too):**
 - [ ] `results/scaling_data.csv`

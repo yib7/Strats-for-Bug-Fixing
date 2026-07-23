@@ -23,9 +23,9 @@ built to avoid.
 
 All four arms carry real, committed numbers (arm B's error bar is its seed 0/1/2 band; arm C's bar
 is the best config from its retriever×k sweep). CodeBLEU ranks the arms D > C > A ≈ B, but execution
-pass@1 — does the fix actually compile and run against 201 real Java bugs — ranks the arms that were
-run C > D > A: LoRA (D) wins on surface similarity, RAG (C) fixes the most real bugs, and arm A fixes
-zero (arm B, architecturally identical to A, was not run through the harness). See the **[study report](report.md)** for the full method, results tables,
+pass@1 — does the fix actually compile and run against 201 real Java bugs — ranks the arms
+C > D > A ≈ B: LoRA (D) wins on surface similarity, RAG (C) fixes the most real bugs, and both T5 arms
+(A and B) fix zero (identical 0% compile/pass — the shared whole-file-vs-method mismatch). See the **[study report](report.md)** for the full method, results tables,
 cross-arm findings, and limitations.
 
 ## Reproduce locally

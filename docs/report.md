@@ -46,10 +46,11 @@ bootstrap CIs, provenance on every `results/*.json`) and only then compares arms
 - **Execution lens (Track 2).** Predicted fixes run through the JDK harness over the 201 vendored
   QuixBugs-Java (40) + HumanEval-Java (161) bugs; the harness is validated **201/201 on reference
   patches** (`results/execbench_validate_references.json`). Real pass@1 / compile-rate per arm:
-  **A** — 0.0% compile, 0.0% pass (100% `compile_error`, both benches); **C (RAG)** — 70.6% compile,
-  **35.8%** pass (QuixBugs 25.0%, HumanEval-Java 38.5%); **D (LoRA)** — 69.2% compile, **26.4%** pass
-  (QuixBugs 32.5%, HumanEval-Java 24.8%). (Arm B was not run through the execution harness — optional
-  per the results manifest, skipped in this batch since its CodeBLEU is near-identical to arm A's.)
+  **A** — 0.0% compile, 0.0% pass (100% `compile_error`, both benches); **B** — 0.0% compile, 0.0% pass
+  (100% `compile_error`, both benches); **C (RAG)** — 70.6% compile, **35.8%** pass (QuixBugs 25.0%,
+  HumanEval-Java 38.5%); **D (LoRA)** — 69.2% compile, **26.4%** pass (QuixBugs 32.5%, HumanEval-Java
+  24.8%). Both T5 arms (A and B — trained on abstracted single methods) fix zero bugs; the two LLM arms
+  carry the entire execution signal.
 
 ## Results
 
@@ -143,16 +144,16 @@ monotonically between epoch 1 and epoch 10). More pretraining compute past epoch
 ![Execution pass@1 vs CodeBLEU per arm](figures/execution_vs_codebleu.png)
 
 *Figure 3 — `docs/figures/execution_vs_codebleu.png`. Real per-arm execution predictions
-(`results/execbench_{A,C,D}.json`) plotted against each arm's Track-1 CodeBLEU.* Each arm is one
-point (x = CodeBLEU, y = execution pass@1).
+(`results/execbench_{A,B,C,D}.json`) plotted against each arm's Track-1 CodeBLEU.* Each arm is one
+point (x = CodeBLEU, y = execution pass@1). Arms A and B sit atop each other at pass@1 = 0.
 
 **The headline: the two lenses disagree.** CodeBLEU ranks the arms **D (0.854) > C (0.652) > A ≈ B
-(≈0.48)**. Execution pass@1 ranks the three arms that were run **C (35.8%) > D (26.4%) > A (0.0%)** —
+(≈0.48)**. Execution pass@1 ranks the four arms **C (35.8%) > D (26.4%) > A ≈ B (0.0%)** —
 inverted at the top. Arm D "looks most right" by surface similarity; arm C "is most right" by
-does-it-actually-run. And arm A — CodeBLEU-competitive with C (0.48 vs 0.65, not wildly below) —
-fixes **zero** of 201 real bugs; CodeBLEU parity does not mean functional parity. (Arm B was not run
-through the harness; being architecturally identical to arm A and near-identical in CodeBLEU, it is
-expected to behave the same, but that is an expectation, not a measurement.) The takeaway is not
+does-it-actually-run. And arms A and B — CodeBLEU-competitive with C (0.48 vs 0.65, not wildly below) —
+fix **zero** of 201 real bugs; CodeBLEU parity does not mean functional parity. (Arm B, run through the
+same harness, lands at the identical 0.0% compile / 0.0% pass as arm A — the shared
+whole-file-vs-method mismatch, now measured rather than assumed.) The takeaway is not
 "CodeBLEU is useless" (it still separates all four arms from a random baseline and tracks
 syntax-validity sensibly within each arm) but that CodeBLEU is a **surface proxy** that does not
 preserve the functional-correctness ranking across architecturally different systems, and should not
@@ -208,10 +209,10 @@ bring in C and D). They are stated as honest negatives.
    reference). The metric clearly *can* register a match when a capable-enough model makes one — so
    T5's EM≈0 is a property of that model on this task, not a measurement failure.
 
-7. **Execution is the discriminating lens — only the LLM arms fix real bugs, and arm A's 0% is a
+7. **Execution is the discriminating lens — only the LLM arms fix real bugs, and the T5 arms' 0% is a
    domain mismatch, not a null result.** C and D fix 26–36% of the 201 real bugs; the
-   CodeBLEU-competitive arm A fixes **zero** (arm B was not run, but is architecturally identical to
-   A). Arm A's 0.0% pass (100% `compile_error` on both
+   CodeBLEU-competitive T5 arms A and B both fix **zero** — identical 0.0% compile / 0.0% pass, so the
+   failure is the shared architecture, not one seed. The T5 arms' 0.0% pass (100% `compile_error` on both
    QuixBugs and HumanEval-Java) is not evidence the harness is broken — the same harness passes
    reference patches 201/201 (`results/execbench_validate_references.json`) — it is a
    **whole-file-vs-method domain mismatch**: T5 was trained and evaluated on CodeXGLUE's *abstracted
@@ -230,13 +231,13 @@ bring in C and D). They are stated as honest negatives.
 - **CodeBLEU is a surface proxy.** It rewards token/AST overlap, not correctness — which is exactly why
   the execution lens (Figure 3) exists and why finding 5 matters: a valid-but-different edit, or an
   edit that does not even compile, can still score well on CodeBLEU and syntax-validity.
-- **Arm A's 0% execution pass should not be read as "T5 learned nothing."** Track 1 shows T5 clearly
+- **The T5 arms' 0% execution pass should not be read as "T5 learned nothing."** Track 1 shows T5 clearly
   learning the CodeXGLUE refinement task (finding 3: CodeBLEU and syntax-validity rise monotonically
-  with finetune epochs, converging with arm B at scale). Track 2's 0% pass is specifically a
-  whole-file-vs-method **input-distribution mismatch** (finding 7): the model was never shown whole
-  files during training, so it should not be judged on whole files as if it had been. A fair execution
-  comparison for arm A would need method-level extraction and splicing back into the surrounding file —
-  out of scope here.
+  with finetune epochs, arm A converging with arm B at scale). Track 2's 0% pass — identical for both T5
+  arms — is specifically a whole-file-vs-method **input-distribution mismatch** (finding 7): the model
+  was never shown whole files during training, so it should not be judged on whole files as if it had
+  been. A fair execution comparison for the T5 arms would need method-level extraction and splicing back
+  into the surrounding file — out of scope here.
 - **Provenance caveat.** Every `results/*.json` carries `git_sha: unknown`: the Colab runs executed
   from an uploaded code zip with no `.git`, so the exact commit that produced each batch is not
   embedded in the artifacts. The committed `results/*.json` are therefore the source of truth, and

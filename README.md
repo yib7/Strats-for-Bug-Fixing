@@ -8,9 +8,10 @@ similarity (CodeBLEU) and whether the fix actually compiles and runs.
 ## TL;DR — the findings
 
 - **Execution inverts the CodeBLEU ranking.** LoRA (arm D) wins CodeBLEU (0.854), but RAG (arm C)
-  fixes the most real bugs (**35.8%** vs **26.4%** pass@1) — while arm A (T5), despite competitive
-  CodeBLEU, fixes **zero** of 201 real bugs (arm B, identical in architecture, was not run). Surface
-  similarity and functional correctness disagree at the top of the ranking.
+  fixes the most real bugs (**35.8%** vs **26.4%** pass@1) — while both T5 arms (A and B), despite
+  competitive CodeBLEU, fix **zero** of 201 real bugs (identical 0% compile/pass — the shared
+  whole-file-vs-method mismatch). Surface similarity and functional correctness disagree at the top of
+  the ranking.
 - **Pretraining buys no CodeBLEU benefit at full data.** Arm A (pretrained) and arm B
   (from-scratch) converge to ≈0.48 CodeBLEU by the full 52K-pair split. Pretraining's head start
   is real at small data budgets (a ~0.08-point gap at 1K pairs) but shrinks steadily and is gone

@@ -1,8 +1,8 @@
 # Results manifest — the full study's `results/` inventory
 
 The authoritative list of every results file the complete four-arm study contains, so "is the study
-intact?" is checkable at a glance. ✅ = committed / done; ⬜ = not run (only the genuinely-optional
-`execbench_B.json` remains — see [`docs/handoff.md`](handoff.md)).
+intact?" is checkable at a glance. ✅ = committed / done. Every artifact is now present, including the
+formerly-optional `execbench_B.json` (arm B execution — see [`docs/handoff.md`](handoff.md)).
 
 The four arms: **A** pretrain→finetune T5 · **B** from-scratch T5 · **C** RAG Qwen ·
 **D** LoRA Qwen. Every JSON follows the `pop.eval.metrics.write_results` schema
@@ -75,7 +75,7 @@ One per arm over the 201 vendored QuixBugs + HumanEval-Java bugs; pass@1 = `metr
 | `results/execbench_A.json` | ✅ | arm A T5 (required) |
 | `results/execbench_C.json` | ✅ | arm C RAG (required) |
 | `results/execbench_D.json` | ✅ | arm D LoRA (required) |
-| `results/execbench_B.json` | ⬜ | arm B T5 (optional — near-identical CodeBLEU to A; runnable cells in `notebooks/colab_execbench.ipynb`) |
+| `results/execbench_B.json` | ✅ | arm B T5 (measured: 0.0% compile, 0.0% pass — matches arm A) |
 
 ## Derived analysis CSVs (2) ✅
 
@@ -102,11 +102,11 @@ checkout (no fixture fallback).
 | Scaling data curve | 12 | 12 ✅ |
 | Pretrain-compute curve | 2 | 2 ✅ |
 | LoRA (arm D) | 1 | 1 ✅ |
-| Execbench arms (A/C/D required) | 3 | 3 ✅ |
+| Execbench arms (A/B/C/D) | 4 | 4 ✅ |
 | Derived CSVs | 2 | 2 ✅ |
-| **Study total (required)** | **35** | **35 ✅** |
+| **Study total** | **36** | **36 ✅** |
 
-The study is **complete**: all 32 study result JSONs + `execbench_validate_references.json` + the
-2 derived CSVs are committed (35 required artifacts). The only unrun artifact is the **optional** `execbench_B.json` (arm B
-execution) — arm B's CodeBLEU is near-identical to arm A's, so its execution point is expected to
-match A's; runnable cells are wired in [`notebooks/colab_execbench.ipynb`](../notebooks/colab_execbench.ipynb).
+The study is **complete**: all 33 study result JSONs + `execbench_validate_references.json` + the
+2 derived CSVs are committed (36 artifacts, nothing outstanding). Arm B's execution point
+(`execbench_B.json`) is now measured — 0.0% compile / 0.0% pass, identical to arm A, confirming the
+whole-file-vs-method mismatch is shared by both T5 arms rather than an arm-A artifact.
