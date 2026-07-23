@@ -122,6 +122,18 @@ def test_scaling_csv_matches_figure_schema(tmp_path):
     assert {r["arm"] for r in rows} <= {"A", "B"}
 
 
+def test_committed_scaling_csv_in_sync_with_builder(tmp_path):
+    """Drift guard: the committed results/scaling_data.csv must equal what the builder emits
+    from the committed result JSONs. If this fails, a result JSON changed without rerunning
+    `python scripts/figures/make_all.py` (which rebuilds the CSV) -- the figure would render
+    stale numbers. Compared via the figure's loader so line-ending differences don't matter."""
+    committed = RESULTS_DIR / "scaling_data.csv"
+    assert committed.is_file(), "results/scaling_data.csv must be committed (not gitignored)"
+    fresh = tmp_path / "scaling_data.csv"
+    agg_scale.write_csv(agg_scale.build_rows(RESULTS_DIR), fresh)
+    assert scaling_curves.load_scaling_rows(committed) == scaling_curves.load_scaling_rows(fresh)
+
+
 # --------------------------------------------------------------------------- #
 # build_execbench_agreement_csv                                               #
 # --------------------------------------------------------------------------- #
@@ -174,3 +186,18 @@ def test_execbench_agreement_csv_matches_figure_schema(tmp_path):
     agg_exec.write_csv(agg_exec.build_rows(results), out)
     loaded = execution_vs_codebleu.load_agreement_rows(out)  # raises on schema drift
     assert loaded == [{"arm": "A", "codebleu": 0.477, "pass_at_1": 0.124, "n_bugs": 201}]
+
+
+def test_committed_execbench_agreement_csv_in_sync_with_builder(tmp_path):
+    """Drift guard: the committed results/execbench_agreement.csv must equal the builder's
+    output from the committed result JSONs (rebuilt by make_all.py). Guards against the
+    figure silently rendering a stale scatter after a result JSON changes. Arm B is absent
+    until its optional execution run lands -- the builder simply omits it, and so must the
+    committed CSV. Compared via the figure's loader (line-ending agnostic)."""
+    committed = RESULTS_DIR / "execbench_agreement.csv"
+    assert committed.is_file(), "results/execbench_agreement.csv must be committed (not gitignored)"
+    fresh = tmp_path / "execbench_agreement.csv"
+    agg_exec.write_csv(agg_exec.build_rows(RESULTS_DIR), fresh)
+    assert execution_vs_codebleu.load_agreement_rows(
+        committed
+    ) == execution_vs_codebleu.load_agreement_rows(fresh)

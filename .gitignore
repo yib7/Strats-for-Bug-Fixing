@@ -25,10 +25,10 @@ site/
 
 # results / artifacts (raw run outputs; keep summaries out of git)
 results/raw/
-# derived analysis CSVs, regenerated from results/*.json by scripts/build_*_csv.py in the
-# Colab batch (see docs/gpu-runbook-final.md); the committed figures render from the fixtures.
-results/scaling_data.csv
-results/execbench_agreement.csv
+# NOTE: results/scaling_data.csv and results/execbench_agreement.csv are the derived analysis CSVs.
+# They are now COMMITTED (not ignored): scripts/figures/make_all.py rebuilds them from the committed
+# results/*.json before rendering, so the figures reproduce from a clean checkout without any
+# fixture fallback.
 wandb/
 outputs/
 checkpoints/
