@@ -1,0 +1,12 @@
+# RAG evaluation, CodeBERT retriever, k=5 (5 retrieved
+# exemplars prepended to the prompt).
+
+seed: 42
+retriever: codebert
+k: 5
+model_name: Qwen/Qwen2.5-Coder-1.5B-Instruct
+split: test
+kb_split: train
+output_dir: outputs/rag_codebert_k5
+codebert_model_name: microsoft/codebert-base
+gen_kwargs: {}

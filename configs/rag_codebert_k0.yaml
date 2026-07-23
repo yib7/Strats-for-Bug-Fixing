@@ -1,0 +1,12 @@
+# RAG evaluation, CodeBERT retriever, k=0 (zero-shot baseline: no
+# exemplars, isolates the prompted Qwen2.5-Coder model's raw bug-fixing ability).
+
+seed: 42
+retriever: codebert
+k: 0
+model_name: Qwen/Qwen2.5-Coder-1.5B-Instruct
+split: test
+kb_split: train
+output_dir: outputs/rag_codebert_k0
+codebert_model_name: microsoft/codebert-base
+gen_kwargs: {}

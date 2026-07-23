@@ -1,0 +1,15 @@
+{
+  "config": {
+    "predictions": "/content/repo/outputs/finetune_B_seed2/best/predictions_test.jsonl"
+  },
+  "metrics": {
+    "em": 0.0004583651642475172,
+    "em_raw": 0.0004583651642475172,
+    "codebleu": 0.48353486492483594,
+    "syntax_valid_rate": 0.8948815889992361,
+    "n": 6545
+  },
+  "n": 6545,
+  "timestamp": "2026-07-18T06:14:40.805872+00:00",
+  "git_sha": "unknown"
+}

@@ -1,0 +1,15 @@
+{
+  "config": {
+    "predictions": "/content/repo/outputs/finetune_ptcompute_ep1_seed42/best/predictions_test.jsonl"
+  },
+  "metrics": {
+    "em": 0.00015278838808250572,
+    "em_raw": 0.00015278838808250572,
+    "codebleu": 0.4688321102966364,
+    "syntax_valid_rate": 0.8965622612681436,
+    "n": 6545
+  },
+  "n": 6545,
+  "timestamp": "2026-07-19T04:43:48.853460+00:00",
+  "git_sha": "unknown"
+}

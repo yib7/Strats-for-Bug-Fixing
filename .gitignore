@@ -1,0 +1,46 @@
+# venvs / package management
+.venv/
+.venv-rocm/
+venv/
+env/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+
+# uv
+uv.lock.bak
+
+# mkdocs build output
+site/
+
+# caches
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.cache/
+*.log
+
+# results / artifacts (raw run outputs; keep summaries out of git)
+results/raw/
+# derived analysis CSVs, regenerated from results/*.json by scripts/build_*_csv.py in the
+# Colab batch (see docs/gpu-runbook-final.md); the committed figures render from the fixtures.
+results/scaling_data.csv
+results/execbench_agreement.csv
+wandb/
+outputs/
+checkpoints/
+logs/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# secrets
+.env
+*.env
+.superpowers/

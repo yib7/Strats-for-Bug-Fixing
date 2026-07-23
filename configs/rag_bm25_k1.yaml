@@ -1,0 +1,11 @@
+# RAG evaluation, BM25 retriever, k=1 (1 retrieved
+# exemplars prepended to the prompt).
+
+seed: 42
+retriever: bm25
+k: 1
+model_name: Qwen/Qwen2.5-Coder-1.5B-Instruct
+split: test
+kb_split: train
+output_dir: outputs/rag_bm25_k1
+gen_kwargs: {}

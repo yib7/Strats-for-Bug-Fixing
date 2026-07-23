@@ -1,0 +1,38 @@
+# Full span-corruption pretrain of the T5.
+# Checkpoints are saved at epochs 1/3/10 (see save_epochs) as both step-numbered `checkpoint-*`
+# and stable `outputs/pretrain/epoch-{1,3,10}` dirs, so finetune_A_ep*.yaml / the scaling
+# ptcompute configs can finetune from a given pretrain-compute point.
+#
+# tokenizer_path expects the vocab-16384 SentencePiece tokenizer trained by `pop tokenizer` on the
+# CodeSearchNet-Java corpus (train the tokenizer before running `pop pretrain`).
+
+seed: 42
+tokenizer_path: outputs/tokenizer/tokenizer.model
+
+# corpus_file left unset -> load_pretraining_corpus falls back to its network default loader
+# (CodeSearchNet-Java via HuggingFace `datasets`; see pop/data/corpus.py's module docstring).
+corpus_num_samples: 50000
+max_seq_length: 512
+corruption_rate: 0.15
+mean_span_length: 3
+
+epochs: 10
+# Per-device batch 8 x grad-accum 8 = effective batch 64 (the notebook hyperparam).
+# Split this way because a full per-device batch of 64 OOMs a 16 GB GPU at seq 512
+# (the vocab-16384 lm_head logits dominate memory); batch 8 peaks ~5.5 GB. On a
+# bigger GPU, raise batch_size and lower gradient_accumulation_steps -- keep their
+# product at 64.
+batch_size: 8
+gradient_accumulation_steps: 8
+lr: 1.0e-4
+save_epochs: [1, 3, 10]
+
+output_dir: outputs/pretrain
+
+model:
+  d_model: 512
+  d_ff: 2048
+  d_kv: 64
+  num_heads: 8
+  num_layers: 6
+  num_decoder_layers: 6

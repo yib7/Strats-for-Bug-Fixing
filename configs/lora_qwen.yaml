@@ -1,0 +1,37 @@
+# Arm D: LoRA-finetune Qwen2.5-Coder-1.5B-Instruct on the CodeXGLUE refinement pairs -- the
+# "cheaply adapted large model" arm, between the from-scratch T5 pretrain+finetune arm and the
+# zero/few-shot RAG-prompting arm.
+#
+# Parsed by `pop.config.LoRAConfig` (parse-tested in tests/test_config.py). Train with
+# `pop lora --config configs/lora_qwen.yaml`, then predict with
+# `pop lora-generate --config configs/lora_qwen.yaml --split test`.
+
+seed: 42
+base_model: Qwen/Qwen2.5-Coder-1.5B-Instruct
+
+# Data: same refinement pairs / splits as the RAG configs (google/code_x_glue_cc_code_refinement,
+# "medium"), no retrieval -- LoRA adapts the model's weights instead of prompting with exemplars.
+train_split: train
+validation_split: validation
+max_seq_length: 512
+
+# Standard LoRA hyperparameters (PEFT defaults for a ~1.5B causal LM); revisit once a real
+# lora module/config exists.
+lora_r: 16
+lora_alpha: 32
+lora_dropout: 0.05
+target_modules: [q_proj, k_proj, v_proj, o_proj]
+
+epochs: 3
+# Micro-batch 4 x accum 4 = effective batch 16 (training dynamics unchanged). The 1.5B Qwen,
+# with its ~152k-token vocab, makes the cross-entropy logits tensor huge at seq 512: a
+# per-device micro-batch of 16 OOMs a 40 GB A100 under the 0.85 memory cap (the loss step alone
+# needs ~4 GB extra on a full-length batch). Four micro-batches of 4 keep the effective batch
+# while quartering peak activation/logit memory. Do NOT raise batch_size without shrinking
+# gradient_accumulation_steps to match -- the LoRA arm feeds these to the trainer verbatim.
+batch_size: 4
+gradient_accumulation_steps: 4
+lr: 1.0e-4
+warmup_steps: 100
+
+output_dir: outputs/lora_qwen

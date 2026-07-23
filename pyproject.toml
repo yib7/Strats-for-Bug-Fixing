@@ -1,0 +1,82 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "pop"
+version = "0.1.0"
+description = "pretrain-or-prompt: does pretraining a small T5 beat prompting a larger LLM with RAG for Java bug fixing?"
+readme = "README.md"
+# 3.11 floor (not 3.12): Google Colab runtimes may lag a Python version behind;
+# keep source 3.11-compatible so `pip install -e .` works there.
+requires-python = ">=3.11"
+license = { text = "MIT" }
+dependencies = [
+    "torch",
+    "transformers",
+    "accelerate",
+    "datasets",
+    "sentencepiece",
+    "pydantic>=2",
+    "pyyaml",
+    "numpy",
+    "tqdm",
+    "codebleu",
+    # codebleu 0.7.0 requires tree-sitter<0.23; tree-sitter-java must stay on the
+    # matching ABI-14 build (0.23+ is ABI-15 and segfaults/TypeErrors against tree-sitter<0.23).
+    "tree-sitter>=0.22,<0.23",
+    "tree-sitter-java==0.21.0",
+    "bm25s",
+    "faiss-cpu",
+    "wandb",
+    "peft>=0.19.1",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "ruff",
+    "pre-commit",
+    "nbformat",
+    "matplotlib",
+    "mkdocs",
+]
+
+[project.scripts]
+pop = "pop.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/pop"]
+
+[dependency-groups]
+dev = [
+    "pytest",
+    "ruff",
+    "pre-commit",
+    "nbformat",
+    "matplotlib",
+    "mkdocs",
+]
+
+[tool.uv.sources]
+torch = [{ index = "pytorch-cpu" }]
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[tool.pytest.ini_options]
+markers = [
+    "jdk: marks tests that require a local JDK installation",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+# `notebooks/` holds Colab launcher notebooks with IPython-magic cells (`%cd`, `!pop ...`) that
+# aren't valid standalone Python and aren't part of the `pop` package; excluded from lint/format.
+extend-exclude = ["notebooks"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]

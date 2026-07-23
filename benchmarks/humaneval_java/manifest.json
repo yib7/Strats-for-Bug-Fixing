@@ -1,0 +1,1612 @@
+[
+  {
+    "bug_id": "ADD",
+    "buggy_file": "src/main/java/humaneval/buggy/ADD.java",
+    "fixed_file": "src/main/java/humaneval/correct/ADD.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_ADD.java"
+    ],
+    "entry_test_class": "humaneval.TEST_ADD",
+    "support_files": []
+  },
+  {
+    "bug_id": "ADD_ELEMENTS",
+    "buggy_file": "src/main/java/humaneval/buggy/ADD_ELEMENTS.java",
+    "fixed_file": "src/main/java/humaneval/correct/ADD_ELEMENTS.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_ADD_ELEMENTS.java"
+    ],
+    "entry_test_class": "humaneval.TEST_ADD_ELEMENTS",
+    "support_files": []
+  },
+  {
+    "bug_id": "ADD_EVEN_AT_ODD",
+    "buggy_file": "src/main/java/humaneval/buggy/ADD_EVEN_AT_ODD.java",
+    "fixed_file": "src/main/java/humaneval/correct/ADD_EVEN_AT_ODD.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_ADD_EVEN_AT_ODD.java"
+    ],
+    "entry_test_class": "humaneval.TEST_ADD_EVEN_AT_ODD",
+    "support_files": []
+  },
+  {
+    "bug_id": "ALL_PREFIXES",
+    "buggy_file": "src/main/java/humaneval/buggy/ALL_PREFIXES.java",
+    "fixed_file": "src/main/java/humaneval/correct/ALL_PREFIXES.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_ALL_PREFIXES.java"
+    ],
+    "entry_test_class": "humaneval.TEST_ALL_PREFIXES",
+    "support_files": []
+  },
+  {
+    "bug_id": "ANTI_SHUFFLE",
+    "buggy_file": "src/main/java/humaneval/buggy/ANTI_SHUFFLE.java",
+    "fixed_file": "src/main/java/humaneval/correct/ANTI_SHUFFLE.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_ANTI_SHUFFLE.java"
+    ],
+    "entry_test_class": "humaneval.TEST_ANTI_SHUFFLE",
+    "support_files": []
+  },
+  {
+    "bug_id": "ANY_INT",
+    "buggy_file": "src/main/java/humaneval/buggy/ANY_INT.java",
+    "fixed_file": "src/main/java/humaneval/correct/ANY_INT.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_ANY_INT.java"
+    ],
+    "entry_test_class": "humaneval.TEST_ANY_INT",
+    "support_files": []
+  },
+  {
+    "bug_id": "BELOW_THRESHOLD",
+    "buggy_file": "src/main/java/humaneval/buggy/BELOW_THRESHOLD.java",
+    "fixed_file": "src/main/java/humaneval/correct/BELOW_THRESHOLD.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_BELOW_THRESHOLD.java"
+    ],
+    "entry_test_class": "humaneval.TEST_BELOW_THRESHOLD",
+    "support_files": []
+  },
+  {
+    "bug_id": "BELOW_ZERO",
+    "buggy_file": "src/main/java/humaneval/buggy/BELOW_ZERO.java",
+    "fixed_file": "src/main/java/humaneval/correct/BELOW_ZERO.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_BELOW_ZERO.java"
+    ],
+    "entry_test_class": "humaneval.TEST_BELOW_ZERO",
+    "support_files": []
+  },
+  {
+    "bug_id": "BF",
+    "buggy_file": "src/main/java/humaneval/buggy/BF.java",
+    "fixed_file": "src/main/java/humaneval/correct/BF.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_BF.java"
+    ],
+    "entry_test_class": "humaneval.TEST_BF",
+    "support_files": []
+  },
+  {
+    "bug_id": "BY_LENGTH",
+    "buggy_file": "src/main/java/humaneval/buggy/BY_LENGTH.java",
+    "fixed_file": "src/main/java/humaneval/correct/BY_LENGTH.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_BY_LENGTH.java"
+    ],
+    "entry_test_class": "humaneval.TEST_BY_LENGTH",
+    "support_files": []
+  },
+  {
+    "bug_id": "CAN_ARRANGE",
+    "buggy_file": "src/main/java/humaneval/buggy/CAN_ARRANGE.java",
+    "fixed_file": "src/main/java/humaneval/correct/CAN_ARRANGE.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_CAN_ARRANGE.java"
+    ],
+    "entry_test_class": "humaneval.TEST_CAN_ARRANGE",
+    "support_files": []
+  },
+  {
+    "bug_id": "CAR_RACE_COLLISION",
+    "buggy_file": "src/main/java/humaneval/buggy/CAR_RACE_COLLISION.java",
+    "fixed_file": "src/main/java/humaneval/correct/CAR_RACE_COLLISION.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_CAR_RACE_COLLISION.java"
+    ],
+    "entry_test_class": "humaneval.TEST_CAR_RACE_COLLISION",
+    "support_files": []
+  },
+  {
+    "bug_id": "CHANGE_BASE",
+    "buggy_file": "src/main/java/humaneval/buggy/CHANGE_BASE.java",
+    "fixed_file": "src/main/java/humaneval/correct/CHANGE_BASE.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_CHANGE_BASE.java"
+    ],
+    "entry_test_class": "humaneval.TEST_CHANGE_BASE",
+    "support_files": []
+  },
+  {
+    "bug_id": "CHECK_DICT_CASE",
+    "buggy_file": "src/main/java/humaneval/buggy/CHECK_DICT_CASE.java",
+    "fixed_file": "src/main/java/humaneval/correct/CHECK_DICT_CASE.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_CHECK_DICT_CASE.java"
+    ],
+    "entry_test_class": "humaneval.TEST_CHECK_DICT_CASE",
+    "support_files": []
+  },
+  {
+    "bug_id": "CHECK_IF_LAST_CHAR_IS_A_LETTER",
+    "buggy_file": "src/main/java/humaneval/buggy/CHECK_IF_LAST_CHAR_IS_A_LETTER.java",
+    "fixed_file": "src/main/java/humaneval/correct/CHECK_IF_LAST_CHAR_IS_A_LETTER.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_CHECK_IF_LAST_CHAR_IS_A_LETTER.java"
+    ],
+    "entry_test_class": "humaneval.TEST_CHECK_IF_LAST_CHAR_IS_A_LETTER",
+    "support_files": []
+  },
+  {
+    "bug_id": "CHOOSE_NUM",
+    "buggy_file": "src/main/java/humaneval/buggy/CHOOSE_NUM.java",
+    "fixed_file": "src/main/java/humaneval/correct/CHOOSE_NUM.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_CHOOSE_NUM.java"
+    ],
+    "entry_test_class": "humaneval.TEST_CHOOSE_NUM",
+    "support_files": []
+  },
+  {
+    "bug_id": "CIRCULAR_SHIFT",
+    "buggy_file": "src/main/java/humaneval/buggy/CIRCULAR_SHIFT.java",
+    "fixed_file": "src/main/java/humaneval/correct/CIRCULAR_SHIFT.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_CIRCULAR_SHIFT.java"
+    ],
+    "entry_test_class": "humaneval.TEST_CIRCULAR_SHIFT",
+    "support_files": []
+  },
+  {
+    "bug_id": "CLOSEST_INTEGER",
+    "buggy_file": "src/main/java/humaneval/buggy/CLOSEST_INTEGER.java",
+    "fixed_file": "src/main/java/humaneval/correct/CLOSEST_INTEGER.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_CLOSEST_INTEGER.java"
+    ],
+    "entry_test_class": "humaneval.TEST_CLOSEST_INTEGER",
+    "support_files": []
+  },
+  {
+    "bug_id": "COMMON",
+    "buggy_file": "src/main/java/humaneval/buggy/COMMON.java",
+    "fixed_file": "src/main/java/humaneval/correct/COMMON.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_COMMON.java"
+    ],
+    "entry_test_class": "humaneval.TEST_COMMON",
+    "support_files": []
+  },
+  {
+    "bug_id": "COMPARE",
+    "buggy_file": "src/main/java/humaneval/buggy/COMPARE.java",
+    "fixed_file": "src/main/java/humaneval/correct/COMPARE.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_COMPARE.java"
+    ],
+    "entry_test_class": "humaneval.TEST_COMPARE",
+    "support_files": []
+  },
+  {
+    "bug_id": "COMPARE_ONE",
+    "buggy_file": "src/main/java/humaneval/buggy/COMPARE_ONE.java",
+    "fixed_file": "src/main/java/humaneval/correct/COMPARE_ONE.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_COMPARE_ONE.java"
+    ],
+    "entry_test_class": "humaneval.TEST_COMPARE_ONE",
+    "support_files": []
+  },
+  {
+    "bug_id": "CONCATENATE",
+    "buggy_file": "src/main/java/humaneval/buggy/CONCATENATE.java",
+    "fixed_file": "src/main/java/humaneval/correct/CONCATENATE.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_CONCATENATE.java"
+    ],
+    "entry_test_class": "humaneval.TEST_CONCATENATE",
+    "support_files": []
+  },
+  {
+    "bug_id": "CORRECT_BRACKETING",
+    "buggy_file": "src/main/java/humaneval/buggy/CORRECT_BRACKETING.java",
+    "fixed_file": "src/main/java/humaneval/correct/CORRECT_BRACKETING.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_CORRECT_BRACKETING.java"
+    ],
+    "entry_test_class": "humaneval.TEST_CORRECT_BRACKETING",
+    "support_files": []
+  },
+  {
+    "bug_id": "COUNT_DISTINCT_CHARACTERS",
+    "buggy_file": "src/main/java/humaneval/buggy/COUNT_DISTINCT_CHARACTERS.java",
+    "fixed_file": "src/main/java/humaneval/correct/COUNT_DISTINCT_CHARACTERS.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_COUNT_DISTINCT_CHARACTERS.java"
+    ],
+    "entry_test_class": "humaneval.TEST_COUNT_DISTINCT_CHARACTERS",
+    "support_files": []
+  },
+  {
+    "bug_id": "COUNT_NUMS",
+    "buggy_file": "src/main/java/humaneval/buggy/COUNT_NUMS.java",
+    "fixed_file": "src/main/java/humaneval/correct/COUNT_NUMS.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_COUNT_NUMS.java"
+    ],
+    "entry_test_class": "humaneval.TEST_COUNT_NUMS",
+    "support_files": []
+  },
+  {
+    "bug_id": "COUNT_UP_TO",
+    "buggy_file": "src/main/java/humaneval/buggy/COUNT_UP_TO.java",
+    "fixed_file": "src/main/java/humaneval/correct/COUNT_UP_TO.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_COUNT_UP_TO.java"
+    ],
+    "entry_test_class": "humaneval.TEST_COUNT_UP_TO",
+    "support_files": []
+  },
+  {
+    "bug_id": "COUNT_UPPER",
+    "buggy_file": "src/main/java/humaneval/buggy/COUNT_UPPER.java",
+    "fixed_file": "src/main/java/humaneval/correct/COUNT_UPPER.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_COUNT_UPPER.java"
+    ],
+    "entry_test_class": "humaneval.TEST_COUNT_UPPER",
+    "support_files": []
+  },
+  {
+    "bug_id": "CYCPATTERN_CHECK",
+    "buggy_file": "src/main/java/humaneval/buggy/CYCPATTERN_CHECK.java",
+    "fixed_file": "src/main/java/humaneval/correct/CYCPATTERN_CHECK.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_CYCPATTERN_CHECK.java"
+    ],
+    "entry_test_class": "humaneval.TEST_CYCPATTERN_CHECK",
+    "support_files": []
+  },
+  {
+    "bug_id": "DECIMAL_TO_BINARY",
+    "buggy_file": "src/main/java/humaneval/buggy/DECIMAL_TO_BINARY.java",
+    "fixed_file": "src/main/java/humaneval/correct/DECIMAL_TO_BINARY.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_DECIMAL_TO_BINARY.java"
+    ],
+    "entry_test_class": "humaneval.TEST_DECIMAL_TO_BINARY",
+    "support_files": []
+  },
+  {
+    "bug_id": "DECODE_CYCLIC",
+    "buggy_file": "src/main/java/humaneval/buggy/DECODE_CYCLIC.java",
+    "fixed_file": "src/main/java/humaneval/correct/DECODE_CYCLIC.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_DECODE_CYCLIC.java"
+    ],
+    "entry_test_class": "humaneval.TEST_DECODE_CYCLIC",
+    "support_files": []
+  },
+  {
+    "bug_id": "DECODE_SHIFT",
+    "buggy_file": "src/main/java/humaneval/buggy/DECODE_SHIFT.java",
+    "fixed_file": "src/main/java/humaneval/correct/DECODE_SHIFT.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_DECODE_SHIFT.java"
+    ],
+    "entry_test_class": "humaneval.TEST_DECODE_SHIFT",
+    "support_files": []
+  },
+  {
+    "bug_id": "DERIVATIVE",
+    "buggy_file": "src/main/java/humaneval/buggy/DERIVATIVE.java",
+    "fixed_file": "src/main/java/humaneval/correct/DERIVATIVE.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_DERIVATIVE.java"
+    ],
+    "entry_test_class": "humaneval.TEST_DERIVATIVE",
+    "support_files": []
+  },
+  {
+    "bug_id": "DIGIT_SUM",
+    "buggy_file": "src/main/java/humaneval/buggy/DIGIT_SUM.java",
+    "fixed_file": "src/main/java/humaneval/correct/DIGIT_SUM.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_DIGIT_SUM.java"
+    ],
+    "entry_test_class": "humaneval.TEST_DIGIT_SUM",
+    "support_files": []
+  },
+  {
+    "bug_id": "DIGITS",
+    "buggy_file": "src/main/java/humaneval/buggy/DIGITS.java",
+    "fixed_file": "src/main/java/humaneval/correct/DIGITS.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_DIGITS.java"
+    ],
+    "entry_test_class": "humaneval.TEST_DIGITS",
+    "support_files": []
+  },
+  {
+    "bug_id": "DOUBLE_THE_DIFFERENCE",
+    "buggy_file": "src/main/java/humaneval/buggy/DOUBLE_THE_DIFFERENCE.java",
+    "fixed_file": "src/main/java/humaneval/correct/DOUBLE_THE_DIFFERENCE.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_DOUBLE_THE_DIFFERENCE.java"
+    ],
+    "entry_test_class": "humaneval.TEST_DOUBLE_THE_DIFFERENCE",
+    "support_files": []
+  },
+  {
+    "bug_id": "EAT",
+    "buggy_file": "src/main/java/humaneval/buggy/EAT.java",
+    "fixed_file": "src/main/java/humaneval/correct/EAT.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_EAT.java"
+    ],
+    "entry_test_class": "humaneval.TEST_EAT",
+    "support_files": []
+  },
+  {
+    "bug_id": "ENCODE",
+    "buggy_file": "src/main/java/humaneval/buggy/ENCODE.java",
+    "fixed_file": "src/main/java/humaneval/correct/ENCODE.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_ENCODE.java"
+    ],
+    "entry_test_class": "humaneval.TEST_ENCODE",
+    "support_files": []
+  },
+  {
+    "bug_id": "ENCRYPT",
+    "buggy_file": "src/main/java/humaneval/buggy/ENCRYPT.java",
+    "fixed_file": "src/main/java/humaneval/correct/ENCRYPT.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_ENCRYPT.java"
+    ],
+    "entry_test_class": "humaneval.TEST_ENCRYPT",
+    "support_files": []
+  },
+  {
+    "bug_id": "EVEN_ODD_COUNT",
+    "buggy_file": "src/main/java/humaneval/buggy/EVEN_ODD_COUNT.java",
+    "fixed_file": "src/main/java/humaneval/correct/EVEN_ODD_COUNT.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_EVEN_ODD_COUNT.java"
+    ],
+    "entry_test_class": "humaneval.TEST_EVEN_ODD_COUNT",
+    "support_files": []
+  },
+  {
+    "bug_id": "EVEN_ODD_PALINDROME",
+    "buggy_file": "src/main/java/humaneval/buggy/EVEN_ODD_PALINDROME.java",
+    "fixed_file": "src/main/java/humaneval/correct/EVEN_ODD_PALINDROME.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_EVEN_ODD_PALINDROME.java"
+    ],
+    "entry_test_class": "humaneval.TEST_EVEN_ODD_PALINDROME",
+    "support_files": []
+  },
+  {
+    "bug_id": "EXCHANGE",
+    "buggy_file": "src/main/java/humaneval/buggy/EXCHANGE.java",
+    "fixed_file": "src/main/java/humaneval/correct/EXCHANGE.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_EXCHANGE.java"
+    ],
+    "entry_test_class": "humaneval.TEST_EXCHANGE",
+    "support_files": []
+  },
+  {
+    "bug_id": "FACTORIAL",
+    "buggy_file": "src/main/java/humaneval/buggy/FACTORIAL.java",
+    "fixed_file": "src/main/java/humaneval/correct/FACTORIAL.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_FACTORIAL.java"
+    ],
+    "entry_test_class": "humaneval.TEST_FACTORIAL",
+    "support_files": []
+  },
+  {
+    "bug_id": "FACTORIZE",
+    "buggy_file": "src/main/java/humaneval/buggy/FACTORIZE.java",
+    "fixed_file": "src/main/java/humaneval/correct/FACTORIZE.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_FACTORIZE.java"
+    ],
+    "entry_test_class": "humaneval.TEST_FACTORIZE",
+    "support_files": []
+  },
+  {
+    "bug_id": "FIB",
+    "buggy_file": "src/main/java/humaneval/buggy/FIB.java",
+    "fixed_file": "src/main/java/humaneval/correct/FIB.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_FIB.java"
+    ],
+    "entry_test_class": "humaneval.TEST_FIB",
+    "support_files": []
+  },
+  {
+    "bug_id": "FIB4",
+    "buggy_file": "src/main/java/humaneval/buggy/FIB4.java",
+    "fixed_file": "src/main/java/humaneval/correct/FIB4.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_FIB4.java"
+    ],
+    "entry_test_class": "humaneval.TEST_FIB4",
+    "support_files": []
+  },
+  {
+    "bug_id": "FIBFIB",
+    "buggy_file": "src/main/java/humaneval/buggy/FIBFIB.java",
+    "fixed_file": "src/main/java/humaneval/correct/FIBFIB.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_FIBFIB.java"
+    ],
+    "entry_test_class": "humaneval.TEST_FIBFIB",
+    "support_files": []
+  },
+  {
+    "bug_id": "FILE_NAME_CHECK",
+    "buggy_file": "src/main/java/humaneval/buggy/FILE_NAME_CHECK.java",
+    "fixed_file": "src/main/java/humaneval/correct/FILE_NAME_CHECK.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_FILE_NAME_CHECK.java"
+    ],
+    "entry_test_class": "humaneval.TEST_FILE_NAME_CHECK",
+    "support_files": []
+  },
+  {
+    "bug_id": "FILTER_BY_PREFIX",
+    "buggy_file": "src/main/java/humaneval/buggy/FILTER_BY_PREFIX.java",
+    "fixed_file": "src/main/java/humaneval/correct/FILTER_BY_PREFIX.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_FILTER_BY_PREFIX.java"
+    ],
+    "entry_test_class": "humaneval.TEST_FILTER_BY_PREFIX",
+    "support_files": []
+  },
+  {
+    "bug_id": "FILTER_BY_SUBSTRING",
+    "buggy_file": "src/main/java/humaneval/buggy/FILTER_BY_SUBSTRING.java",
+    "fixed_file": "src/main/java/humaneval/correct/FILTER_BY_SUBSTRING.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_FILTER_BY_SUBSTRING.java"
+    ],
+    "entry_test_class": "humaneval.TEST_FILTER_BY_SUBSTRING",
+    "support_files": []
+  },
+  {
+    "bug_id": "FILTER_INTEGERS",
+    "buggy_file": "src/main/java/humaneval/buggy/FILTER_INTEGERS.java",
+    "fixed_file": "src/main/java/humaneval/correct/FILTER_INTEGERS.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_FILTER_INTEGERS.java"
+    ],
+    "entry_test_class": "humaneval.TEST_FILTER_INTEGERS",
+    "support_files": []
+  },
+  {
+    "bug_id": "FIND_CLOSEST_ELEMENTS",
+    "buggy_file": "src/main/java/humaneval/buggy/FIND_CLOSEST_ELEMENTS.java",
+    "fixed_file": "src/main/java/humaneval/correct/FIND_CLOSEST_ELEMENTS.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_FIND_CLOSEST_ELEMENTS.java"
+    ],
+    "entry_test_class": "humaneval.TEST_FIND_CLOSEST_ELEMENTS",
+    "support_files": []
+  },
+  {
+    "bug_id": "FIND_MAX",
+    "buggy_file": "src/main/java/humaneval/buggy/FIND_MAX.java",
+    "fixed_file": "src/main/java/humaneval/correct/FIND_MAX.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_FIND_MAX.java"
+    ],
+    "entry_test_class": "humaneval.TEST_FIND_MAX",
+    "support_files": []
+  },
+  {
+    "bug_id": "FIND_ZERO",
+    "buggy_file": "src/main/java/humaneval/buggy/FIND_ZERO.java",
+    "fixed_file": "src/main/java/humaneval/correct/FIND_ZERO.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_FIND_ZERO.java"
+    ],
+    "entry_test_class": "humaneval.TEST_FIND_ZERO",
+    "support_files": []
+  },
+  {
+    "bug_id": "FIX_SPACES",
+    "buggy_file": "src/main/java/humaneval/buggy/FIX_SPACES.java",
+    "fixed_file": "src/main/java/humaneval/correct/FIX_SPACES.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_FIX_SPACES.java"
+    ],
+    "entry_test_class": "humaneval.TEST_FIX_SPACES",
+    "support_files": []
+  },
+  {
+    "bug_id": "FIZZ_BUZZ",
+    "buggy_file": "src/main/java/humaneval/buggy/FIZZ_BUZZ.java",
+    "fixed_file": "src/main/java/humaneval/correct/FIZZ_BUZZ.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_FIZZ_BUZZ.java"
+    ],
+    "entry_test_class": "humaneval.TEST_FIZZ_BUZZ",
+    "support_files": []
+  },
+  {
+    "bug_id": "FLIP_CASE",
+    "buggy_file": "src/main/java/humaneval/buggy/FLIP_CASE.java",
+    "fixed_file": "src/main/java/humaneval/correct/FLIP_CASE.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_FLIP_CASE.java"
+    ],
+    "entry_test_class": "humaneval.TEST_FLIP_CASE",
+    "support_files": []
+  },
+  {
+    "bug_id": "FRUIT_DISTRIBUTION",
+    "buggy_file": "src/main/java/humaneval/buggy/FRUIT_DISTRIBUTION.java",
+    "fixed_file": "src/main/java/humaneval/correct/FRUIT_DISTRIBUTION.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_FRUIT_DISTRIBUTION.java"
+    ],
+    "entry_test_class": "humaneval.TEST_FRUIT_DISTRIBUTION",
+    "support_files": []
+  },
+  {
+    "bug_id": "GENERATE_INTEGERS",
+    "buggy_file": "src/main/java/humaneval/buggy/GENERATE_INTEGERS.java",
+    "fixed_file": "src/main/java/humaneval/correct/GENERATE_INTEGERS.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_GENERATE_INTEGERS.java"
+    ],
+    "entry_test_class": "humaneval.TEST_GENERATE_INTEGERS",
+    "support_files": []
+  },
+  {
+    "bug_id": "GET_CLOSET_VOWEL",
+    "buggy_file": "src/main/java/humaneval/buggy/GET_CLOSET_VOWEL.java",
+    "fixed_file": "src/main/java/humaneval/correct/GET_CLOSET_VOWEL.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_GET_CLOSET_VOWEL.java"
+    ],
+    "entry_test_class": "humaneval.TEST_GET_CLOSET_VOWEL",
+    "support_files": []
+  },
+  {
+    "bug_id": "GET_MAX_TRIPLES",
+    "buggy_file": "src/main/java/humaneval/buggy/GET_MAX_TRIPLES.java",
+    "fixed_file": "src/main/java/humaneval/correct/GET_MAX_TRIPLES.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_GET_MAX_TRIPLES.java"
+    ],
+    "entry_test_class": "humaneval.TEST_GET_MAX_TRIPLES",
+    "support_files": []
+  },
+  {
+    "bug_id": "GET_ODD_COLLATZ",
+    "buggy_file": "src/main/java/humaneval/buggy/GET_ODD_COLLATZ.java",
+    "fixed_file": "src/main/java/humaneval/correct/GET_ODD_COLLATZ.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_GET_ODD_COLLATZ.java"
+    ],
+    "entry_test_class": "humaneval.TEST_GET_ODD_COLLATZ",
+    "support_files": []
+  },
+  {
+    "bug_id": "GET_POSITIVE",
+    "buggy_file": "src/main/java/humaneval/buggy/GET_POSITIVE.java",
+    "fixed_file": "src/main/java/humaneval/correct/GET_POSITIVE.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_GET_POSITIVE.java"
+    ],
+    "entry_test_class": "humaneval.TEST_GET_POSITIVE",
+    "support_files": []
+  },
+  {
+    "bug_id": "GET_ROW",
+    "buggy_file": "src/main/java/humaneval/buggy/GET_ROW.java",
+    "fixed_file": "src/main/java/humaneval/correct/GET_ROW.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_GET_ROW.java"
+    ],
+    "entry_test_class": "humaneval.TEST_GET_ROW",
+    "support_files": []
+  },
+  {
+    "bug_id": "GREATEST_COMMON_DIVISOR",
+    "buggy_file": "src/main/java/humaneval/buggy/GREATEST_COMMON_DIVISOR.java",
+    "fixed_file": "src/main/java/humaneval/correct/GREATEST_COMMON_DIVISOR.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_GREATEST_COMMON_DIVISOR.java"
+    ],
+    "entry_test_class": "humaneval.TEST_GREATEST_COMMON_DIVISOR",
+    "support_files": []
+  },
+  {
+    "bug_id": "HAS_CLOSE_ELEMENTS",
+    "buggy_file": "src/main/java/humaneval/buggy/HAS_CLOSE_ELEMENTS.java",
+    "fixed_file": "src/main/java/humaneval/correct/HAS_CLOSE_ELEMENTS.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_HAS_CLOSE_ELEMENTS.java"
+    ],
+    "entry_test_class": "humaneval.TEST_HAS_CLOSE_ELEMENTS",
+    "support_files": []
+  },
+  {
+    "bug_id": "HEX_KEY",
+    "buggy_file": "src/main/java/humaneval/buggy/HEX_KEY.java",
+    "fixed_file": "src/main/java/humaneval/correct/HEX_KEY.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_HEX_KEY.java"
+    ],
+    "entry_test_class": "humaneval.TEST_HEX_KEY",
+    "support_files": []
+  },
+  {
+    "bug_id": "HISTOGRAM",
+    "buggy_file": "src/main/java/humaneval/buggy/HISTOGRAM.java",
+    "fixed_file": "src/main/java/humaneval/correct/HISTOGRAM.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_HISTOGRAM.java"
+    ],
+    "entry_test_class": "humaneval.TEST_HISTOGRAM",
+    "support_files": []
+  },
+  {
+    "bug_id": "HOW_MANY_TIMES",
+    "buggy_file": "src/main/java/humaneval/buggy/HOW_MANY_TIMES.java",
+    "fixed_file": "src/main/java/humaneval/correct/HOW_MANY_TIMES.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_HOW_MANY_TIMES.java"
+    ],
+    "entry_test_class": "humaneval.TEST_HOW_MANY_TIMES",
+    "support_files": []
+  },
+  {
+    "bug_id": "INCR_LIST",
+    "buggy_file": "src/main/java/humaneval/buggy/INCR_LIST.java",
+    "fixed_file": "src/main/java/humaneval/correct/INCR_LIST.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_INCR_LIST.java"
+    ],
+    "entry_test_class": "humaneval.TEST_INCR_LIST",
+    "support_files": []
+  },
+  {
+    "bug_id": "INT_TO_MINI_ROMAN",
+    "buggy_file": "src/main/java/humaneval/buggy/INT_TO_MINI_ROMAN.java",
+    "fixed_file": "src/main/java/humaneval/correct/INT_TO_MINI_ROMAN.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_INT_TO_MINI_ROMAN.java"
+    ],
+    "entry_test_class": "humaneval.TEST_INT_TO_MINI_ROMAN",
+    "support_files": []
+  },
+  {
+    "bug_id": "INTERSECTION",
+    "buggy_file": "src/main/java/humaneval/buggy/INTERSECTION.java",
+    "fixed_file": "src/main/java/humaneval/correct/INTERSECTION.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_INTERSECTION.java"
+    ],
+    "entry_test_class": "humaneval.TEST_INTERSECTION",
+    "support_files": []
+  },
+  {
+    "bug_id": "INTERSPERSE",
+    "buggy_file": "src/main/java/humaneval/buggy/INTERSPERSE.java",
+    "fixed_file": "src/main/java/humaneval/correct/INTERSPERSE.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_INTERSPERSE.java"
+    ],
+    "entry_test_class": "humaneval.TEST_INTERSPERSE",
+    "support_files": []
+  },
+  {
+    "bug_id": "IS_BORED",
+    "buggy_file": "src/main/java/humaneval/buggy/IS_BORED.java",
+    "fixed_file": "src/main/java/humaneval/correct/IS_BORED.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_IS_BORED.java"
+    ],
+    "entry_test_class": "humaneval.TEST_IS_BORED",
+    "support_files": []
+  },
+  {
+    "bug_id": "IS_EQUAL_TO_SUM_EVEN",
+    "buggy_file": "src/main/java/humaneval/buggy/IS_EQUAL_TO_SUM_EVEN.java",
+    "fixed_file": "src/main/java/humaneval/correct/IS_EQUAL_TO_SUM_EVEN.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_IS_EQUAL_TO_SUM_EVEN.java"
+    ],
+    "entry_test_class": "humaneval.TEST_IS_EQUAL_TO_SUM_EVEN",
+    "support_files": []
+  },
+  {
+    "bug_id": "IS_HAPPY",
+    "buggy_file": "src/main/java/humaneval/buggy/IS_HAPPY.java",
+    "fixed_file": "src/main/java/humaneval/correct/IS_HAPPY.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_IS_HAPPY.java"
+    ],
+    "entry_test_class": "humaneval.TEST_IS_HAPPY",
+    "support_files": []
+  },
+  {
+    "bug_id": "IS_MULTIPLY_PRIME",
+    "buggy_file": "src/main/java/humaneval/buggy/IS_MULTIPLY_PRIME.java",
+    "fixed_file": "src/main/java/humaneval/correct/IS_MULTIPLY_PRIME.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_IS_MULTIPLY_PRIME.java"
+    ],
+    "entry_test_class": "humaneval.TEST_IS_MULTIPLY_PRIME",
+    "support_files": []
+  },
+  {
+    "bug_id": "IS_NESTED",
+    "buggy_file": "src/main/java/humaneval/buggy/IS_NESTED.java",
+    "fixed_file": "src/main/java/humaneval/correct/IS_NESTED.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_IS_NESTED.java"
+    ],
+    "entry_test_class": "humaneval.TEST_IS_NESTED",
+    "support_files": []
+  },
+  {
+    "bug_id": "IS_PALINDROME",
+    "buggy_file": "src/main/java/humaneval/buggy/IS_PALINDROME.java",
+    "fixed_file": "src/main/java/humaneval/correct/IS_PALINDROME.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_IS_PALINDROME.java"
+    ],
+    "entry_test_class": "humaneval.TEST_IS_PALINDROME",
+    "support_files": []
+  },
+  {
+    "bug_id": "IS_PRIME",
+    "buggy_file": "src/main/java/humaneval/buggy/IS_PRIME.java",
+    "fixed_file": "src/main/java/humaneval/correct/IS_PRIME.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_IS_PRIME.java"
+    ],
+    "entry_test_class": "humaneval.TEST_IS_PRIME",
+    "support_files": []
+  },
+  {
+    "bug_id": "IS_SIMPLE_POWER",
+    "buggy_file": "src/main/java/humaneval/buggy/IS_SIMPLE_POWER.java",
+    "fixed_file": "src/main/java/humaneval/correct/IS_SIMPLE_POWER.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_IS_SIMPLE_POWER.java"
+    ],
+    "entry_test_class": "humaneval.TEST_IS_SIMPLE_POWER",
+    "support_files": []
+  },
+  {
+    "bug_id": "IS_SORTED",
+    "buggy_file": "src/main/java/humaneval/buggy/IS_SORTED.java",
+    "fixed_file": "src/main/java/humaneval/correct/IS_SORTED.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_IS_SORTED.java"
+    ],
+    "entry_test_class": "humaneval.TEST_IS_SORTED",
+    "support_files": []
+  },
+  {
+    "bug_id": "ISCUBE",
+    "buggy_file": "src/main/java/humaneval/buggy/ISCUBE.java",
+    "fixed_file": "src/main/java/humaneval/correct/ISCUBE.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_ISCUBE.java"
+    ],
+    "entry_test_class": "humaneval.TEST_ISCUBE",
+    "support_files": []
+  },
+  {
+    "bug_id": "LARGEST_DIVISOR",
+    "buggy_file": "src/main/java/humaneval/buggy/LARGEST_DIVISOR.java",
+    "fixed_file": "src/main/java/humaneval/correct/LARGEST_DIVISOR.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_LARGEST_DIVISOR.java"
+    ],
+    "entry_test_class": "humaneval.TEST_LARGEST_DIVISOR",
+    "support_files": []
+  },
+  {
+    "bug_id": "LARGEST_PRIME_FACTOR",
+    "buggy_file": "src/main/java/humaneval/buggy/LARGEST_PRIME_FACTOR.java",
+    "fixed_file": "src/main/java/humaneval/correct/LARGEST_PRIME_FACTOR.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_LARGEST_PRIME_FACTOR.java"
+    ],
+    "entry_test_class": "humaneval.TEST_LARGEST_PRIME_FACTOR",
+    "support_files": []
+  },
+  {
+    "bug_id": "LARGEST_SMALLEST_INTEGERS",
+    "buggy_file": "src/main/java/humaneval/buggy/LARGEST_SMALLEST_INTEGERS.java",
+    "fixed_file": "src/main/java/humaneval/correct/LARGEST_SMALLEST_INTEGERS.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_LARGEST_SMALLEST_INTEGERS.java"
+    ],
+    "entry_test_class": "humaneval.TEST_LARGEST_SMALLEST_INTEGERS",
+    "support_files": []
+  },
+  {
+    "bug_id": "LONGEST",
+    "buggy_file": "src/main/java/humaneval/buggy/LONGEST.java",
+    "fixed_file": "src/main/java/humaneval/correct/LONGEST.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_LONGEST.java"
+    ],
+    "entry_test_class": "humaneval.TEST_LONGEST",
+    "support_files": []
+  },
+  {
+    "bug_id": "MAKE_A_PILE",
+    "buggy_file": "src/main/java/humaneval/buggy/MAKE_A_PILE.java",
+    "fixed_file": "src/main/java/humaneval/correct/MAKE_A_PILE.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_MAKE_A_PILE.java"
+    ],
+    "entry_test_class": "humaneval.TEST_MAKE_A_PILE",
+    "support_files": []
+  },
+  {
+    "bug_id": "MAKE_PALINDROME",
+    "buggy_file": "src/main/java/humaneval/buggy/MAKE_PALINDROME.java",
+    "fixed_file": "src/main/java/humaneval/correct/MAKE_PALINDROME.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_MAKE_PALINDROME.java"
+    ],
+    "entry_test_class": "humaneval.TEST_MAKE_PALINDROME",
+    "support_files": []
+  },
+  {
+    "bug_id": "MATCH_PARENS",
+    "buggy_file": "src/main/java/humaneval/buggy/MATCH_PARENS.java",
+    "fixed_file": "src/main/java/humaneval/correct/MATCH_PARENS.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_MATCH_PARENS.java"
+    ],
+    "entry_test_class": "humaneval.TEST_MATCH_PARENS",
+    "support_files": []
+  },
+  {
+    "bug_id": "MAX_ELEMENT",
+    "buggy_file": "src/main/java/humaneval/buggy/MAX_ELEMENT.java",
+    "fixed_file": "src/main/java/humaneval/correct/MAX_ELEMENT.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_MAX_ELEMENT.java"
+    ],
+    "entry_test_class": "humaneval.TEST_MAX_ELEMENT",
+    "support_files": []
+  },
+  {
+    "bug_id": "MAX_FILL",
+    "buggy_file": "src/main/java/humaneval/buggy/MAX_FILL.java",
+    "fixed_file": "src/main/java/humaneval/correct/MAX_FILL.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_MAX_FILL.java"
+    ],
+    "entry_test_class": "humaneval.TEST_MAX_FILL",
+    "support_files": []
+  },
+  {
+    "bug_id": "MAXIMUM_K",
+    "buggy_file": "src/main/java/humaneval/buggy/MAXIMUM_K.java",
+    "fixed_file": "src/main/java/humaneval/correct/MAXIMUM_K.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_MAXIMUM_K.java"
+    ],
+    "entry_test_class": "humaneval.TEST_MAXIMUM_K",
+    "support_files": []
+  },
+  {
+    "bug_id": "MEAN_ABSOLUTE_DEVIATION",
+    "buggy_file": "src/main/java/humaneval/buggy/MEAN_ABSOLUTE_DEVIATION.java",
+    "fixed_file": "src/main/java/humaneval/correct/MEAN_ABSOLUTE_DEVIATION.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_MEAN_ABSOLUTE_DEVIATION.java"
+    ],
+    "entry_test_class": "humaneval.TEST_MEAN_ABSOLUTE_DEVIATION",
+    "support_files": []
+  },
+  {
+    "bug_id": "MEDIAN",
+    "buggy_file": "src/main/java/humaneval/buggy/MEDIAN.java",
+    "fixed_file": "src/main/java/humaneval/correct/MEDIAN.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_MEDIAN.java"
+    ],
+    "entry_test_class": "humaneval.TEST_MEDIAN",
+    "support_files": []
+  },
+  {
+    "bug_id": "MIN_PATH",
+    "buggy_file": "src/main/java/humaneval/buggy/MIN_PATH.java",
+    "fixed_file": "src/main/java/humaneval/correct/MIN_PATH.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_MIN_PATH.java"
+    ],
+    "entry_test_class": "humaneval.TEST_MIN_PATH",
+    "support_files": []
+  },
+  {
+    "bug_id": "MIN_SUBARRAY_SUM",
+    "buggy_file": "src/main/java/humaneval/buggy/MIN_SUBARRAY_SUM.java",
+    "fixed_file": "src/main/java/humaneval/correct/MIN_SUBARRAY_SUM.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_MIN_SUBARRAY_SUM.java"
+    ],
+    "entry_test_class": "humaneval.TEST_MIN_SUBARRAY_SUM",
+    "support_files": []
+  },
+  {
+    "bug_id": "MODP",
+    "buggy_file": "src/main/java/humaneval/buggy/MODP.java",
+    "fixed_file": "src/main/java/humaneval/correct/MODP.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_MODP.java"
+    ],
+    "entry_test_class": "humaneval.TEST_MODP",
+    "support_files": []
+  },
+  {
+    "bug_id": "MONOTONIC",
+    "buggy_file": "src/main/java/humaneval/buggy/MONOTONIC.java",
+    "fixed_file": "src/main/java/humaneval/correct/MONOTONIC.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_MONOTONIC.java"
+    ],
+    "entry_test_class": "humaneval.TEST_MONOTONIC",
+    "support_files": []
+  },
+  {
+    "bug_id": "MOVE_ONE_BALL",
+    "buggy_file": "src/main/java/humaneval/buggy/MOVE_ONE_BALL.java",
+    "fixed_file": "src/main/java/humaneval/correct/MOVE_ONE_BALL.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_MOVE_ONE_BALL.java"
+    ],
+    "entry_test_class": "humaneval.TEST_MOVE_ONE_BALL",
+    "support_files": []
+  },
+  {
+    "bug_id": "MULTIPLY",
+    "buggy_file": "src/main/java/humaneval/buggy/MULTIPLY.java",
+    "fixed_file": "src/main/java/humaneval/correct/MULTIPLY.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_MULTIPLY.java"
+    ],
+    "entry_test_class": "humaneval.TEST_MULTIPLY",
+    "support_files": []
+  },
+  {
+    "bug_id": "NEXT_SMALLEST",
+    "buggy_file": "src/main/java/humaneval/buggy/NEXT_SMALLEST.java",
+    "fixed_file": "src/main/java/humaneval/correct/NEXT_SMALLEST.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_NEXT_SMALLEST.java"
+    ],
+    "entry_test_class": "humaneval.TEST_NEXT_SMALLEST",
+    "support_files": []
+  },
+  {
+    "bug_id": "NUMERICAL_LETTER_GRADE",
+    "buggy_file": "src/main/java/humaneval/buggy/NUMERICAL_LETTER_GRADE.java",
+    "fixed_file": "src/main/java/humaneval/correct/NUMERICAL_LETTER_GRADE.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_NUMERICAL_LETTER_GRADE.java"
+    ],
+    "entry_test_class": "humaneval.TEST_NUMERICAL_LETTER_GRADE",
+    "support_files": []
+  },
+  {
+    "bug_id": "ODD_COUNT",
+    "buggy_file": "src/main/java/humaneval/buggy/ODD_COUNT.java",
+    "fixed_file": "src/main/java/humaneval/correct/ODD_COUNT.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_ODD_COUNT.java"
+    ],
+    "entry_test_class": "humaneval.TEST_ODD_COUNT",
+    "support_files": []
+  },
+  {
+    "bug_id": "ORDER_BY_POINTS",
+    "buggy_file": "src/main/java/humaneval/buggy/ORDER_BY_POINTS.java",
+    "fixed_file": "src/main/java/humaneval/correct/ORDER_BY_POINTS.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_ORDER_BY_POINTS.java"
+    ],
+    "entry_test_class": "humaneval.TEST_ORDER_BY_POINTS",
+    "support_files": []
+  },
+  {
+    "bug_id": "PAIRS_SUM_TO_ZERO",
+    "buggy_file": "src/main/java/humaneval/buggy/PAIRS_SUM_TO_ZERO.java",
+    "fixed_file": "src/main/java/humaneval/correct/PAIRS_SUM_TO_ZERO.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_PAIRS_SUM_TO_ZERO.java"
+    ],
+    "entry_test_class": "humaneval.TEST_PAIRS_SUM_TO_ZERO",
+    "support_files": []
+  },
+  {
+    "bug_id": "PARSE_MUSIC",
+    "buggy_file": "src/main/java/humaneval/buggy/PARSE_MUSIC.java",
+    "fixed_file": "src/main/java/humaneval/correct/PARSE_MUSIC.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_PARSE_MUSIC.java"
+    ],
+    "entry_test_class": "humaneval.TEST_PARSE_MUSIC",
+    "support_files": []
+  },
+  {
+    "bug_id": "PARSE_NESTED_PARENS",
+    "buggy_file": "src/main/java/humaneval/buggy/PARSE_NESTED_PARENS.java",
+    "fixed_file": "src/main/java/humaneval/correct/PARSE_NESTED_PARENS.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_PARSE_NESTED_PARENS.java"
+    ],
+    "entry_test_class": "humaneval.TEST_PARSE_NESTED_PARENS",
+    "support_files": []
+  },
+  {
+    "bug_id": "PLUCK",
+    "buggy_file": "src/main/java/humaneval/buggy/PLUCK.java",
+    "fixed_file": "src/main/java/humaneval/correct/PLUCK.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_PLUCK.java"
+    ],
+    "entry_test_class": "humaneval.TEST_PLUCK",
+    "support_files": []
+  },
+  {
+    "bug_id": "PRIME_FIB",
+    "buggy_file": "src/main/java/humaneval/buggy/PRIME_FIB.java",
+    "fixed_file": "src/main/java/humaneval/correct/PRIME_FIB.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_PRIME_FIB.java"
+    ],
+    "entry_test_class": "humaneval.TEST_PRIME_FIB",
+    "support_files": []
+  },
+  {
+    "bug_id": "PRIME_LENGTH",
+    "buggy_file": "src/main/java/humaneval/buggy/PRIME_LENGTH.java",
+    "fixed_file": "src/main/java/humaneval/correct/PRIME_LENGTH.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_PRIME_LENGTH.java"
+    ],
+    "entry_test_class": "humaneval.TEST_PRIME_LENGTH",
+    "support_files": []
+  },
+  {
+    "bug_id": "PROD_SIGNS",
+    "buggy_file": "src/main/java/humaneval/buggy/PROD_SIGNS.java",
+    "fixed_file": "src/main/java/humaneval/correct/PROD_SIGNS.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_PROD_SIGNS.java"
+    ],
+    "entry_test_class": "humaneval.TEST_PROD_SIGNS",
+    "support_files": []
+  },
+  {
+    "bug_id": "REMOVE_DUPLICATES",
+    "buggy_file": "src/main/java/humaneval/buggy/REMOVE_DUPLICATES.java",
+    "fixed_file": "src/main/java/humaneval/correct/REMOVE_DUPLICATES.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_REMOVE_DUPLICATES.java"
+    ],
+    "entry_test_class": "humaneval.TEST_REMOVE_DUPLICATES",
+    "support_files": []
+  },
+  {
+    "bug_id": "REMOVE_VOWELS",
+    "buggy_file": "src/main/java/humaneval/buggy/REMOVE_VOWELS.java",
+    "fixed_file": "src/main/java/humaneval/correct/REMOVE_VOWELS.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_REMOVE_VOWELS.java"
+    ],
+    "entry_test_class": "humaneval.TEST_REMOVE_VOWELS",
+    "support_files": []
+  },
+  {
+    "bug_id": "RESCALE_TO_UNIT",
+    "buggy_file": "src/main/java/humaneval/buggy/RESCALE_TO_UNIT.java",
+    "fixed_file": "src/main/java/humaneval/correct/RESCALE_TO_UNIT.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_RESCALE_TO_UNIT.java"
+    ],
+    "entry_test_class": "humaneval.TEST_RESCALE_TO_UNIT",
+    "support_files": []
+  },
+  {
+    "bug_id": "REVERSE_DELETE",
+    "buggy_file": "src/main/java/humaneval/buggy/REVERSE_DELETE.java",
+    "fixed_file": "src/main/java/humaneval/correct/REVERSE_DELETE.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_REVERSE_DELETE.java"
+    ],
+    "entry_test_class": "humaneval.TEST_REVERSE_DELETE",
+    "support_files": []
+  },
+  {
+    "bug_id": "RIGHT_ANGLE_TRIANGLE",
+    "buggy_file": "src/main/java/humaneval/buggy/RIGHT_ANGLE_TRIANGLE.java",
+    "fixed_file": "src/main/java/humaneval/correct/RIGHT_ANGLE_TRIANGLE.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_RIGHT_ANGLE_TRIANGLE.java"
+    ],
+    "entry_test_class": "humaneval.TEST_RIGHT_ANGLE_TRIANGLE",
+    "support_files": []
+  },
+  {
+    "bug_id": "ROLLING_MAX",
+    "buggy_file": "src/main/java/humaneval/buggy/ROLLING_MAX.java",
+    "fixed_file": "src/main/java/humaneval/correct/ROLLING_MAX.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_ROLLING_MAX.java"
+    ],
+    "entry_test_class": "humaneval.TEST_ROLLING_MAX",
+    "support_files": []
+  },
+  {
+    "bug_id": "ROUNDED_AVG",
+    "buggy_file": "src/main/java/humaneval/buggy/ROUNDED_AVG.java",
+    "fixed_file": "src/main/java/humaneval/correct/ROUNDED_AVG.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_ROUNDED_AVG.java"
+    ],
+    "entry_test_class": "humaneval.TEST_ROUNDED_AVG",
+    "support_files": []
+  },
+  {
+    "bug_id": "SAME_CHARS",
+    "buggy_file": "src/main/java/humaneval/buggy/SAME_CHARS.java",
+    "fixed_file": "src/main/java/humaneval/correct/SAME_CHARS.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_SAME_CHARS.java"
+    ],
+    "entry_test_class": "humaneval.TEST_SAME_CHARS",
+    "support_files": []
+  },
+  {
+    "bug_id": "SEARCH",
+    "buggy_file": "src/main/java/humaneval/buggy/SEARCH.java",
+    "fixed_file": "src/main/java/humaneval/correct/SEARCH.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_SEARCH.java"
+    ],
+    "entry_test_class": "humaneval.TEST_SEARCH",
+    "support_files": []
+  },
+  {
+    "bug_id": "SELECT_WORDS",
+    "buggy_file": "src/main/java/humaneval/buggy/SELECT_WORDS.java",
+    "fixed_file": "src/main/java/humaneval/correct/SELECT_WORDS.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_SELECT_WORDS.java"
+    ],
+    "entry_test_class": "humaneval.TEST_SELECT_WORDS",
+    "support_files": []
+  },
+  {
+    "bug_id": "SEPARATE_PAREN_GROUPS",
+    "buggy_file": "src/main/java/humaneval/buggy/SEPARATE_PAREN_GROUPS.java",
+    "fixed_file": "src/main/java/humaneval/correct/SEPARATE_PAREN_GROUPS.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_SEPARATE_PAREN_GROUPS.java"
+    ],
+    "entry_test_class": "humaneval.TEST_SEPARATE_PAREN_GROUPS",
+    "support_files": []
+  },
+  {
+    "bug_id": "SIMPLIFY",
+    "buggy_file": "src/main/java/humaneval/buggy/SIMPLIFY.java",
+    "fixed_file": "src/main/java/humaneval/correct/SIMPLIFY.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_SIMPLIFY.java"
+    ],
+    "entry_test_class": "humaneval.TEST_SIMPLIFY",
+    "support_files": []
+  },
+  {
+    "bug_id": "SKJKASDKD",
+    "buggy_file": "src/main/java/humaneval/buggy/SKJKASDKD.java",
+    "fixed_file": "src/main/java/humaneval/correct/SKJKASDKD.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_SKJKASDKD.java"
+    ],
+    "entry_test_class": "humaneval.TEST_SKJKASDKD",
+    "support_files": []
+  },
+  {
+    "bug_id": "SMALLEST_CHANGE",
+    "buggy_file": "src/main/java/humaneval/buggy/SMALLEST_CHANGE.java",
+    "fixed_file": "src/main/java/humaneval/correct/SMALLEST_CHANGE.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_SMALLEST_CHANGE.java"
+    ],
+    "entry_test_class": "humaneval.TEST_SMALLEST_CHANGE",
+    "support_files": []
+  },
+  {
+    "bug_id": "SOLUTION",
+    "buggy_file": "src/main/java/humaneval/buggy/SOLUTION.java",
+    "fixed_file": "src/main/java/humaneval/correct/SOLUTION.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_SOLUTION.java"
+    ],
+    "entry_test_class": "humaneval.TEST_SOLUTION",
+    "support_files": []
+  },
+  {
+    "bug_id": "SOLVE",
+    "buggy_file": "src/main/java/humaneval/buggy/SOLVE.java",
+    "fixed_file": "src/main/java/humaneval/correct/SOLVE.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_SOLVE.java"
+    ],
+    "entry_test_class": "humaneval.TEST_SOLVE",
+    "support_files": []
+  },
+  {
+    "bug_id": "SOLVE_STRING",
+    "buggy_file": "src/main/java/humaneval/buggy/SOLVE_STRING.java",
+    "fixed_file": "src/main/java/humaneval/correct/SOLVE_STRING.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_SOLVE_STRING.java"
+    ],
+    "entry_test_class": "humaneval.TEST_SOLVE_STRING",
+    "support_files": []
+  },
+  {
+    "bug_id": "SORT_ARRAY",
+    "buggy_file": "src/main/java/humaneval/buggy/SORT_ARRAY.java",
+    "fixed_file": "src/main/java/humaneval/correct/SORT_ARRAY.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_SORT_ARRAY.java"
+    ],
+    "entry_test_class": "humaneval.TEST_SORT_ARRAY",
+    "support_files": []
+  },
+  {
+    "bug_id": "SORT_ARRAY_BINARY",
+    "buggy_file": "src/main/java/humaneval/buggy/SORT_ARRAY_BINARY.java",
+    "fixed_file": "src/main/java/humaneval/correct/SORT_ARRAY_BINARY.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_SORT_ARRAY_BINARY.java"
+    ],
+    "entry_test_class": "humaneval.TEST_SORT_ARRAY_BINARY",
+    "support_files": []
+  },
+  {
+    "bug_id": "SORT_EVEN",
+    "buggy_file": "src/main/java/humaneval/buggy/SORT_EVEN.java",
+    "fixed_file": "src/main/java/humaneval/correct/SORT_EVEN.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_SORT_EVEN.java"
+    ],
+    "entry_test_class": "humaneval.TEST_SORT_EVEN",
+    "support_files": []
+  },
+  {
+    "bug_id": "SORT_NUMBERS",
+    "buggy_file": "src/main/java/humaneval/buggy/SORT_NUMBERS.java",
+    "fixed_file": "src/main/java/humaneval/correct/SORT_NUMBERS.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_SORT_NUMBERS.java"
+    ],
+    "entry_test_class": "humaneval.TEST_SORT_NUMBERS",
+    "support_files": []
+  },
+  {
+    "bug_id": "SORT_THIRD",
+    "buggy_file": "src/main/java/humaneval/buggy/SORT_THIRD.java",
+    "fixed_file": "src/main/java/humaneval/correct/SORT_THIRD.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_SORT_THIRD.java"
+    ],
+    "entry_test_class": "humaneval.TEST_SORT_THIRD",
+    "support_files": []
+  },
+  {
+    "bug_id": "SORTED_LIST_SUM",
+    "buggy_file": "src/main/java/humaneval/buggy/SORTED_LIST_SUM.java",
+    "fixed_file": "src/main/java/humaneval/correct/SORTED_LIST_SUM.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_SORTED_LIST_SUM.java"
+    ],
+    "entry_test_class": "humaneval.TEST_SORTED_LIST_SUM",
+    "support_files": []
+  },
+  {
+    "bug_id": "SPECIAL_FACTORIAL",
+    "buggy_file": "src/main/java/humaneval/buggy/SPECIAL_FACTORIAL.java",
+    "fixed_file": "src/main/java/humaneval/correct/SPECIAL_FACTORIAL.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_SPECIAL_FACTORIAL.java"
+    ],
+    "entry_test_class": "humaneval.TEST_SPECIAL_FACTORIAL",
+    "support_files": []
+  },
+  {
+    "bug_id": "SPECIAL_FILTER",
+    "buggy_file": "src/main/java/humaneval/buggy/SPECIAL_FILTER.java",
+    "fixed_file": "src/main/java/humaneval/correct/SPECIAL_FILTER.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_SPECIAL_FILTER.java"
+    ],
+    "entry_test_class": "humaneval.TEST_SPECIAL_FILTER",
+    "support_files": []
+  },
+  {
+    "bug_id": "SPLIT_WORDS",
+    "buggy_file": "src/main/java/humaneval/buggy/SPLIT_WORDS.java",
+    "fixed_file": "src/main/java/humaneval/correct/SPLIT_WORDS.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_SPLIT_WORDS.java"
+    ],
+    "entry_test_class": "humaneval.TEST_SPLIT_WORDS",
+    "support_files": []
+  },
+  {
+    "bug_id": "STARTS_ONE_ENDS",
+    "buggy_file": "src/main/java/humaneval/buggy/STARTS_ONE_ENDS.java",
+    "fixed_file": "src/main/java/humaneval/correct/STARTS_ONE_ENDS.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_STARTS_ONE_ENDS.java"
+    ],
+    "entry_test_class": "humaneval.TEST_STARTS_ONE_ENDS",
+    "support_files": []
+  },
+  {
+    "bug_id": "STRANGE_SORT_LIST",
+    "buggy_file": "src/main/java/humaneval/buggy/STRANGE_SORT_LIST.java",
+    "fixed_file": "src/main/java/humaneval/correct/STRANGE_SORT_LIST.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_STRANGE_SORT_LIST.java"
+    ],
+    "entry_test_class": "humaneval.TEST_STRANGE_SORT_LIST",
+    "support_files": []
+  },
+  {
+    "bug_id": "STRING_SEQUENCE",
+    "buggy_file": "src/main/java/humaneval/buggy/STRING_SEQUENCE.java",
+    "fixed_file": "src/main/java/humaneval/correct/STRING_SEQUENCE.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_STRING_SEQUENCE.java"
+    ],
+    "entry_test_class": "humaneval.TEST_STRING_SEQUENCE",
+    "support_files": []
+  },
+  {
+    "bug_id": "STRING_XOR",
+    "buggy_file": "src/main/java/humaneval/buggy/STRING_XOR.java",
+    "fixed_file": "src/main/java/humaneval/correct/STRING_XOR.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_STRING_XOR.java"
+    ],
+    "entry_test_class": "humaneval.TEST_STRING_XOR",
+    "support_files": []
+  },
+  {
+    "bug_id": "STRLEN",
+    "buggy_file": "src/main/java/humaneval/buggy/STRLEN.java",
+    "fixed_file": "src/main/java/humaneval/correct/STRLEN.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_STRLEN.java"
+    ],
+    "entry_test_class": "humaneval.TEST_STRLEN",
+    "support_files": []
+  },
+  {
+    "bug_id": "STRONGEST_EXTENSION",
+    "buggy_file": "src/main/java/humaneval/buggy/STRONGEST_EXTENSION.java",
+    "fixed_file": "src/main/java/humaneval/correct/STRONGEST_EXTENSION.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_STRONGEST_EXTENSION.java"
+    ],
+    "entry_test_class": "humaneval.TEST_STRONGEST_EXTENSION",
+    "support_files": []
+  },
+  {
+    "bug_id": "SUM_PRODUCT",
+    "buggy_file": "src/main/java/humaneval/buggy/SUM_PRODUCT.java",
+    "fixed_file": "src/main/java/humaneval/correct/SUM_PRODUCT.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_SUM_PRODUCT.java"
+    ],
+    "entry_test_class": "humaneval.TEST_SUM_PRODUCT",
+    "support_files": []
+  },
+  {
+    "bug_id": "SUM_SQUARED_NUMS",
+    "buggy_file": "src/main/java/humaneval/buggy/SUM_SQUARED_NUMS.java",
+    "fixed_file": "src/main/java/humaneval/correct/SUM_SQUARED_NUMS.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_SUM_SQUARED_NUMS.java"
+    ],
+    "entry_test_class": "humaneval.TEST_SUM_SQUARED_NUMS",
+    "support_files": []
+  },
+  {
+    "bug_id": "SUM_SQUARES",
+    "buggy_file": "src/main/java/humaneval/buggy/SUM_SQUARES.java",
+    "fixed_file": "src/main/java/humaneval/correct/SUM_SQUARES.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_SUM_SQUARES.java"
+    ],
+    "entry_test_class": "humaneval.TEST_SUM_SQUARES",
+    "support_files": []
+  },
+  {
+    "bug_id": "SUM_TO_N",
+    "buggy_file": "src/main/java/humaneval/buggy/SUM_TO_N.java",
+    "fixed_file": "src/main/java/humaneval/correct/SUM_TO_N.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_SUM_TO_N.java"
+    ],
+    "entry_test_class": "humaneval.TEST_SUM_TO_N",
+    "support_files": []
+  },
+  {
+    "bug_id": "TOTAL_MATCH",
+    "buggy_file": "src/main/java/humaneval/buggy/TOTAL_MATCH.java",
+    "fixed_file": "src/main/java/humaneval/correct/TOTAL_MATCH.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_TOTAL_MATCH.java"
+    ],
+    "entry_test_class": "humaneval.TEST_TOTAL_MATCH",
+    "support_files": []
+  },
+  {
+    "bug_id": "TRI",
+    "buggy_file": "src/main/java/humaneval/buggy/TRI.java",
+    "fixed_file": "src/main/java/humaneval/correct/TRI.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_TRI.java"
+    ],
+    "entry_test_class": "humaneval.TEST_TRI",
+    "support_files": []
+  },
+  {
+    "bug_id": "TRIANGLE_AREA",
+    "buggy_file": "src/main/java/humaneval/buggy/TRIANGLE_AREA.java",
+    "fixed_file": "src/main/java/humaneval/correct/TRIANGLE_AREA.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_TRIANGLE_AREA.java"
+    ],
+    "entry_test_class": "humaneval.TEST_TRIANGLE_AREA",
+    "support_files": []
+  },
+  {
+    "bug_id": "TRIANGLE_AREA_2",
+    "buggy_file": "src/main/java/humaneval/buggy/TRIANGLE_AREA_2.java",
+    "fixed_file": "src/main/java/humaneval/correct/TRIANGLE_AREA_2.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_TRIANGLE_AREA_2.java"
+    ],
+    "entry_test_class": "humaneval.TEST_TRIANGLE_AREA_2",
+    "support_files": []
+  },
+  {
+    "bug_id": "TRIPLES_SUM_TO_ZERO",
+    "buggy_file": "src/main/java/humaneval/buggy/TRIPLES_SUM_TO_ZERO.java",
+    "fixed_file": "src/main/java/humaneval/correct/TRIPLES_SUM_TO_ZERO.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_TRIPLES_SUM_TO_ZERO.java"
+    ],
+    "entry_test_class": "humaneval.TEST_TRIPLES_SUM_TO_ZERO",
+    "support_files": []
+  },
+  {
+    "bug_id": "TRUNCATE_NUMBER",
+    "buggy_file": "src/main/java/humaneval/buggy/TRUNCATE_NUMBER.java",
+    "fixed_file": "src/main/java/humaneval/correct/TRUNCATE_NUMBER.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_TRUNCATE_NUMBER.java"
+    ],
+    "entry_test_class": "humaneval.TEST_TRUNCATE_NUMBER",
+    "support_files": []
+  },
+  {
+    "bug_id": "UNIQUE",
+    "buggy_file": "src/main/java/humaneval/buggy/UNIQUE.java",
+    "fixed_file": "src/main/java/humaneval/correct/UNIQUE.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_UNIQUE.java"
+    ],
+    "entry_test_class": "humaneval.TEST_UNIQUE",
+    "support_files": []
+  },
+  {
+    "bug_id": "UNIQUE_DIGITS",
+    "buggy_file": "src/main/java/humaneval/buggy/UNIQUE_DIGITS.java",
+    "fixed_file": "src/main/java/humaneval/correct/UNIQUE_DIGITS.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_UNIQUE_DIGITS.java"
+    ],
+    "entry_test_class": "humaneval.TEST_UNIQUE_DIGITS",
+    "support_files": []
+  },
+  {
+    "bug_id": "VALID_DATE",
+    "buggy_file": "src/main/java/humaneval/buggy/VALID_DATE.java",
+    "fixed_file": "src/main/java/humaneval/correct/VALID_DATE.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_VALID_DATE.java"
+    ],
+    "entry_test_class": "humaneval.TEST_VALID_DATE",
+    "support_files": []
+  },
+  {
+    "bug_id": "VOWELS_COUNT",
+    "buggy_file": "src/main/java/humaneval/buggy/VOWELS_COUNT.java",
+    "fixed_file": "src/main/java/humaneval/correct/VOWELS_COUNT.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_VOWELS_COUNT.java"
+    ],
+    "entry_test_class": "humaneval.TEST_VOWELS_COUNT",
+    "support_files": []
+  },
+  {
+    "bug_id": "WILL_IT_FLY",
+    "buggy_file": "src/main/java/humaneval/buggy/WILL_IT_FLY.java",
+    "fixed_file": "src/main/java/humaneval/correct/WILL_IT_FLY.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_WILL_IT_FLY.java"
+    ],
+    "entry_test_class": "humaneval.TEST_WILL_IT_FLY",
+    "support_files": []
+  },
+  {
+    "bug_id": "WORDS_IN_SENTENCE",
+    "buggy_file": "src/main/java/humaneval/buggy/WORDS_IN_SENTENCE.java",
+    "fixed_file": "src/main/java/humaneval/correct/WORDS_IN_SENTENCE.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_WORDS_IN_SENTENCE.java"
+    ],
+    "entry_test_class": "humaneval.TEST_WORDS_IN_SENTENCE",
+    "support_files": []
+  },
+  {
+    "bug_id": "WORDS_STRINGS",
+    "buggy_file": "src/main/java/humaneval/buggy/WORDS_STRINGS.java",
+    "fixed_file": "src/main/java/humaneval/correct/WORDS_STRINGS.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_WORDS_STRINGS.java"
+    ],
+    "entry_test_class": "humaneval.TEST_WORDS_STRINGS",
+    "support_files": []
+  },
+  {
+    "bug_id": "X_OR_Y",
+    "buggy_file": "src/main/java/humaneval/buggy/X_OR_Y.java",
+    "fixed_file": "src/main/java/humaneval/correct/X_OR_Y.java",
+    "test_files": [
+      "src/test/java/humaneval/TEST_X_OR_Y.java"
+    ],
+    "entry_test_class": "humaneval.TEST_X_OR_Y",
+    "support_files": []
+  }
+]

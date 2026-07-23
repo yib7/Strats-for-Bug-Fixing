@@ -1,0 +1,42 @@
+# pop smoke -- end-to-end micro tokenizer -> pretrain -> finetune -> eval dry run on CPU.
+# No network access: all data is read from the committed tests/fixtures/smoke_* files
+# (see scripts/build_smoke_fixtures.py). Run with: uv run pop smoke --config configs/smoke.yaml
+# (or just `uv run pop smoke`, since this is also the CLI's default config path).
+#
+# This is a *pipeline sanity check*, not a real training run -- vocab, model size, and epoch
+# counts here are deliberately tiny so the whole thing finishes in CPU-minutes. Real
+# hyperparameters (vocab 16384, T5-base dims, 10-epoch pretrain, etc.) live in the other
+# configs/*.yaml files for the GPU cycle; see docs/handoff.md.
+
+seed: 42
+
+corpus_file: tests/fixtures/smoke_corpus.txt
+finetune_pairs_file: tests/fixtures/smoke_finetune_pairs.jsonl
+val_pairs_file: tests/fixtures/smoke_val_pairs.jsonl
+eval_pairs_file: tests/fixtures/smoke_eval_pairs.jsonl
+
+vocab_size: 512
+max_seq_length: 128
+
+model:
+  d_model: 64
+  d_ff: 128
+  d_kv: 16
+  num_heads: 2
+  num_layers: 2
+  num_decoder_layers: 2
+
+corpus_num_samples: 200
+pretrain_epochs: 1
+pretrain_batch_size: 8
+pretrain_lr: 1.0e-4
+
+finetune_epochs: 1
+finetune_batch_size: 8
+finetune_lr: 5.0e-5
+finetune_warmup_steps: 10
+
+max_new_tokens: 64
+
+output_dir: outputs/smoke
+results_name: smoke

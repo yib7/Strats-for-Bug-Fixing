@@ -1,0 +1,15 @@
+{
+  "config": {
+    "predictions": "/content/repo/outputs/rag_codebert_k0/predictions.jsonl"
+  },
+  "metrics": {
+    "em": 0.0,
+    "em_raw": 0.0,
+    "codebleu": 0.367069561999969,
+    "syntax_valid_rate": 0.9324675324675324,
+    "n": 6545
+  },
+  "n": 6545,
+  "timestamp": "2026-07-21T21:02:13.885641+00:00",
+  "git_sha": "unknown"
+}

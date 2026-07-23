@@ -1,0 +1,15 @@
+{
+  "config": {
+    "predictions": "/content/repo/outputs/finetune_A_ep10/best/predictions_test.jsonl"
+  },
+  "metrics": {
+    "em": 0.0004583651642475172,
+    "em_raw": 0.0004583651642475172,
+    "codebleu": 0.4769922510731756,
+    "syntax_valid_rate": 0.9168831168831169,
+    "n": 6545
+  },
+  "n": 6545,
+  "timestamp": "2026-07-18T03:47:07.816809+00:00",
+  "git_sha": "unknown"
+}

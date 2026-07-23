@@ -1,0 +1,29 @@
+{
+  "config": {
+    "mode": "smoke",
+    "vocab_size": 512,
+    "corpus_n": 200,
+    "finetune_n": 50,
+    "eval_n": 20,
+    "model": {
+      "d_model": 64,
+      "d_ff": 128,
+      "d_kv": 16,
+      "num_heads": 2,
+      "num_layers": 2,
+      "num_decoder_layers": 2
+    },
+    "pretrain_epochs": 1,
+    "finetune_epochs": 1
+  },
+  "metrics": {
+    "em": 0.0,
+    "em_raw": 0.0,
+    "codebleu": 0.25,
+    "syntax_valid_rate": 0.0,
+    "n": 20
+  },
+  "n": 20,
+  "timestamp": "2026-07-18T01:46:28.697733+00:00",
+  "git_sha": "f8ddb750d70f02a59787c469436aab2987b1c42f"
+}

@@ -1,0 +1,562 @@
+[
+  {
+    "bug_id": "BITCOUNT",
+    "buggy_file": "java_programs/BITCOUNT.java",
+    "fixed_file": "correct_java_programs/BITCOUNT.java",
+    "test_files": [
+      "java_testcases/junit/BITCOUNT_TEST.java",
+      "java_testcases/junit/QuixFixOracleHelper.java"
+    ],
+    "entry_test_class": "java_testcases.junit.BITCOUNT_TEST",
+    "support_files": [
+      "java_programs/Node.java",
+      "java_programs/WeightedEdge.java"
+    ]
+  },
+  {
+    "bug_id": "BREADTH_FIRST_SEARCH",
+    "buggy_file": "java_programs/BREADTH_FIRST_SEARCH.java",
+    "fixed_file": "correct_java_programs/BREADTH_FIRST_SEARCH.java",
+    "test_files": [
+      "java_testcases/junit/BREADTH_FIRST_SEARCH_TEST.java",
+      "java_testcases/junit/QuixFixOracleHelper.java"
+    ],
+    "entry_test_class": "java_testcases.junit.BREADTH_FIRST_SEARCH_TEST",
+    "support_files": [
+      "java_programs/Node.java",
+      "java_programs/WeightedEdge.java"
+    ]
+  },
+  {
+    "bug_id": "BUCKETSORT",
+    "buggy_file": "java_programs/BUCKETSORT.java",
+    "fixed_file": "correct_java_programs/BUCKETSORT.java",
+    "test_files": [
+      "java_testcases/junit/BUCKETSORT_TEST.java",
+      "java_testcases/junit/QuixFixOracleHelper.java"
+    ],
+    "entry_test_class": "java_testcases.junit.BUCKETSORT_TEST",
+    "support_files": [
+      "java_programs/Node.java",
+      "java_programs/WeightedEdge.java"
+    ]
+  },
+  {
+    "bug_id": "DEPTH_FIRST_SEARCH",
+    "buggy_file": "java_programs/DEPTH_FIRST_SEARCH.java",
+    "fixed_file": "correct_java_programs/DEPTH_FIRST_SEARCH.java",
+    "test_files": [
+      "java_testcases/junit/DEPTH_FIRST_SEARCH_TEST.java",
+      "java_testcases/junit/QuixFixOracleHelper.java"
+    ],
+    "entry_test_class": "java_testcases.junit.DEPTH_FIRST_SEARCH_TEST",
+    "support_files": [
+      "java_programs/Node.java",
+      "java_programs/WeightedEdge.java"
+    ]
+  },
+  {
+    "bug_id": "DETECT_CYCLE",
+    "buggy_file": "java_programs/DETECT_CYCLE.java",
+    "fixed_file": "correct_java_programs/DETECT_CYCLE.java",
+    "test_files": [
+      "java_testcases/junit/DETECT_CYCLE_TEST.java",
+      "java_testcases/junit/QuixFixOracleHelper.java"
+    ],
+    "entry_test_class": "java_testcases.junit.DETECT_CYCLE_TEST",
+    "support_files": [
+      "java_programs/Node.java",
+      "java_programs/WeightedEdge.java"
+    ]
+  },
+  {
+    "bug_id": "FIND_FIRST_IN_SORTED",
+    "buggy_file": "java_programs/FIND_FIRST_IN_SORTED.java",
+    "fixed_file": "correct_java_programs/FIND_FIRST_IN_SORTED.java",
+    "test_files": [
+      "java_testcases/junit/FIND_FIRST_IN_SORTED_TEST.java",
+      "java_testcases/junit/QuixFixOracleHelper.java"
+    ],
+    "entry_test_class": "java_testcases.junit.FIND_FIRST_IN_SORTED_TEST",
+    "support_files": [
+      "java_programs/Node.java",
+      "java_programs/WeightedEdge.java"
+    ]
+  },
+  {
+    "bug_id": "FIND_IN_SORTED",
+    "buggy_file": "java_programs/FIND_IN_SORTED.java",
+    "fixed_file": "correct_java_programs/FIND_IN_SORTED.java",
+    "test_files": [
+      "java_testcases/junit/FIND_IN_SORTED_TEST.java",
+      "java_testcases/junit/QuixFixOracleHelper.java"
+    ],
+    "entry_test_class": "java_testcases.junit.FIND_IN_SORTED_TEST",
+    "support_files": [
+      "java_programs/Node.java",
+      "java_programs/WeightedEdge.java"
+    ]
+  },
+  {
+    "bug_id": "FLATTEN",
+    "buggy_file": "java_programs/FLATTEN.java",
+    "fixed_file": "correct_java_programs/FLATTEN.java",
+    "test_files": [
+      "java_testcases/junit/FLATTEN_TEST.java",
+      "java_testcases/junit/QuixFixOracleHelper.java"
+    ],
+    "entry_test_class": "java_testcases.junit.FLATTEN_TEST",
+    "support_files": [
+      "java_programs/Node.java",
+      "java_programs/WeightedEdge.java"
+    ]
+  },
+  {
+    "bug_id": "GCD",
+    "buggy_file": "java_programs/GCD.java",
+    "fixed_file": "correct_java_programs/GCD.java",
+    "test_files": [
+      "java_testcases/junit/GCD_TEST.java",
+      "java_testcases/junit/QuixFixOracleHelper.java"
+    ],
+    "entry_test_class": "java_testcases.junit.GCD_TEST",
+    "support_files": [
+      "java_programs/Node.java",
+      "java_programs/WeightedEdge.java"
+    ]
+  },
+  {
+    "bug_id": "GET_FACTORS",
+    "buggy_file": "java_programs/GET_FACTORS.java",
+    "fixed_file": "correct_java_programs/GET_FACTORS.java",
+    "test_files": [
+      "java_testcases/junit/GET_FACTORS_TEST.java",
+      "java_testcases/junit/QuixFixOracleHelper.java"
+    ],
+    "entry_test_class": "java_testcases.junit.GET_FACTORS_TEST",
+    "support_files": [
+      "java_programs/Node.java",
+      "java_programs/WeightedEdge.java"
+    ]
+  },
+  {
+    "bug_id": "HANOI",
+    "buggy_file": "java_programs/HANOI.java",
+    "fixed_file": "correct_java_programs/HANOI.java",
+    "test_files": [
+      "java_testcases/junit/HANOI_TEST.java",
+      "java_testcases/junit/QuixFixOracleHelper.java"
+    ],
+    "entry_test_class": "java_testcases.junit.HANOI_TEST",
+    "support_files": [
+      "java_programs/Node.java",
+      "java_programs/WeightedEdge.java"
+    ]
+  },
+  {
+    "bug_id": "IS_VALID_PARENTHESIZATION",
+    "buggy_file": "java_programs/IS_VALID_PARENTHESIZATION.java",
+    "fixed_file": "correct_java_programs/IS_VALID_PARENTHESIZATION.java",
+    "test_files": [
+      "java_testcases/junit/IS_VALID_PARENTHESIZATION_TEST.java",
+      "java_testcases/junit/QuixFixOracleHelper.java"
+    ],
+    "entry_test_class": "java_testcases.junit.IS_VALID_PARENTHESIZATION_TEST",
+    "support_files": [
+      "java_programs/Node.java",
+      "java_programs/WeightedEdge.java"
+    ]
+  },
+  {
+    "bug_id": "KHEAPSORT",
+    "buggy_file": "java_programs/KHEAPSORT.java",
+    "fixed_file": "correct_java_programs/KHEAPSORT.java",
+    "test_files": [
+      "java_testcases/junit/KHEAPSORT_TEST.java",
+      "java_testcases/junit/QuixFixOracleHelper.java"
+    ],
+    "entry_test_class": "java_testcases.junit.KHEAPSORT_TEST",
+    "support_files": [
+      "java_programs/Node.java",
+      "java_programs/WeightedEdge.java"
+    ]
+  },
+  {
+    "bug_id": "KNAPSACK",
+    "buggy_file": "java_programs/KNAPSACK.java",
+    "fixed_file": "correct_java_programs/KNAPSACK.java",
+    "test_files": [
+      "java_testcases/junit/KNAPSACK_TEST.java",
+      "java_testcases/junit/QuixFixOracleHelper.java"
+    ],
+    "entry_test_class": "java_testcases.junit.KNAPSACK_TEST",
+    "support_files": [
+      "java_programs/Node.java",
+      "java_programs/WeightedEdge.java"
+    ]
+  },
+  {
+    "bug_id": "KTH",
+    "buggy_file": "java_programs/KTH.java",
+    "fixed_file": "correct_java_programs/KTH.java",
+    "test_files": [
+      "java_testcases/junit/KTH_TEST.java",
+      "java_testcases/junit/QuixFixOracleHelper.java"
+    ],
+    "entry_test_class": "java_testcases.junit.KTH_TEST",
+    "support_files": [
+      "java_programs/Node.java",
+      "java_programs/WeightedEdge.java"
+    ]
+  },
+  {
+    "bug_id": "LCS_LENGTH",
+    "buggy_file": "java_programs/LCS_LENGTH.java",
+    "fixed_file": "correct_java_programs/LCS_LENGTH.java",
+    "test_files": [
+      "java_testcases/junit/LCS_LENGTH_TEST.java",
+      "java_testcases/junit/QuixFixOracleHelper.java"
+    ],
+    "entry_test_class": "java_testcases.junit.LCS_LENGTH_TEST",
+    "support_files": [
+      "java_programs/Node.java",
+      "java_programs/WeightedEdge.java"
+    ]
+  },
+  {
+    "bug_id": "LEVENSHTEIN",
+    "buggy_file": "java_programs/LEVENSHTEIN.java",
+    "fixed_file": "correct_java_programs/LEVENSHTEIN.java",
+    "test_files": [
+      "java_testcases/junit/LEVENSHTEIN_TEST.java",
+      "java_testcases/junit/QuixFixOracleHelper.java"
+    ],
+    "entry_test_class": "java_testcases.junit.LEVENSHTEIN_TEST",
+    "support_files": [
+      "java_programs/Node.java",
+      "java_programs/WeightedEdge.java"
+    ]
+  },
+  {
+    "bug_id": "LIS",
+    "buggy_file": "java_programs/LIS.java",
+    "fixed_file": "correct_java_programs/LIS.java",
+    "test_files": [
+      "java_testcases/junit/LIS_TEST.java",
+      "java_testcases/junit/QuixFixOracleHelper.java"
+    ],
+    "entry_test_class": "java_testcases.junit.LIS_TEST",
+    "support_files": [
+      "java_programs/Node.java",
+      "java_programs/WeightedEdge.java"
+    ]
+  },
+  {
+    "bug_id": "LONGEST_COMMON_SUBSEQUENCE",
+    "buggy_file": "java_programs/LONGEST_COMMON_SUBSEQUENCE.java",
+    "fixed_file": "correct_java_programs/LONGEST_COMMON_SUBSEQUENCE.java",
+    "test_files": [
+      "java_testcases/junit/LONGEST_COMMON_SUBSEQUENCE_TEST.java",
+      "java_testcases/junit/QuixFixOracleHelper.java"
+    ],
+    "entry_test_class": "java_testcases.junit.LONGEST_COMMON_SUBSEQUENCE_TEST",
+    "support_files": [
+      "java_programs/Node.java",
+      "java_programs/WeightedEdge.java"
+    ]
+  },
+  {
+    "bug_id": "MAX_SUBLIST_SUM",
+    "buggy_file": "java_programs/MAX_SUBLIST_SUM.java",
+    "fixed_file": "correct_java_programs/MAX_SUBLIST_SUM.java",
+    "test_files": [
+      "java_testcases/junit/MAX_SUBLIST_SUM_TEST.java",
+      "java_testcases/junit/QuixFixOracleHelper.java"
+    ],
+    "entry_test_class": "java_testcases.junit.MAX_SUBLIST_SUM_TEST",
+    "support_files": [
+      "java_programs/Node.java",
+      "java_programs/WeightedEdge.java"
+    ]
+  },
+  {
+    "bug_id": "MERGESORT",
+    "buggy_file": "java_programs/MERGESORT.java",
+    "fixed_file": "correct_java_programs/MERGESORT.java",
+    "test_files": [
+      "java_testcases/junit/MERGESORT_TEST.java",
+      "java_testcases/junit/QuixFixOracleHelper.java"
+    ],
+    "entry_test_class": "java_testcases.junit.MERGESORT_TEST",
+    "support_files": [
+      "java_programs/Node.java",
+      "java_programs/WeightedEdge.java"
+    ]
+  },
+  {
+    "bug_id": "MINIMUM_SPANNING_TREE",
+    "buggy_file": "java_programs/MINIMUM_SPANNING_TREE.java",
+    "fixed_file": "correct_java_programs/MINIMUM_SPANNING_TREE.java",
+    "test_files": [
+      "java_testcases/junit/MINIMUM_SPANNING_TREE_TEST.java",
+      "java_testcases/junit/QuixFixOracleHelper.java"
+    ],
+    "entry_test_class": "java_testcases.junit.MINIMUM_SPANNING_TREE_TEST",
+    "support_files": [
+      "java_programs/Node.java",
+      "java_programs/WeightedEdge.java"
+    ]
+  },
+  {
+    "bug_id": "NEXT_PALINDROME",
+    "buggy_file": "java_programs/NEXT_PALINDROME.java",
+    "fixed_file": "correct_java_programs/NEXT_PALINDROME.java",
+    "test_files": [
+      "java_testcases/junit/NEXT_PALINDROME_TEST.java",
+      "java_testcases/junit/QuixFixOracleHelper.java"
+    ],
+    "entry_test_class": "java_testcases.junit.NEXT_PALINDROME_TEST",
+    "support_files": [
+      "java_programs/Node.java",
+      "java_programs/WeightedEdge.java"
+    ]
+  },
+  {
+    "bug_id": "NEXT_PERMUTATION",
+    "buggy_file": "java_programs/NEXT_PERMUTATION.java",
+    "fixed_file": "correct_java_programs/NEXT_PERMUTATION.java",
+    "test_files": [
+      "java_testcases/junit/NEXT_PERMUTATION_TEST.java",
+      "java_testcases/junit/QuixFixOracleHelper.java"
+    ],
+    "entry_test_class": "java_testcases.junit.NEXT_PERMUTATION_TEST",
+    "support_files": [
+      "java_programs/Node.java",
+      "java_programs/WeightedEdge.java"
+    ]
+  },
+  {
+    "bug_id": "PASCAL",
+    "buggy_file": "java_programs/PASCAL.java",
+    "fixed_file": "correct_java_programs/PASCAL.java",
+    "test_files": [
+      "java_testcases/junit/PASCAL_TEST.java",
+      "java_testcases/junit/QuixFixOracleHelper.java"
+    ],
+    "entry_test_class": "java_testcases.junit.PASCAL_TEST",
+    "support_files": [
+      "java_programs/Node.java",
+      "java_programs/WeightedEdge.java"
+    ]
+  },
+  {
+    "bug_id": "POSSIBLE_CHANGE",
+    "buggy_file": "java_programs/POSSIBLE_CHANGE.java",
+    "fixed_file": "correct_java_programs/POSSIBLE_CHANGE.java",
+    "test_files": [
+      "java_testcases/junit/POSSIBLE_CHANGE_TEST.java",
+      "java_testcases/junit/QuixFixOracleHelper.java"
+    ],
+    "entry_test_class": "java_testcases.junit.POSSIBLE_CHANGE_TEST",
+    "support_files": [
+      "java_programs/Node.java",
+      "java_programs/WeightedEdge.java"
+    ]
+  },
+  {
+    "bug_id": "POWERSET",
+    "buggy_file": "java_programs/POWERSET.java",
+    "fixed_file": "correct_java_programs/POWERSET.java",
+    "test_files": [
+      "java_testcases/junit/POWERSET_TEST.java",
+      "java_testcases/junit/QuixFixOracleHelper.java"
+    ],
+    "entry_test_class": "java_testcases.junit.POWERSET_TEST",
+    "support_files": [
+      "java_programs/Node.java",
+      "java_programs/WeightedEdge.java"
+    ]
+  },
+  {
+    "bug_id": "QUICKSORT",
+    "buggy_file": "java_programs/QUICKSORT.java",
+    "fixed_file": "correct_java_programs/QUICKSORT.java",
+    "test_files": [
+      "java_testcases/junit/QUICKSORT_TEST.java",
+      "java_testcases/junit/QuixFixOracleHelper.java"
+    ],
+    "entry_test_class": "java_testcases.junit.QUICKSORT_TEST",
+    "support_files": [
+      "java_programs/Node.java",
+      "java_programs/WeightedEdge.java"
+    ]
+  },
+  {
+    "bug_id": "REVERSE_LINKED_LIST",
+    "buggy_file": "java_programs/REVERSE_LINKED_LIST.java",
+    "fixed_file": "correct_java_programs/REVERSE_LINKED_LIST.java",
+    "test_files": [
+      "java_testcases/junit/REVERSE_LINKED_LIST_TEST.java",
+      "java_testcases/junit/QuixFixOracleHelper.java"
+    ],
+    "entry_test_class": "java_testcases.junit.REVERSE_LINKED_LIST_TEST",
+    "support_files": [
+      "java_programs/Node.java",
+      "java_programs/WeightedEdge.java"
+    ]
+  },
+  {
+    "bug_id": "RPN_EVAL",
+    "buggy_file": "java_programs/RPN_EVAL.java",
+    "fixed_file": "correct_java_programs/RPN_EVAL.java",
+    "test_files": [
+      "java_testcases/junit/RPN_EVAL_TEST.java",
+      "java_testcases/junit/QuixFixOracleHelper.java"
+    ],
+    "entry_test_class": "java_testcases.junit.RPN_EVAL_TEST",
+    "support_files": [
+      "java_programs/Node.java",
+      "java_programs/WeightedEdge.java"
+    ]
+  },
+  {
+    "bug_id": "SHORTEST_PATH_LENGTH",
+    "buggy_file": "java_programs/SHORTEST_PATH_LENGTH.java",
+    "fixed_file": "correct_java_programs/SHORTEST_PATH_LENGTH.java",
+    "test_files": [
+      "java_testcases/junit/SHORTEST_PATH_LENGTH_TEST.java",
+      "java_testcases/junit/QuixFixOracleHelper.java"
+    ],
+    "entry_test_class": "java_testcases.junit.SHORTEST_PATH_LENGTH_TEST",
+    "support_files": [
+      "java_programs/Node.java",
+      "java_programs/WeightedEdge.java"
+    ]
+  },
+  {
+    "bug_id": "SHORTEST_PATH_LENGTHS",
+    "buggy_file": "java_programs/SHORTEST_PATH_LENGTHS.java",
+    "fixed_file": "correct_java_programs/SHORTEST_PATH_LENGTHS.java",
+    "test_files": [
+      "java_testcases/junit/SHORTEST_PATH_LENGTHS_TEST.java",
+      "java_testcases/junit/QuixFixOracleHelper.java"
+    ],
+    "entry_test_class": "java_testcases.junit.SHORTEST_PATH_LENGTHS_TEST",
+    "support_files": [
+      "java_programs/Node.java",
+      "java_programs/WeightedEdge.java"
+    ]
+  },
+  {
+    "bug_id": "SHORTEST_PATHS",
+    "buggy_file": "java_programs/SHORTEST_PATHS.java",
+    "fixed_file": "correct_java_programs/SHORTEST_PATHS.java",
+    "test_files": [
+      "java_testcases/junit/SHORTEST_PATHS_TEST.java",
+      "java_testcases/junit/QuixFixOracleHelper.java"
+    ],
+    "entry_test_class": "java_testcases.junit.SHORTEST_PATHS_TEST",
+    "support_files": [
+      "java_programs/Node.java",
+      "java_programs/WeightedEdge.java"
+    ]
+  },
+  {
+    "bug_id": "SHUNTING_YARD",
+    "buggy_file": "java_programs/SHUNTING_YARD.java",
+    "fixed_file": "correct_java_programs/SHUNTING_YARD.java",
+    "test_files": [
+      "java_testcases/junit/SHUNTING_YARD_TEST.java",
+      "java_testcases/junit/QuixFixOracleHelper.java"
+    ],
+    "entry_test_class": "java_testcases.junit.SHUNTING_YARD_TEST",
+    "support_files": [
+      "java_programs/Node.java",
+      "java_programs/WeightedEdge.java"
+    ]
+  },
+  {
+    "bug_id": "SIEVE",
+    "buggy_file": "java_programs/SIEVE.java",
+    "fixed_file": "correct_java_programs/SIEVE.java",
+    "test_files": [
+      "java_testcases/junit/SIEVE_TEST.java",
+      "java_testcases/junit/QuixFixOracleHelper.java"
+    ],
+    "entry_test_class": "java_testcases.junit.SIEVE_TEST",
+    "support_files": [
+      "java_programs/Node.java",
+      "java_programs/WeightedEdge.java"
+    ]
+  },
+  {
+    "bug_id": "SQRT",
+    "buggy_file": "java_programs/SQRT.java",
+    "fixed_file": "correct_java_programs/SQRT.java",
+    "test_files": [
+      "java_testcases/junit/SQRT_TEST.java",
+      "java_testcases/junit/QuixFixOracleHelper.java"
+    ],
+    "entry_test_class": "java_testcases.junit.SQRT_TEST",
+    "support_files": [
+      "java_programs/Node.java",
+      "java_programs/WeightedEdge.java"
+    ]
+  },
+  {
+    "bug_id": "SUBSEQUENCES",
+    "buggy_file": "java_programs/SUBSEQUENCES.java",
+    "fixed_file": "correct_java_programs/SUBSEQUENCES.java",
+    "test_files": [
+      "java_testcases/junit/SUBSEQUENCES_TEST.java",
+      "java_testcases/junit/QuixFixOracleHelper.java"
+    ],
+    "entry_test_class": "java_testcases.junit.SUBSEQUENCES_TEST",
+    "support_files": [
+      "java_programs/Node.java",
+      "java_programs/WeightedEdge.java"
+    ]
+  },
+  {
+    "bug_id": "TO_BASE",
+    "buggy_file": "java_programs/TO_BASE.java",
+    "fixed_file": "correct_java_programs/TO_BASE.java",
+    "test_files": [
+      "java_testcases/junit/TO_BASE_TEST.java",
+      "java_testcases/junit/QuixFixOracleHelper.java"
+    ],
+    "entry_test_class": "java_testcases.junit.TO_BASE_TEST",
+    "support_files": [
+      "java_programs/Node.java",
+      "java_programs/WeightedEdge.java"
+    ]
+  },
+  {
+    "bug_id": "TOPOLOGICAL_ORDERING",
+    "buggy_file": "java_programs/TOPOLOGICAL_ORDERING.java",
+    "fixed_file": "correct_java_programs/TOPOLOGICAL_ORDERING.java",
+    "test_files": [
+      "java_testcases/junit/TOPOLOGICAL_ORDERING_TEST.java",
+      "java_testcases/junit/QuixFixOracleHelper.java"
+    ],
+    "entry_test_class": "java_testcases.junit.TOPOLOGICAL_ORDERING_TEST",
+    "support_files": [
+      "java_programs/Node.java",
+      "java_programs/WeightedEdge.java"
+    ]
+  },
+  {
+    "bug_id": "WRAP",
+    "buggy_file": "java_programs/WRAP.java",
+    "fixed_file": "correct_java_programs/WRAP.java",
+    "test_files": [
+      "java_testcases/junit/WRAP_TEST.java",
+      "java_testcases/junit/QuixFixOracleHelper.java"
+    ],
+    "entry_test_class": "java_testcases.junit.WRAP_TEST",
+    "support_files": [
+      "java_programs/Node.java",
+      "java_programs/WeightedEdge.java"
+    ]
+  }
+]

@@ -1,0 +1,33 @@
+# Arm B: from-scratch finetune ("no pre-training") -- a T5 of the *same* architecture as
+# pretrain_10ep.yaml/finetune_A_ep*.yaml, but randomly initialized (no pretrained_model_path)
+# and finetuned directly on the refinement pairs. Fixed epochs (10, matching finetune_A_ep10's
+# length for a fair A-vs-B comparison), seed varied {0, 1, 2} to estimate finetune-run variance
+# -- the ablation needed to tell "pretraining doesn't help" apart from "pretraining wasn't given
+# enough signal".
+#
+# No pretrained_model_path is set on purpose: run_finetune() falls back to a freshly
+# create_t5_model()'d model when it's absent (see src/pop/train/finetune.py).
+
+seed: 1
+tokenizer_path: outputs/tokenizer/tokenizer.model
+
+train_split: train
+validation_split: validation
+max_seq_length: 512
+
+epochs: 10
+# effective batch 64 = 8 x 8 (see pretrain_10ep.yaml); 64 per-device OOMs 16 GB at seq 512
+batch_size: 8
+gradient_accumulation_steps: 8
+lr: 5.0e-5
+warmup_steps: 500
+
+output_dir: outputs/finetune_B_seed1
+
+model:
+  d_model: 512
+  d_ff: 2048
+  d_kv: 64
+  num_heads: 8
+  num_layers: 6
+  num_decoder_layers: 6

@@ -1,0 +1,15 @@
+{
+  "config": {
+    "predictions": "/content/repo/outputs/rag_bm25_k0/predictions.jsonl"
+  },
+  "metrics": {
+    "em": 0.0,
+    "em_raw": 0.0,
+    "codebleu": 0.3674260306508105,
+    "syntax_valid_rate": 0.9324675324675324,
+    "n": 6545
+  },
+  "n": 6545,
+  "timestamp": "2026-07-21T17:53:00.337670+00:00",
+  "git_sha": "unknown"
+}

@@ -1,0 +1,41 @@
+{
+  "config": {
+    "mode": "predictions",
+    "predictions": "outputs/execbench/C_all.jsonl",
+    "jdk": {
+      "jdk": "/usr/lib/jvm/java-17-openjdk-amd64",
+      "java": "/usr/lib/jvm/java-17-openjdk-amd64/bin/java",
+      "version": "openjdk version \"17.0.19\" 2026-04-21\nOpenJDK Runtime Environment (build 17.0.19+10-1-22.04.2-Ubuntu)\nOpenJDK 64-Bit Server VM (build 17.0.19+10-1-22.04.2-Ubuntu, mixed mode, sharing)"
+    }
+  },
+  "metrics": {
+    "n": 201,
+    "compile_rate": 0.7064676616915423,
+    "pass_rate": 0.3582089552238806,
+    "per_benchmark": {
+      "quixbugs": {
+        "n": 40,
+        "compile_rate": 0.725,
+        "pass_rate": 0.25,
+        "error_kind_counts": {
+          "ok": 10,
+          "test_failure": 19,
+          "compile_error": 11
+        }
+      },
+      "humaneval_java": {
+        "n": 161,
+        "compile_rate": 0.7018633540372671,
+        "pass_rate": 0.38509316770186336,
+        "error_kind_counts": {
+          "ok": 62,
+          "test_failure": 51,
+          "compile_error": 48
+        }
+      }
+    }
+  },
+  "n": 201,
+  "timestamp": "2026-07-22T16:48:25.894394+00:00",
+  "git_sha": "unknown"
+}
