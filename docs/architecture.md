@@ -75,6 +75,16 @@ The reproduction path is documented in three places: `docs/gpu-runbook.md` (run 
 one Colab sitting), `docs/colab-runbook.md` (the resumable T5 orchestrator and its Drive setup), and
 `docs/gpu-reproduction.md` (environments, launch order per arm, and the local AMD/ROCm path).
 
+Each notebook in `notebooks/` is one GPU stage of that batch:
+
+| Notebook | Stage |
+|----------|-------|
+| `colab_phase2.ipynb` | arms A and B: tokenizer, 10-epoch pretrain, then six finetune/generate/eval cycles. "Phase 2" is this repo's label for that batch, and `results/phase2_summary.md` is its write-up |
+| `colab_scaling.ipynb` | a fresh pretrain, then both scaling curves (14 configs) |
+| `colab_rag.ipynb` | arm C: the eight-config retriever by k sweep |
+| `colab_lora.ipynb` | arm D: LoRA train, generate, score |
+| `colab_execbench.ipynb` | Track 2 for every arm, including the JDK install |
+
 ## Code map
 
 `src/pop/` is the package. Everything else supports it.
