@@ -1,6 +1,8 @@
 repos:
+  # Keep `rev` equal to the ruff version in `uv.lock`. When they drift, pre-commit lints with a
+  # different ruff than CI does, so a commit can pass locally and fail `ruff format --check` in CI.
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.14.1
+    rev: v0.16.0
     hooks:
       - id: ruff
         args: [--fix]
