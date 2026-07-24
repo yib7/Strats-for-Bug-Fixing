@@ -32,13 +32,15 @@ nav:
 
 # The operational runbooks and the results inventory live under docs/ for readers who
 # reproduce the study from the repo, but are not part of the published narrative site;
-# excluding them keeps `mkdocs build` warning-free.
+# excluding them keeps `mkdocs build` warning-free. `media/` holds the README's GIF and
+# screenshot: ~6 MB that only github.com renders, so it is kept out of the published site.
 exclude_docs: |
   gpu-reproduction.md
   colab-runbook.md
   gpu-runbook.md
   results-manifest.md
   figures/*.mmd
+  media/
 
 markdown_extensions:
   - tables

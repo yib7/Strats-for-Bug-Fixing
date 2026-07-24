@@ -36,6 +36,7 @@ LICENSE   text eol=lf
 
 # Binary -- never transformed, never diffed as text.
 *.png     binary
+*.gif     binary
 *.jar     binary
 *.model   binary
 *.safetensors binary
