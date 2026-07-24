@@ -16,11 +16,18 @@ uv.lock.bak
 # mkdocs build output
 site/
 
-# caches
+# caches / test + coverage artifacts
 .pytest_cache/
 .ruff_cache/
 .mypy_cache/
 .cache/
+.tox/
+.nox/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+.ipynb_checkpoints/
 *.log
 
 # results / artifacts (raw run outputs; keep summaries out of git)
@@ -39,12 +46,42 @@ logs/
 Thumbs.db
 .vscode/
 .idea/
+*.swp
 
-# secrets
+# node (only if a docs/tooling dep ever pulls it in)
+node_modules/
+
+# model weights & archives - never belong in git (see docs/gpu-reproduction.md for where
+# checkpoints live instead)
+*.ckpt
+*.safetensors
+*.pt
+*.pth
+*.bin
+*.onnx
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.7z
+# ...but the vendored JUnit/Hamcrest jars are part of the execution harness and ARE tracked
+!benchmarks/lib/*.jar
+
+# secrets - real values stay local; .env.example is the committed template
 .env
+.env.*
+!.env.example
 *.env
+secrets.*
+*.pem
+*.key
+*.p12
+*.pfx
+.netrc
+.npmrc
+.pypirc
 
-# agent/session scaffolding - development-only, never part of the shipped project
+# local tool state - development-only, never part of the shipped project
 .superpowers/
 .autopilot/
 .claude/
