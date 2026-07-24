@@ -29,7 +29,7 @@ writes the curve so far):
    and the ep10 ptcompute point (arm A = ``finetune_A_ep10``, since pretrain-final
    == epoch-10). These are a *different* pretrain instance than the ptcompute
    sweep's fresh pretrain -- a documented minor inconsistency (see
-   ``docs/gpu-runbook-final.md`` Step 0).
+   ``docs/gpu-runbook.md`` Step 0).
 
 Usage:
     python scripts/build_scaling_csv.py            # write results/scaling_data.csv

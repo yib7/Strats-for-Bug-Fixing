@@ -3,7 +3,7 @@
 Runs entirely against the committed `tests/fixtures/smoke_*` fixtures (see
 `scripts/build_smoke_fixtures.py`) -- no network access. Intended to finish in minutes on a
 laptop CPU as a pre-launch sanity check before spending real GPU time on the Colab notebooks
-(see `docs/handoff.md`).
+(see `docs/gpu-reproduction.md`).
 
 Heavy imports (torch/transformers) are deferred inside :func:`run_smoke` for the same reason as
 `pop.train.pretrain`/`pop.train.finetune`: importing this module (and therefore `pop --help`)

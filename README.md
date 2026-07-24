@@ -88,4 +88,4 @@ Then, CPU-only, in order:
 
 None of the above retrains anything — every number in the report was produced on a Colab GPU and
 is committed under `results/`. For the full GPU reproduction (pretrain → finetune → RAG → LoRA →
-execution eval), see [docs/gpu-runbook-final.md](docs/gpu-runbook-final.md).
+execution eval), see [docs/gpu-runbook.md](docs/gpu-runbook.md).

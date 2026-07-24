@@ -1,7 +1,7 @@
 """Four-arm comparison figure: CodeBLEU + syntax-valid rate across arms A/B/C/D.
 
 Reads every committed ``results/finetune_*_test.json`` (the real arm-A epoch and
-arm-B seed runs from the Phase-2 A100 batch) and renders a two-panel bar chart:
+arm-B seed runs from the A100 GPU batch) and renders a two-panel bar chart:
 
 * **Arm A** (pretrain->finetune T5) - the final ``A_ep10`` bar, with the epoch
   1/3/10 points overlaid as a connected trend so the finetune-epoch progression

@@ -6,7 +6,7 @@
 # This is a *pipeline sanity check*, not a real training run -- vocab, model size, and epoch
 # counts here are deliberately tiny so the whole thing finishes in CPU-minutes. Real
 # hyperparameters (vocab 16384, T5-base dims, 10-epoch pretrain, etc.) live in the other
-# configs/*.yaml files for the GPU cycle; see docs/handoff.md.
+# configs/*.yaml files for the GPU runs; see docs/gpu-reproduction.md.
 
 seed: 42
 

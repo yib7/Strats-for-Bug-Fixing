@@ -14,7 +14,7 @@ Runs every Phase-2 step as a `python -m pop.cli ...` subprocess, in order, with:
   shows it live). On Colab, ``logs/`` is a symlink into Google Drive (the
   ``notebooks/colab_phase2.ipynb`` setup cell makes it one), so ``STATUS.md``
   is readable from the Drive web/phone app while the run is going.
-- **The EM>0 gate** (docs/handoff.md): after the FIRST system's eval, if
+- **The EM>0 gate** (docs/gpu-reproduction.md): after the FIRST system's eval, if
   normalized exact match is exactly 0.0, halt instead of spending GPU hours
   on the remaining five systems -- all-zero EM at this scale means a decoding
   bug, and the documented next step is a greedy-vs-beam-5 sweep, not more
@@ -245,7 +245,8 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--skip-gate",
         action="store_true",
-        help="bypass the EM>0 halt (only after diagnosing a 0-EM result per docs/handoff.md)",
+        help="bypass the EM>0 halt (only after diagnosing a 0-EM result per "
+        "docs/gpu-reproduction.md)",
     )
     args = parser.parse_args(argv)
 
@@ -333,7 +334,7 @@ def main(argv: list[str] | None = None) -> int:
                 olog(
                     f"EM GATE: finetune_{GATE_SYSTEM} scored exact-match 0.0. Halting instead of "
                     "training the remaining systems: all-zero EM at this scale means a decoding "
-                    "bug (docs/handoff.md). Next: eyeball a few lines of "
+                    "bug (docs/gpu-reproduction.md). Next: eyeball a few lines of "
                     f"outputs/finetune_{GATE_SYSTEM}/best/predictions_test.jsonl, re-generate with "
                     "`pop generate --num-beams 5` on the same checkpoint, and only re-run this "
                     "script with --skip-gate once the cause is understood."

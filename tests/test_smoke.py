@@ -181,7 +181,8 @@ def test_lora_qwen_config_file_exists_and_is_valid_yaml():
     import yaml
 
     # No pop.config model for LoRA yet (documented next-cycle scope); just verify it's present
-    # and parses as YAML with the fields docs/handoff.md and the file's own header describe.
+    # and parses as YAML with the fields docs/gpu-reproduction.md and the file's own header
+    # describe.
     path = CONFIGS_DIR / "lora_qwen.yaml"
     assert path.is_file()
     data = yaml.safe_load(path.read_text(encoding="utf-8"))
