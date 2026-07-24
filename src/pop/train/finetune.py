@@ -43,12 +43,17 @@ class RefinementDataset:
         return {"input_ids": input_ids, "labels": labels}
 
 
-def run_finetune(cfg: FinetuneConfig) -> Path:
+def run_finetune(cfg: FinetuneConfig, *, report_to: list[str] | None = None) -> Path:
     """Run T5 code-refinement finetuning per ``cfg``; returns the best
     (validation-loss-selected) model directory.
 
     If ``cfg.output_dir`` already holds a ``checkpoint-*`` from an interrupted
     run, training resumes from the latest one instead of starting over.
+
+    ``report_to`` overrides the experiment-tracking integrations passed to
+    ``TrainingArguments``. The default (``None``) enables wandb when
+    ``WANDB_API_KEY`` is set; pass ``[]`` to force a fully offline run --
+    ``pop smoke`` does, because it is documented as needing no network.
     """
     import torch
     from transformers import Trainer, TrainingArguments
@@ -100,10 +105,19 @@ def run_finetune(cfg: FinetuneConfig) -> Path:
             grad_accum,
             micro_batch * grad_accum,
         )
-    report_to = ["wandb"] if os.environ.get("WANDB_API_KEY") else []
+    if report_to is None:
+        report_to = ["wandb"] if os.environ.get("WANDB_API_KEY") else []
 
     output_dir = Path(cfg.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
+
+    # Validation-based checkpoint selection needs a validation set. `val_pairs` is empty when
+    # `train_pairs_file` is set without `val_pairs_file`; asking for eval_strategy="epoch" +
+    # load_best_model_at_end on an empty eval dataset is a broken configuration. `run_lora`
+    # already gates on the same flag -- this mirrors it.
+    has_eval = bool(val_pairs)
+    if not has_eval:
+        logger.info("No validation pairs: disabling epoch eval and best-checkpoint selection")
 
     args = TrainingArguments(
         output_dir=str(output_dir),
@@ -117,10 +131,10 @@ def run_finetune(cfg: FinetuneConfig) -> Path:
         bf16=bf16,
         fp16=fp16,
         report_to=report_to,
-        eval_strategy="epoch",
+        eval_strategy="epoch" if has_eval else "no",
         save_strategy="epoch",
-        load_best_model_at_end=True,
-        metric_for_best_model="eval_loss",
+        load_best_model_at_end=has_eval,
+        metric_for_best_model="eval_loss" if has_eval else None,
         greater_is_better=False,
         save_total_limit=2,
         logging_steps=50,
@@ -130,7 +144,7 @@ def run_finetune(cfg: FinetuneConfig) -> Path:
         model=model,
         args=args,
         train_dataset=train_dataset,
-        eval_dataset=eval_dataset,
+        eval_dataset=eval_dataset if has_eval else None,
         data_collator=collator,
     )
     from transformers.trainer_utils import get_last_checkpoint

@@ -85,6 +85,110 @@ def test_implemented_subcommand_missing_config_file_is_clean_exit(subcommand, tm
     assert str(missing) in result.stderr
 
 
+# ---------------------------------------------------------------------------
+# Malformed input: a clear message, never a traceback (regression -- every one
+# of these used to dump a raw yaml/pydantic/json stack).
+# ---------------------------------------------------------------------------
+
+
+def _assert_clean_error(result, *needles: str) -> None:
+    assert result.returncode == 2, f"expected rc=2, got {result.returncode}: {result.stderr}"
+    assert "Traceback" not in result.stderr, result.stderr
+    for needle in needles:
+        assert needle in result.stderr, f"{needle!r} not in {result.stderr!r}"
+
+
+def test_config_that_is_not_valid_yaml_is_a_clean_error(tmp_path):
+    config = tmp_path / "malformed.yaml"
+    config.write_text("seed: [unclosed\n  bad: yaml\n", encoding="utf-8")
+    _assert_clean_error(run_pop("finetune", "--config", str(config)), "not valid YAML")
+
+
+def test_config_that_is_not_a_mapping_is_a_clean_error(tmp_path):
+    config = tmp_path / "list.yaml"
+    config.write_text("- a\n- b\n", encoding="utf-8")
+    _assert_clean_error(run_pop("finetune", "--config", str(config)), "expected a YAML mapping")
+
+
+def test_config_with_wrong_types_is_a_clean_error(tmp_path):
+    config = tmp_path / "wrongtype.yaml"
+    config.write_text('epochs: "not-an-int"\n', encoding="utf-8")
+    result = run_pop("finetune", "--config", str(config))
+    _assert_clean_error(result, "invalid config", "epochs")
+    assert "pydantic" not in result.stderr.lower()
+
+
+def test_eval_predictions_that_are_not_json_report_the_line(tmp_path):
+    preds = tmp_path / "bad.jsonl"
+    preds.write_text('{"prediction": "a", "reference": "b"}\nnot json at all\n', encoding="utf-8")
+    _assert_clean_error(
+        run_pop("eval", "--predictions", str(preds)), "bad.jsonl:2", "not valid JSON"
+    )
+
+
+def test_eval_predictions_missing_a_key_report_the_line(tmp_path):
+    preds = tmp_path / "nokey.jsonl"
+    preds.write_text('{"prediction": "a"}\n', encoding="utf-8")
+    _assert_clean_error(run_pop("eval", "--predictions", str(preds)), "nokey.jsonl:1", "reference")
+
+
+def test_execbench_predictions_that_are_not_json_report_the_line(tmp_path):
+    preds = tmp_path / "bad.jsonl"
+    preds.write_text("{oops\n", encoding="utf-8")
+    _assert_clean_error(
+        run_pop("execbench", "--predictions", str(preds), "--bench", "quixbugs"),
+        "bad.jsonl:1",
+        "not valid JSON",
+    )
+
+
+def test_execbench_predictions_missing_a_key_report_the_line(tmp_path):
+    preds = tmp_path / "nopred.jsonl"
+    preds.write_text('{"bug_id": "BITCOUNT"}\n', encoding="utf-8")
+    _assert_clean_error(
+        run_pop("execbench", "--predictions", str(preds), "--bench", "quixbugs"),
+        "nopred.jsonl:1",
+        "prediction",
+    )
+
+
+def test_pop_traceback_env_var_restores_the_raw_exception(tmp_path):
+    import os
+
+    config = tmp_path / "list.yaml"
+    config.write_text("- a\n", encoding="utf-8")
+    env = {**os.environ, "POP_TRACEBACK": "1"}
+    result = subprocess.run(
+        [sys.executable, "-m", "pop.cli", "finetune", "--config", str(config)],
+        capture_output=True,
+        text=True,
+        env=env,
+    )
+    assert result.returncode != 0
+    assert "Traceback" in result.stderr  # opt-in debugging escape hatch
+
+
+# ---------------------------------------------------------------------------
+# Exit-code convention: 2 = usage/input error, 1 = the run ran and failed.
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    ("args", "make_missing"),
+    [
+        (("smoke", "--config"), "missing.yaml"),
+        (("eval", "--predictions"), "missing.jsonl"),
+        (("execbench", "--predictions"), "missing.jsonl"),
+    ],
+)
+def test_missing_input_file_exits_two(args, make_missing, tmp_path):
+    missing = tmp_path / make_missing
+    result = run_pop(*args, str(missing))
+    assert result.returncode == 2, result.stderr
+    assert "Traceback" not in result.stderr
+    assert str(missing) in result.stderr
+
+
 def test_rag_refuses_non_train_kb_split_without_override(tmp_path):
     config_path = tmp_path / "rag.yaml"
     config_path.write_text("kb_split: validation\n", encoding="utf-8")
@@ -113,14 +217,14 @@ def test_smoke_defaults_to_configs_smoke_yaml_and_rejects_missing_cwd_config(tmp
         text=True,
         cwd=tmp_path,
     )
-    assert result.returncode == 1
+    assert result.returncode == 2  # 2 = usage/input error
     assert "config" in result.stderr.lower()
 
 
 def test_smoke_rejects_missing_config_file(tmp_path):
     missing = tmp_path / "does-not-exist.yaml"
     result = run_pop("smoke", "--config", str(missing))
-    assert result.returncode != 0
+    assert result.returncode == 2
 
 
 def test_generate_help_shows_model_and_tokenizer_options():
@@ -194,13 +298,13 @@ def test_execbench_rejects_both_modes(tmp_path):
 def test_execbench_predictions_rejects_missing_file(tmp_path):
     missing = tmp_path / "does-not-exist.jsonl"
     result = run_pop("execbench", "--predictions", str(missing))
-    assert result.returncode != 0
+    assert result.returncode == 2
 
 
 def test_eval_rejects_missing_predictions_file(tmp_path):
     missing = tmp_path / "does-not-exist.jsonl"
     result = run_pop("eval", "--predictions", str(missing))
-    assert result.returncode != 0
+    assert result.returncode == 2
 
 
 def test_eval_prints_metrics_and_writes_results(tmp_path):

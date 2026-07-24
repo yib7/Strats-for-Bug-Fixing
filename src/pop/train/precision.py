@@ -23,7 +23,38 @@ Centralizes two portability concerns for the training/generation subprocesses:
 
 from __future__ import annotations
 
+import logging
 import os
+
+logger = logging.getLogger(__name__)
+
+
+def _env_str(name: str) -> str | None:
+    """Read an env var, treating blank as unset.
+
+    `.env.example` documents `set -a; . ./.env; set +a` and ships `POP_GPU_MEM_FRACTION=`
+    with an empty value, so sourcing it exports the empty string. `os.environ.get(name,
+    default)` then returns `""` -- the default never applies -- and `float("")` raised,
+    killing every training entry point on exactly the GPU machine whose owner followed the
+    documented setup.
+    """
+    value = os.environ.get(name)
+    if value is None:
+        return None
+    return value.strip() or None
+
+
+def _env_number(name: str, default: str, cast):
+    """`cast(_env_str(name) or default)`, falling back to the default on a malformed value.
+
+    A typo in an env var must not crash a long GPU run hours in.
+    """
+    raw = _env_str(name) or default
+    try:
+        return cast(raw)
+    except (TypeError, ValueError):
+        logger.warning("%s=%r is not a valid %s; using %s", name, raw, cast.__name__, default)
+        return cast(default)
 
 
 def training_precision() -> tuple[bool, bool]:
@@ -34,7 +65,7 @@ def training_precision() -> tuple[bool, bool]:
     """
     import torch
 
-    if os.environ.get("POP_FORCE_FP32") == "1":
+    if _env_str("POP_FORCE_FP32") == "1":
         return False, False
     if not torch.cuda.is_available():
         return False, False
@@ -49,7 +80,7 @@ def cap_gpu_memory() -> None:
 
     if not torch.cuda.is_available():
         return
-    fraction = float(os.environ.get("POP_GPU_MEM_FRACTION", "0.85"))
+    fraction = _env_number("POP_GPU_MEM_FRACTION", "0.85", float)
     torch.cuda.set_per_process_memory_fraction(fraction)
 
 
@@ -78,9 +109,9 @@ def scale_micro_batch(batch_size: int, grad_accum: int) -> tuple[int, int]:
     import torch
 
     effective = batch_size * grad_accum
-    forced = os.environ.get("POP_MICRO_BATCH")
+    forced = _env_str("POP_MICRO_BATCH")
     if forced:
-        micro = int(forced)
+        micro = _env_number("POP_MICRO_BATCH", "0", int)
         if 0 < micro <= effective and effective % micro == 0:
             return micro, effective // micro
         return batch_size, grad_accum

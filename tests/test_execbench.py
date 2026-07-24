@@ -132,8 +132,8 @@ class TestResolveJdk:
         bin_dir.mkdir()
         javac_path = bin_dir / _exe_name("javac")
         java_path = bin_dir / _exe_name("java")
-        javac_path.write_text("stub")
-        java_path.write_text("stub")
+        javac_path.write_text("stub", encoding="utf-8")
+        java_path.write_text("stub", encoding="utf-8")
 
         javac, java = resolve_jdk(tmp_path)
         assert javac == str(javac_path)
@@ -152,7 +152,7 @@ class TestResolveJdk:
     def test_jdk_home_missing_java_only_raises(self, tmp_path):
         bin_dir = tmp_path / "bin"
         bin_dir.mkdir()
-        (bin_dir / _exe_name("javac")).write_text("stub")
+        (bin_dir / _exe_name("javac")).write_text("stub", encoding="utf-8")
         # java binary intentionally absent
         with pytest.raises(JdkNotFoundError):
             resolve_jdk(tmp_path)
@@ -346,7 +346,7 @@ def test_execbench_predictions_mode_requires_bench_when_all(tmp_path, monkeypatc
         text=True,
         cwd=tmp_path,
     )
-    assert result.returncode == 1
+    assert result.returncode == 2  # 2 = usage/input error
     assert "bench" in result.stderr.lower()
 
 
@@ -571,3 +571,35 @@ class TestEndToEndOneBug:
         result = run_bug(self.BUG_ID, broken_src, self.BENCH, timeout_s=30)
         assert result.compiled is False
         assert result.error_kind == "compile_error"
+
+
+class TestLimitPerBench:
+    """`--limit`'s help text says "per benchmark"; the predictions path sliced the
+    merged list, so `--bench all --limit N` gave N bugs *total*."""
+
+    def test_limit_applies_per_benchmark(self):
+        from pop.cli import _limit_per_bench
+
+        tasks = [(f"q{i}", "quixbugs", "src") for i in range(5)]
+        tasks += [(f"h{i}", "humaneval_java", "src") for i in range(5)]
+        kept = _limit_per_bench(tasks, 2)
+
+        assert [t[0] for t in kept] == ["q0", "q1", "h0", "h1"]
+
+    def test_interleaved_benches_keep_their_own_counts(self):
+        from pop.cli import _limit_per_bench
+
+        tasks = [
+            ("q0", "quixbugs", "s"),
+            ("h0", "humaneval_java", "s"),
+            ("q1", "quixbugs", "s"),
+            ("h1", "humaneval_java", "s"),
+            ("q2", "quixbugs", "s"),
+        ]
+        assert [t[0] for t in _limit_per_bench(tasks, 2)] == ["q0", "h0", "q1", "h1"]
+
+    def test_limit_larger_than_the_task_list_is_a_no_op(self):
+        from pop.cli import _limit_per_bench
+
+        tasks = [("q0", "quixbugs", "s"), ("h0", "humaneval_java", "s")]
+        assert _limit_per_bench(tasks, 99) == tasks

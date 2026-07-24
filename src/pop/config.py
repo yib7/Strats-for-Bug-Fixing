@@ -24,8 +24,23 @@ class T5ModelConfig(BaseModel):
 
 
 def _load_yaml(path: str | Path) -> dict:
-    data = yaml.safe_load(Path(path).read_text(encoding="utf-8"))
-    return data or {}
+    """Read `path` as a YAML mapping.
+
+    Raises `ValueError` (which the CLI renders as a one-line error) rather than letting a
+    `yaml.ScannerError` traceback or a `TypeError: argument after ** must be a mapping`
+    escape to a user who hand-edited a config.
+    """
+    try:
+        data = yaml.safe_load(Path(path).read_text(encoding="utf-8"))
+    except yaml.YAMLError as e:
+        raise ValueError(f"{path}: not valid YAML ({e.__class__.__name__}): {e}") from e
+    if data is None:
+        return {}
+    if not isinstance(data, dict):
+        raise ValueError(
+            f"{path}: expected a YAML mapping at the top level, got {type(data).__name__}"
+        )
+    return data
 
 
 class PretrainConfig(BaseModel):

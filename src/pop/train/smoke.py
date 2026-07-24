@@ -65,7 +65,11 @@ def run_smoke(cfg: SmokeConfig) -> dict:
         output_dir=output_dir / "pretrain",
         model=cfg.model,
     )
-    pretrain_final_dir = run_pretrain(pretrain_cfg)
+    # report_to=[] : `pop smoke` is documented as network-free (cli help, this module's
+    # docstring, .env.example). The trainers enable the wandb integration purely on
+    # WANDB_API_KEY being present -- the normal state of an ML practitioner's shell -- so
+    # without an explicit opt-out the "local sanity check" would ship a run to their account.
+    pretrain_final_dir = run_pretrain(pretrain_cfg, report_to=[])
 
     # 3. Micro-finetune.
     logger.info("pop smoke: finetuning (%d epoch(s))", cfg.finetune_epochs)
@@ -83,7 +87,7 @@ def run_smoke(cfg: SmokeConfig) -> dict:
         output_dir=output_dir / "finetune",
         model=cfg.model,
     )
-    finetune_best_dir = run_finetune(finetune_cfg)
+    finetune_best_dir = run_finetune(finetune_cfg, report_to=[])
 
     # 4. Generate on the held-out eval fixture + full metric stack.
     logger.info("pop smoke: generating + scoring on %s", cfg.eval_pairs_file)

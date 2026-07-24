@@ -42,6 +42,12 @@ def train_tokenizer(
 
     Returns:
         The path to the written ``.model`` file (== ``out_path``).
+
+    Note:
+        SentencePiece also writes a ``<prefix>.vocab`` sidecar (the human-readable
+        piece/score listing) next to the model. It is left in place -- it is useful for
+        inspecting a trained vocab -- so callers writing into a shared directory should
+        expect both files.
     """
     out_path = Path(out_path)
     if out_path.suffix != ".model":
@@ -70,7 +76,6 @@ def train_tokenizer(
         hard_vocab_limit=False,
     )
 
-    produced = Path(model_prefix + ".model")
-    if produced != out_path:
-        produced.replace(out_path)
+    # `model_prefix` is `out_path` minus its ".model" suffix, so SentencePiece writes exactly
+    # `out_path` -- no rename step is reachable.
     return out_path

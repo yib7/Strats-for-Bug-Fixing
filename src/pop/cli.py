@@ -6,6 +6,7 @@ Subcommands dispatch to each phase's implementation in `pop.*`.
 from __future__ import annotations
 
 import argparse
+import os
 import sys
 
 STUB_SUBCOMMANDS: tuple[str, ...] = ()
@@ -248,7 +249,7 @@ def _run_smoke(args: argparse.Namespace) -> int:
     config_path = Path(args.config)
     if not config_path.is_file():
         print(f"pop smoke: config file not found: {config_path}", file=sys.stderr)
-        return 1
+        return 2
 
     cfg = SmokeConfig.from_yaml(config_path)
     try:
@@ -421,6 +422,35 @@ def _run_generate(args: argparse.Namespace) -> int:
     return 0
 
 
+def _read_jsonl(path, required: tuple[str, ...]) -> list[dict]:
+    """Parse a JSONL file, reporting `file:line` for a bad record.
+
+    A hand-edited or half-written predictions file used to surface as a bare
+    `json.JSONDecodeError` / `KeyError` traceback. `required` names the keys every record
+    must carry, so a missing field is reported against the line that lacks it.
+    """
+    import json
+
+    records: list[dict] = []
+    for lineno, raw in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
+        line = raw.strip()
+        if not line:
+            continue
+        try:
+            record = json.loads(line)
+        except json.JSONDecodeError as e:
+            raise ValueError(f"{path}:{lineno}: not valid JSON ({e.msg})") from e
+        if not isinstance(record, dict):
+            raise ValueError(
+                f"{path}:{lineno}: expected a JSON object, got {type(record).__name__}"
+            )
+        missing = [key for key in required if key not in record]
+        if missing:
+            raise ValueError(f"{path}:{lineno}: missing key(s) {', '.join(missing)}")
+        records.append(record)
+    return records
+
+
 def _write_results(command: str, name: str, metrics: dict, config: dict):
     """`write_results`, turning a refusal-to-clobber into a printed message and `None`.
 
@@ -446,17 +476,11 @@ def _run_eval(args: argparse.Namespace) -> int:
     predictions_path = Path(args.predictions)
     if not predictions_path.is_file():
         print(f"pop eval: predictions file not found: {predictions_path}", file=sys.stderr)
-        return 1
+        return 2
 
-    preds: list[str] = []
-    refs: list[str] = []
-    for line in predictions_path.read_text(encoding="utf-8").splitlines():
-        line = line.strip()
-        if not line:
-            continue
-        record = json.loads(line)
-        preds.append(record["prediction"])
-        refs.append(record["reference"])
+    records = _read_jsonl(predictions_path, required=("prediction", "reference"))
+    preds = [record["prediction"] for record in records]
+    refs = [record["reference"] for record in records]
 
     metrics = evaluate_predictions(preds, refs)
     name = args.name or predictions_path.stem
@@ -546,6 +570,25 @@ def _execbench_benches(args: argparse.Namespace) -> list[str]:
     return [args.bench]
 
 
+def _limit_per_bench(tasks: list[tuple[str, str, str]], limit: int) -> list[tuple[str, str, str]]:
+    """Keep the first `limit` tasks *per benchmark*, as `--limit`'s help text promises.
+
+    Regression: the predictions path sliced the merged task list, so
+    `--bench all --predictions X --limit 10` yielded 10 bugs *total* -- all from whichever
+    benchmark happened to come first in the file -- while `--validate-references` correctly
+    applied the cap inside its per-benchmark loop.
+    """
+    kept: list[tuple[str, str, str]] = []
+    counts: dict[str, int] = {}
+    for task in tasks:
+        bench = task[1]
+        if counts.get(bench, 0) >= limit:
+            continue
+        counts[bench] = counts.get(bench, 0) + 1
+        kept.append(task)
+    return kept
+
+
 def _run_execbench(args: argparse.Namespace) -> int:
     import json
     from concurrent.futures import ThreadPoolExecutor
@@ -632,15 +675,12 @@ def _run_execbench(args: argparse.Namespace) -> int:
     predictions_path = Path(args.predictions)
     if not predictions_path.is_file():
         print(f"pop execbench: predictions file not found: {predictions_path}", file=sys.stderr)
-        return 1
+        return 2
 
     single_bench = args.bench if args.bench != "all" else None
+    records = _read_jsonl(predictions_path, required=("bug_id", "prediction"))
     tasks = []
-    for line in predictions_path.read_text(encoding="utf-8").splitlines():
-        line = line.strip()
-        if not line:
-            continue
-        record = json.loads(line)
+    for record in records:
         bench = record.get("bench") or single_bench
         if bench is None:
             print(
@@ -648,11 +688,11 @@ def _run_execbench(args: argparse.Namespace) -> int:
                 "specify --bench quixbugs|humaneval_java or add a 'bench' field per record",
                 file=sys.stderr,
             )
-            return 1
+            return 2
         tasks.append((record["bug_id"], bench, record["prediction"]))
 
     if args.limit is not None:
-        tasks = tasks[: args.limit]
+        tasks = _limit_per_bench(tasks, args.limit)
 
     def _run_pred(task: tuple[str, str, str]):
         bug_id, bench, candidate_src = task
@@ -683,6 +723,19 @@ def _run_execbench(args: argparse.Namespace) -> int:
     return 0
 
 
+def _describe_error(e: Exception) -> str:
+    """Render an input error as one readable line (no stack, no pydantic internals)."""
+    if e.__class__.__name__ == "ValidationError" and hasattr(e, "errors"):
+        problems = []
+        for err in e.errors():
+            loc = ".".join(str(part) for part in err.get("loc", ())) or "<top level>"
+            problems.append(f"{loc}: {err.get('msg', 'invalid value')}")
+        return "invalid config -- " + "; ".join(problems)
+    if isinstance(e, KeyError):
+        return f"missing key {e.args[0]!r}" if e.args else "missing key"
+    return str(e) or e.__class__.__name__
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
@@ -691,6 +744,20 @@ def main(argv: list[str] | None = None) -> int:
         parser.print_help()
         return 1
 
+    try:
+        return _dispatch(args, parser)
+    except (ValueError, OSError, KeyError) as e:
+        # Malformed YAML/JSONL, a config that fails validation, an unreadable file: the user
+        # can fix all of these, so they get one actionable line rather than a traceback.
+        # pydantic's ValidationError subclasses ValueError, so it lands here too.
+        # POP_TRACEBACK=1 restores the raw exception for debugging.
+        if os.environ.get("POP_TRACEBACK") == "1":
+            raise
+        print(f"pop {args.command}: {_describe_error(e)}", file=sys.stderr)
+        return 2
+
+
+def _dispatch(args: argparse.Namespace, parser: argparse.ArgumentParser) -> int:
     if args.command == "smoke":
         return _run_smoke(args)
 

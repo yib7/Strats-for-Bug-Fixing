@@ -70,12 +70,17 @@ def _save_at_epochs_callback(save_epochs: list[int]):
     return SaveAtEpochsCallback()
 
 
-def run_pretrain(cfg: PretrainConfig) -> Path:
+def run_pretrain(cfg: PretrainConfig, *, report_to: list[str] | None = None) -> Path:
     """Run T5 span-corruption pretraining per ``cfg`` and return the final
     model directory.
 
     If ``cfg.output_dir`` already holds a ``checkpoint-*`` from an interrupted
     run, training resumes from the latest one instead of starting over.
+
+    ``report_to`` overrides the experiment-tracking integrations passed to
+    ``TrainingArguments``. The default (``None``) enables wandb when
+    ``WANDB_API_KEY`` is set; pass ``[]`` to force a fully offline run --
+    ``pop smoke`` does, because it is documented as needing no network.
     """
     import random
 
@@ -124,7 +129,8 @@ def run_pretrain(cfg: PretrainConfig) -> Path:
             grad_accum,
             micro_batch * grad_accum,
         )
-    report_to = ["wandb"] if os.environ.get("WANDB_API_KEY") else []
+    if report_to is None:
+        report_to = ["wandb"] if os.environ.get("WANDB_API_KEY") else []
 
     output_dir = Path(cfg.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)

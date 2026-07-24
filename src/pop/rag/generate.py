@@ -135,6 +135,36 @@ def build_generator(
     raise ValueError(f"Unknown backend: {chosen!r} (expected 'vllm' or 'transformers')")
 
 
+def _repair_partial(partial: Path) -> int:
+    """Count the usable records in a checkpoint file, dropping a torn trailing write.
+
+    A process killed mid-``write`` leaves a partial JSON object with no trailing newline.
+    It still counts as a line, so resume would append straight onto it and produce one
+    unparseable record in the middle of the finished file -- which ``pop eval`` then
+    rejects. Keep only lines that both parse as JSON and are newline-terminated,
+    rewriting the file when anything was dropped. Returns the surviving count.
+    """
+    if not partial.exists():
+        return 0
+    text = partial.read_text(encoding="utf-8")
+    kept: list[str] = []
+    # splitlines(keepends=True): a final line without "\n" is exactly the torn-write case.
+    for line in text.splitlines(keepends=True):
+        if not line.endswith("\n"):
+            break
+        stripped = line.strip()
+        if not stripped:
+            continue
+        try:
+            json.loads(stripped)
+        except json.JSONDecodeError:
+            break
+        kept.append(line)
+    if len("".join(kept)) != len(text):
+        partial.write_text("".join(kept), encoding="utf-8")
+    return len(kept)
+
+
 def generate_with_resume(
     prompts: Sequence[str],
     references: Sequence[str],
@@ -164,10 +194,7 @@ def generate_with_resume(
         )
 
     partial = out_path.with_name(out_path.name + ".partial")
-    n_done = 0
-    if partial.exists():
-        with partial.open("r", encoding="utf-8") as f:
-            n_done = sum(1 for _ in f)
+    n_done = _repair_partial(partial)
     if n_done > len(prompts):
         raise ValueError(
             f"partial file {partial} has {n_done} lines but only {len(prompts)} prompts; "

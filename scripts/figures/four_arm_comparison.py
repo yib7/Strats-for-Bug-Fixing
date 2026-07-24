@@ -56,6 +56,11 @@ def _arm_a(finetune: dict) -> dict | None:
     if not present or "finetune_A_ep10" not in finetune:
         return None
     top = finetune["finetune_A_ep10"]
+    # A result file that exists but is missing a metric is as unusable as an absent one:
+    # returning None routes it through the same "pending" placeholder instead of reaching
+    # the plot as a None and crashing on `point + 0.015`.
+    if any(top.get(key) is None for key, _ in METRICS):
+        return None
     out: dict = {"pending": False, "epochs": [ep for ep, _ in present]}
     for key, _ in METRICS:
         out[key] = {
@@ -76,7 +81,9 @@ def _arm_b(finetune: dict) -> dict | None:
         return None
     out: dict = {"pending": False, "n_seeds": len(seeds)}
     for key, _ in METRICS:
-        vals = [m[key] for m in seeds if key in m]
+        vals = [m[key] for m in seeds if m.get(key) is not None]
+        if not vals:
+            return None  # present-but-metric-less files: `sum(vals) / len(vals)` would divide by 0
         out[key] = {
             "point": sum(vals) / len(vals),
             "lo": min(vals),
@@ -95,14 +102,16 @@ def _best_rag(results_dir: Path) -> dict | None:
             continue
         if best is None or metrics["codebleu"] > best["codebleu"]:
             best = metrics
-    if best is None:
-        return None
-    return {"pending": False, **{k: {"point": best.get(k)} for k, _ in METRICS}}
+    return _arm_from_single(best)
 
 
 def _arm_from_single(metrics: dict | None) -> dict | None:
-    """Arm D: wrap a single committed metrics dict (lora_qwen_test), or None."""
-    if not metrics:
+    """Wrap a single committed metrics dict (arm C's best RAG run, arm D's LoRA run).
+
+    Returns None -- i.e. render the "pending" placeholder -- when the file is absent *or*
+    present but missing one of the plotted metrics; a None point would crash the plot.
+    """
+    if not metrics or any(metrics.get(k) is None for k, _ in METRICS):
         return None
     return {"pending": False, **{k: {"point": metrics.get(k)} for k, _ in METRICS}}
 

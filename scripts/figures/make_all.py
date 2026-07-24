@@ -31,26 +31,36 @@ import build_scaling_csv  # noqa: E402
 import execution_vs_codebleu  # noqa: E402
 import four_arm_comparison  # noqa: E402
 import scaling_curves  # noqa: E402
-from _common import FIGURES_DIR  # noqa: E402
+from _common import FIGURES_DIR, RESULTS_DIR  # noqa: E402
 
 
-def rebuild_derived_csvs() -> list[Path]:
+def rebuild_derived_csvs(csv_out_dir: Path = RESULTS_DIR) -> list[Path]:
     """Regenerate the derived analysis CSVs from the committed result JSONs.
 
     Idempotent: reads only committed ``results/*.json`` and overwrites the CSVs
     with byte-identical content on every run. Arms without a result yet (e.g. arm
     B's optional execution point) are simply omitted -- the builders degrade
     gracefully, so this never fabricates rows.
+
+    ``csv_out_dir`` defaults to the real ``results/``; tests redirect it to a tmp dir so
+    running the suite never writes into tracked files.
     """
+    csv_out_dir = Path(csv_out_dir)
+    csv_out_dir.mkdir(parents=True, exist_ok=True)
     return [
-        build_scaling_csv.write_csv(build_scaling_csv.build_rows()),
-        build_execbench_agreement_csv.write_csv(build_execbench_agreement_csv.build_rows()),
+        build_scaling_csv.write_csv(
+            build_scaling_csv.build_rows(), csv_out_dir / "scaling_data.csv"
+        ),
+        build_execbench_agreement_csv.write_csv(
+            build_execbench_agreement_csv.build_rows(),
+            csv_out_dir / "execbench_agreement.csv",
+        ),
     ]
 
 
-def make_all(out_dir: Path = FIGURES_DIR) -> list[Path]:
+def make_all(out_dir: Path = FIGURES_DIR, csv_out_dir: Path = RESULTS_DIR) -> list[Path]:
     """Rebuild the derived CSVs, then render all figures; returns the PNG paths."""
-    rebuild_derived_csvs()
+    rebuild_derived_csvs(csv_out_dir)
     return [
         four_arm_comparison.make(out_dir=out_dir),
         scaling_curves.make(out_dir=out_dir),

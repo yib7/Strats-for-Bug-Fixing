@@ -215,7 +215,10 @@ def run_step(step: Step, run_dir: Path, env: dict[str, str]) -> int:
             errors="replace",
             bufsize=1,
         )
-        assert proc.stdout is not None
+        # Not an `assert`: this orchestrator drives multi-hour GPU runs, and under `python -O`
+        # a stripped assert would leave the loop below iterating None.
+        if proc.stdout is None:  # pragma: no cover -- stdout=PIPE guarantees a stream
+            raise RuntimeError(f"{step.name}: subprocess stdout was not captured")
         for line in proc.stdout:
             log.write(line)
             log.flush()

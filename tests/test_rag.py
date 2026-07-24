@@ -515,7 +515,9 @@ def test_generate_with_resume_continues_after_interruption(tmp_path):
         generate_with_resume(prompts, refs, out, flaky, chunk_size=2)
 
     assert not out.exists()  # never finalized
-    assert partial.exists() and len(partial.read_text().splitlines()) == 2  # 1st chunk saved
+    # 1st chunk saved
+    assert partial.exists()
+    assert len(partial.read_text(encoding="utf-8").splitlines()) == 2
 
     seen: list[str] = []
 
@@ -528,7 +530,7 @@ def test_generate_with_resume_continues_after_interruption(tmp_path):
     assert n == 5
     assert seen == ["p2", "p3", "p4"]  # already-done prompts are NOT regenerated
     assert not partial.exists()
-    preds = [json.loads(x)["prediction"] for x in out.read_text().splitlines()]
+    preds = [json.loads(x)["prediction"] for x in out.read_text(encoding="utf-8").splitlines()]
     assert preds == [f"fix:p{i}" for i in range(5)]
 
 
@@ -536,10 +538,74 @@ def test_generate_with_resume_empty_prompts_writes_empty_file(tmp_path):
     out = tmp_path / "predictions.jsonl"
     n = generate_with_resume([], [], out, lambda ps: [], chunk_size=2)
     assert n == 0
-    assert out.exists() and out.read_text() == ""
+    assert out.exists() and out.read_text(encoding="utf-8") == ""
 
 
 def test_generate_with_resume_rejects_length_mismatch(tmp_path):
     out = tmp_path / "predictions.jsonl"
     with pytest.raises(ValueError):
         generate_with_resume(["p0", "p1"], ["r0"], out, lambda ps: list(ps))
+
+
+# --- resume from a torn checkpoint -------------------------------------------------------
+
+
+def test_resume_discards_a_torn_trailing_write(tmp_path):
+    """A process killed mid-`write` leaves a partial JSON object with no newline. It still
+    counted as a line, so the next append concatenated onto it and produced one unparseable
+    record in the middle of the finished file."""
+    out = tmp_path / "predictions.jsonl"
+    partial = tmp_path / "predictions.jsonl.partial"
+    partial.write_text(
+        '{"prediction": "fix:p0", "reference": "r0"}\n'
+        '{"prediction": "fix:p1", "reference": "r1"}\n'
+        '{"prediction": "fix:p2", "refere',  # <- torn, no trailing newline
+        encoding="utf-8",
+    )
+
+    prompts = [f"p{i}" for i in range(4)]
+    refs = [f"r{i}" for i in range(4)]
+    seen: list[str] = []
+
+    def generate(chunk):
+        seen.extend(chunk)
+        return [f"fix:{p}" for p in chunk]
+
+    n = generate_with_resume(prompts, refs, out, generate, chunk_size=2)
+
+    assert n == 4
+    assert seen == ["p2", "p3"], "the torn record must be regenerated, not kept"
+    lines = out.read_text(encoding="utf-8").splitlines()
+    assert [json.loads(x)["prediction"] for x in lines] == [f"fix:p{i}" for i in range(4)]
+
+
+def test_resume_discards_a_trailing_line_that_is_not_json(tmp_path):
+    out = tmp_path / "predictions.jsonl"
+    partial = tmp_path / "predictions.jsonl.partial"
+    partial.write_text(
+        '{"prediction": "fix:p0", "reference": "r0"}\n{"predi\n',
+        encoding="utf-8",
+    )
+
+    n = generate_with_resume(
+        ["p0", "p1"], ["r0", "r1"], out, lambda c: [f"fix:{p}" for p in c], chunk_size=2
+    )
+
+    assert n == 2
+    lines = out.read_text(encoding="utf-8").splitlines()
+    assert [json.loads(x)["prediction"] for x in lines] == ["fix:p0", "fix:p1"]
+
+
+def test_intact_partial_is_left_alone(tmp_path):
+    out = tmp_path / "predictions.jsonl"
+    partial = tmp_path / "predictions.jsonl.partial"
+    partial.write_text('{"prediction": "fix:p0", "reference": "r0"}\n', encoding="utf-8")
+
+    seen: list[str] = []
+
+    def generate(chunk):
+        seen.extend(chunk)
+        return [f"fix:{p}" for p in chunk]
+
+    generate_with_resume(["p0", "p1"], ["r0", "r1"], out, generate, chunk_size=2)
+    assert seen == ["p1"], "a complete record must not be regenerated"

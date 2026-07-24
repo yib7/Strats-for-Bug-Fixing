@@ -34,8 +34,13 @@ def _assert_png(path: Path) -> None:
 
 
 def test_make_all_writes_three_pngs(tmp_path):
-    """The driver renders all three figures against committed results + fixtures."""
-    paths = make_all.make_all(out_dir=tmp_path)
+    """The driver renders all three figures against committed results + fixtures.
+
+    `csv_out_dir` is redirected: `rebuild_derived_csvs` used to always write
+    `results/*.csv` at the repo root, so running the test suite mutated tracked files.
+    """
+    csv_dir = tmp_path / "csv"
+    paths = make_all.make_all(out_dir=tmp_path, csv_out_dir=csv_dir)
     assert [p.name for p in paths] == [
         "four_arm_comparison.png",
         "scaling_curves.png",
@@ -43,6 +48,27 @@ def test_make_all_writes_three_pngs(tmp_path):
     ]
     for p in paths:
         _assert_png(p)
+
+
+def test_make_all_does_not_write_into_the_committed_results_dir(tmp_path):
+    """pytest must never mutate tracked data (and must not trip CI's clean-tree guard)."""
+    tracked = {p: p.read_bytes() for p in RESULTS_DIR.glob("*.csv")}
+    assert tracked, "expected the committed derived CSVs to exist"
+
+    make_all.make_all(out_dir=tmp_path, csv_out_dir=tmp_path / "csv")
+
+    for path, before in tracked.items():
+        assert path.read_bytes() == before, f"test run modified tracked file {path}"
+    assert (tmp_path / "csv" / "scaling_data.csv").is_file()
+    assert (tmp_path / "csv" / "execbench_agreement.csv").is_file()
+
+
+def test_rebuild_derived_csvs_defaults_to_the_real_results_dir():
+    """The default must stay the real path -- make_all.py is the documented reproduce step."""
+    import inspect
+
+    default = inspect.signature(make_all.rebuild_derived_csvs).parameters["csv_out_dir"].default
+    assert Path(default) == RESULTS_DIR
 
 
 def test_four_arm_renders_from_committed_results(tmp_path):
@@ -109,3 +135,40 @@ def test_committed_figures_present_and_nonempty():
     """The committed docs/figures PNGs exist (guards against accidental deletion)."""
     for name in ("four_arm_comparison", "scaling_curves", "execution_vs_codebleu"):
         _assert_png(FIGURES_DIR / f"{name}.png")
+
+
+# --- graceful degradation on a present-but-incomplete result -----------------------------
+
+
+def _write_result(path: Path, metrics: dict) -> None:
+    import json
+
+    path.write_text(json.dumps({"config": {}, "metrics": metrics, "n": 1}) + "\n", encoding="utf-8")
+
+
+def test_arm_with_a_result_file_missing_a_metric_is_pending_not_a_crash(tmp_path):
+    """The module promises graceful degradation and delivered it for an *absent* file;
+    a file that existed but lacked a metric crashed with TypeError / ZeroDivisionError."""
+    for epoch in (1, 3, 10):
+        _write_result(tmp_path / f"finetune_A_ep{epoch}_test.json", {"codebleu": 0.5})  # no syntax
+    for seed in (0, 1, 2):
+        _write_result(tmp_path / f"finetune_B_seed{seed}_test.json", {"em": 0.0})  # neither metric
+
+    arms = four_arm_comparison.collect_arms(tmp_path)
+    assert arms["A"]["pending"] is True
+    assert arms["B"]["pending"] is True
+
+    out = four_arm_comparison.make(results_dir=tmp_path, out_dir=tmp_path)
+    _assert_png(out)
+
+
+def test_arm_with_an_explicit_null_metric_is_pending(tmp_path):
+    _write_result(tmp_path / "lora_qwen_test.json", {"codebleu": None, "syntax_valid_rate": 0.9})
+    arms = four_arm_comparison.collect_arms(tmp_path)
+    assert arms["D"]["pending"] is True
+
+
+def test_empty_results_dir_renders_all_four_arms_pending(tmp_path):
+    arms = four_arm_comparison.collect_arms(tmp_path)
+    assert all(arms[a]["pending"] is True for a in "ABCD")
+    _assert_png(four_arm_comparison.make(results_dir=tmp_path, out_dir=tmp_path))
