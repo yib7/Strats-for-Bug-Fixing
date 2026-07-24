@@ -1,0 +1,75 @@
+/* Site-level overrides on the mkdocs `readthedocs` theme.
+ *
+ * Hand-written, unlike docs/css/pygments.css next door, which is a generated Pygments dump and
+ * should stay one. Everything here is a small correction to a theme default that this site's
+ * content shows up badly; none of it is a redesign, and none of it adds a third-party request.
+ */
+
+/* --- Measure -------------------------------------------------------------------------------- */
+
+/* The theme caps the content column at 800px, which leaves 696px of usable width. Three things
+ * suffer at that width: the four-arm table on the landing page needs 728px and so scrolls
+ * sideways for want of 32px; the architecture page's tables need 779-1186px; and the report's
+ * figures are 1296px wide, so they render at 0.54x, putting their 8.5pt tick labels at about
+ * 7.7 CSS px. 1000px fixes the landing-page table outright, takes the figures to ~0.66x (~9.4px
+ * labels), and still keeps prose near a 95-character measure. Wider tables keep scrolling inside
+ * their own `.wy-table-responsive` container, which is the theme's correct behaviour.
+ */
+.wy-nav-content {
+    max-width: 1000px;
+}
+
+/* --- Text contrast (WCAG AA, 4.5:1 for body-size text) -------------------------------------- */
+
+/* The theme's link blue (#2980b9) measures 4.19:1 on the content background (#fcfcfc) and its
+ * inline-code red (#e74c3c) measures 3.82:1 on white -- both under 4.5:1, and both are used
+ * constantly on these pages (every `pop` subcommand and every results path is inline code).
+ * These are darker shades of the same two hues, not new colours: 5.16:1 and 5.48:1 respectively.
+ * Scoped to the content column so the sidebar and the mobile header, which set their own link
+ * colours against a dark background, are untouched.
+ */
+.wy-nav-content a,
+.wy-nav-content a code {
+    color: #2471a3;
+}
+
+.wy-nav-content a:hover,
+.wy-nav-content a:hover code {
+    color: #1f618d;
+}
+
+.wy-nav-content a:visited,
+.wy-nav-content a:visited code {
+    color: #8e44ad;
+}
+
+.rst-content code {
+    color: #c0392b;
+}
+
+/* Code *blocks* stay black on #f8f8f8 (19.8:1); this rule is only about inline `code`. */
+.rst-content pre code {
+    color: #000;
+}
+
+/* --- Figures -------------------------------------------------------------------------------- */
+
+/* Frame the figures so they read as figures rather than as loose images. Applies to the three
+ * report charts and to the architecture page's pipeline diagram alike.
+ */
+.rst-content .section img {
+    display: block;
+    margin: 0 auto;
+    padding: 4px;
+    background: #fff;
+    border: 1px solid #e1e4e5;
+    border-radius: 3px;
+}
+
+/* The three raster charts are additionally linked to their full-size file, so a reader can open
+ * one at native resolution -- necessary on a phone, where a 1296px-wide chart is scaled to 0.25x.
+ * The link is a frame around an image, so it should not draw an underline of its own.
+ */
+.rst-content a:has(> img) {
+    text-decoration: none;
+}

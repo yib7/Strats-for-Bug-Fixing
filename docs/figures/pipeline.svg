@@ -1,0 +1,85 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 710" width="800" height="710" role="img" aria-labelledby="pipeline-title">
+  <title id="pipeline-title">How a prediction becomes a committed number</title>
+  <!--
+    Rendered form of docs/figures/pipeline.mmd. Drawn with presentation attributes only (no <style>,
+    no external font, no script) so it renders identically on the mkdocs site and on GitHub, and so
+    the site keeps its zero-third-party-subresource property. Edit this and the .mmd together.
+  -->
+  <rect x="0" y="0" width="800" height="710" fill="#ffffff"/>
+
+  <g stroke="#90a4ae" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <!-- PAIRS + BUGS -> ARMS -->
+    <path d="M195,56 L195,75 L605,75 L605,56"/>
+    <path d="M400,75 L400,86"/>
+    <!-- ARMS -> PRED -->
+    <path d="M400,134 L400,164"/>
+    <!-- PRED -> EVAL + EXEC -->
+    <path d="M400,212 L400,231"/>
+    <path d="M195,231 L605,231"/>
+    <path d="M195,231 L195,242"/>
+    <path d="M605,231 L605,242"/>
+    <!-- EVAL + EXEC -> RESULTS -->
+    <path d="M195,290 L195,309"/>
+    <path d="M605,290 L605,309"/>
+    <path d="M195,309 L605,309"/>
+    <path d="M400,309 L400,320"/>
+    <!-- RESULTS -> CSV -> FIGS -> PNG -> REPORT -->
+    <path d="M400,368 L400,398"/>
+    <path d="M400,460 L400,490"/>
+    <path d="M400,538 L400,568"/>
+    <path d="M400,616 L400,646"/>
+    <!-- RESULTS -> REPORT, bypassing the figure chain -->
+    <path d="M503,348 L770,348 L770,674 L478,674"/>
+  </g>
+
+  <g fill="#90a4ae">
+    <path d="M395,86 L405,86 L400,94 Z"/>
+    <path d="M395,164 L405,164 L400,172 Z"/>
+    <path d="M190,242 L200,242 L195,250 Z"/>
+    <path d="M600,242 L610,242 L605,250 Z"/>
+    <path d="M395,320 L405,320 L400,328 Z"/>
+    <path d="M395,398 L405,398 L400,406 Z"/>
+    <path d="M395,490 L405,490 L400,498 Z"/>
+    <path d="M395,568 L405,568 L400,576 Z"/>
+    <path d="M395,646 L405,646 L400,654 Z"/>
+    <path d="M478,669 L478,679 L470,674 Z"/>
+  </g>
+
+  <g font-family="Segoe UI, Helvetica Neue, Helvetica, Arial, sans-serif" font-size="13" text-anchor="middle">
+
+    <rect x="50" y="16" width="290" height="40" rx="5" fill="#fbfcfd" stroke="#b9c4cc" stroke-width="1.25"/>
+    <text x="195" y="40.5" fill="#37474f">CodeXGLUE refinement pairs (6,545 test)</text>
+
+    <rect x="472" y="16" width="266" height="40" rx="5" fill="#fbfcfd" stroke="#b9c4cc" stroke-width="1.25"/>
+    <text x="605" y="40.5" fill="#37474f">benchmarks/: 201 vendored Java bugs</text>
+
+    <rect x="245" y="94" width="310" height="40" rx="5" fill="#fbfcfd" stroke="#b9c4cc" stroke-width="1.25"/>
+    <text x="400" y="118.5" fill="#37474f">arms A, B, C, D, driven by configs/*.yaml</text>
+
+    <rect x="322" y="172" width="156" height="40" rx="5" fill="#fbfcfd" stroke="#b9c4cc" stroke-width="1.25"/>
+    <text x="400" y="196.5" fill="#37474f">predictions .jsonl</text>
+
+    <rect x="50" y="250" width="290" height="40" rx="5" fill="#fbfcfd" stroke="#b9c4cc" stroke-width="1.25"/>
+    <text x="195" y="274.5" fill="#37474f">pop eval: EM, CodeBLEU, syntax validity</text>
+
+    <rect x="472" y="250" width="266" height="40" rx="5" fill="#fbfcfd" stroke="#b9c4cc" stroke-width="1.25"/>
+    <text x="605" y="274.5" fill="#37474f">pop execbench: javac + JUnit per bug</text>
+
+    <rect x="297" y="328" width="206" height="40" rx="5" fill="#eaf2f8" stroke="#2980b9" stroke-width="1.75"/>
+    <text x="400" y="352.5" fill="#1b4f72" font-weight="600">results/*.json, committed</text>
+
+    <rect x="275" y="406" width="250" height="54" rx="5" fill="#fbfcfd" stroke="#b9c4cc" stroke-width="1.25"/>
+    <text x="400" y="429" fill="#37474f">build_scaling_csv.py +</text>
+    <text x="400" y="446" fill="#37474f">build_execbench_agreement_csv.py</text>
+
+    <rect x="292" y="498" width="216" height="40" rx="5" fill="#fbfcfd" stroke="#b9c4cc" stroke-width="1.25"/>
+    <text x="400" y="522.5" fill="#37474f">scripts/figures/make_all.py</text>
+
+    <rect x="320" y="576" width="160" height="40" rx="5" fill="#fbfcfd" stroke="#b9c4cc" stroke-width="1.25"/>
+    <text x="400" y="600.5" fill="#37474f">docs/figures/*.png</text>
+
+    <rect x="330" y="654" width="140" height="40" rx="5" fill="#fbfcfd" stroke="#b9c4cc" stroke-width="1.25"/>
+    <text x="400" y="678.5" fill="#37474f">docs/report.md</text>
+
+  </g>
+</svg>

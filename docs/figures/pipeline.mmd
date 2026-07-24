@@ -1,0 +1,23 @@
+%% Source of truth for docs/figures/pipeline.svg -- the "how a prediction becomes a committed
+%% number" diagram on docs/architecture.md.
+%%
+%% Why a committed SVG and not a live mermaid block: the mkdocs `readthedocs` theme has no mermaid
+%% renderer, so a ```mermaid fence ships to the site as a raw code block. The alternatives were a
+%% vendored ~3 MB mermaid bundle (the site deliberately loads zero third-party JS, see
+%% docs/css/pygments.css) or a mermaid-cli build step (Node + headless Chromium, neither a
+%% dependency of this repo). So the diagram is committed as a static SVG instead, hand-drawn to
+%% match the graph below node for node. Edit both together.
+
+flowchart TD
+    PAIRS["CodeXGLUE refinement pairs (6,545 test)"] --> ARMS
+    BUGS["benchmarks/: 201 vendored Java bugs"] --> ARMS
+    ARMS["arms A, B, C, D, driven by configs/*.yaml"] --> PRED["predictions .jsonl"]
+    PRED --> EVAL["pop eval: EM, CodeBLEU, syntax validity"]
+    PRED --> EXEC["pop execbench: javac + JUnit per bug"]
+    EVAL --> RESULTS["results/*.json, committed"]
+    EXEC --> RESULTS
+    RESULTS --> CSV["build_scaling_csv.py + build_execbench_agreement_csv.py"]
+    CSV --> FIGS["scripts/figures/make_all.py"]
+    FIGS --> PNG["docs/figures/*.png"]
+    PNG --> REPORT["docs/report.md"]
+    RESULTS --> REPORT

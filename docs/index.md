@@ -19,7 +19,9 @@ built to avoid.
 
 ## Headline figure
 
-![Four-arm comparison](figures/four_arm_comparison.png)
+[![Four-arm comparison: grouped bars of CodeBLEU and syntax-valid rate for arms A, B, C and D.
+LoRA-finetuned Qwen (D) leads on CodeBLEU at 0.854, RAG-prompted Qwen (C) follows at 0.652, and the
+two T5 arms sit together near 0.48.](figures/four_arm_comparison.png)](figures/four_arm_comparison.png)
 
 All four arms carry real, committed numbers (arm B's error bar is its seed 0/1/2 band; arm C's bar
 is the best config from its retriever×k sweep). CodeBLEU ranks the arms D > C > A ≈ B, but execution

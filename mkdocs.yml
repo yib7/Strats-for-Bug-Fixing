@@ -5,6 +5,12 @@ site_description: >-
 docs_dir: docs
 use_directory_urls: true
 
+# Where the built site is served from. Without this, mkdocs emits an empty `sitemap.xml` and builds
+# `404.html` against `/` -- so on a project Pages site (served under /<repo>/) every stylesheet,
+# script and icon the 404 page asks for resolves one directory too high and 404s in turn, leaving an
+# unstyled error page. Keep this in step with the Pages deployment.
+site_url: https://yib7.github.io/Strats-for-Bug-Fixing/
+
 theme:
   name: readthedocs
   # The theme's default (`highlightjs: true`) injects highlight.js and its stylesheet from
@@ -16,6 +22,7 @@ theme:
 
 extra_css:
   - css/pygments.css
+  - css/extra.css
 
 nav:
   - Home: index.md
@@ -31,6 +38,7 @@ exclude_docs: |
   colab-runbook.md
   gpu-runbook.md
   results-manifest.md
+  figures/*.mmd
 
 markdown_extensions:
   - tables

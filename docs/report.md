@@ -56,7 +56,9 @@ bootstrap CIs, provenance on every `results/*.json`) and only then compares arms
 
 ### Four-arm headline
 
-![Four-arm comparison — CodeBLEU and syntax-valid rate](figures/four_arm_comparison.png)
+[![Four-arm comparison — grouped bars of CodeBLEU and syntax-valid rate for arms A, B, C and D, with
+arm B's seed band and arm A's finetune-epoch trend shown as error bars and connected
+markers.](figures/four_arm_comparison.png)](figures/four_arm_comparison.png)
 
 *Figure 1 — `docs/figures/four_arm_comparison.png`. All four arms are real. Arm B's error bar is the
 seed 0/1/2 band; the connected markers on arm A trace the finetune-epoch trend (1→3→10); arm C's bar
@@ -113,7 +115,9 @@ findings 5 and 7).
 
 ### Scaling curves
 
-![Scaling curves — CodeBLEU vs data and vs pretraining compute](figures/scaling_curves.png)
+[![Scaling curves — two line charts. Left: CodeBLEU against finetune train_n at 1K, 5K, 15K and ~52K
+pairs for arms A and B, which track each other closely. Right: CodeBLEU against pretraining epochs
+(1, 3, 10) for arm A, essentially flat.](figures/scaling_curves.png)](figures/scaling_curves.png)
 
 *Figure 2 — `docs/figures/scaling_curves.png`. Real data from `results/scaling_data.csv` (18 rows: 12
 data-curve runs at train_n∈{1K,5K,15K}×seed{0,1} for arms A/B, plus the reused 52K/ep10 reference
@@ -141,7 +145,9 @@ monotonically between epoch 1 and epoch 10). More pretraining compute past epoch
 
 ### Execution vs CodeBLEU
 
-![Execution pass@1 vs CodeBLEU per arm](figures/execution_vs_codebleu.png)
+[![Execution pass@1 against CodeBLEU, one point per arm. RAG-prompted Qwen (C) is highest on pass@1
+at 35.8% despite a lower CodeBLEU than LoRA (D) at 26.4%, and the two T5 arms sit on top of each
+other at pass@1 = 0.](figures/execution_vs_codebleu.png)](figures/execution_vs_codebleu.png)
 
 *Figure 3 — `docs/figures/execution_vs_codebleu.png`. Real per-arm execution predictions
 (`results/execbench_{A,B,C,D}.json`) plotted against each arm's Track-1 CodeBLEU.* Each arm is one

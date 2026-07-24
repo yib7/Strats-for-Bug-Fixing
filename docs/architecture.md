@@ -41,21 +41,16 @@ zero bugs. `docs/report.md` has the numbers and what they mean.
 
 ## How a prediction becomes a committed number
 
-```mermaid
-flowchart TD
-    PAIRS["CodeXGLUE refinement pairs (6,545 test)"] --> ARMS
-    BUGS["benchmarks/: 201 vendored Java bugs"] --> ARMS
-    ARMS["arms A, B, C, D, driven by configs/*.yaml"] --> PRED["predictions .jsonl"]
-    PRED --> EVAL["pop eval: EM, CodeBLEU, syntax validity"]
-    PRED --> EXEC["pop execbench: javac + JUnit per bug"]
-    EVAL --> RESULTS["results/*.json, committed"]
-    EXEC --> RESULTS
-    RESULTS --> CSV["build_scaling_csv.py + build_execbench_agreement_csv.py"]
-    CSV --> FIGS["scripts/figures/make_all.py"]
-    FIGS --> PNG["docs/figures/*.png"]
-    PNG --> REPORT["docs/report.md"]
-    RESULTS --> REPORT
-```
+[![Pipeline from the two datasets to the committed numbers: the CodeXGLUE refinement pairs and the
+201 vendored Java bugs both feed arms A, B, C and D; the arms emit predictions .jsonl, which fans
+out to pop eval (EM, CodeBLEU, syntax validity) and pop execbench (javac + JUnit per bug); both
+score into results/*.json, committed. From there the CSV builders feed scripts/figures/make_all.py,
+which renders docs/figures/*.png into docs/report.md — and results/*.json also feeds the report
+directly.](figures/pipeline.svg)](figures/pipeline.svg)
+
+The diagram's source is `docs/figures/pipeline.mmd`; `docs/figures/pipeline.svg` is the committed
+render of it. (The site ships the SVG rather than a live `mermaid` block because the `readthedocs`
+theme has no mermaid renderer and this site deliberately loads no third-party JavaScript.)
 
 Every result JSON carries the same envelope, written by `pop.eval.metrics.write_results`:
 `{config, metrics, n, timestamp, git_sha}`.
