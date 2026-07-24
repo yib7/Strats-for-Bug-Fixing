@@ -69,21 +69,21 @@ allocates and on current queue/throttling. Treat them as "roughly this much, bud
 
 Runs the arm A ("pretrained + fine-tuned") vs. arm B ("fine-tuned, no pre-training") comparison.
 The A-vs-B CodeBLEU difference is small, so this stage includes the seed-variance ablation needed
-to tell a real gap from noise. The single-notebook path is `notebooks/colab_phase2.ipynb` driving
-`scripts/run_training.py` (see [`colab-runbook.md`](colab-runbook.md)); the two-notebook path below
-remains as reference.
+to tell a real gap from noise. It all runs from one notebook, `notebooks/colab_phase2.ipynb`,
+driving the resumable orchestrator `scripts/run_training.py` (see
+[`colab-runbook.md`](colab-runbook.md) for the Drive setup and the disconnect/resume mechanics).
+The orchestrator's step order is:
 
-1. **`colab_pretrain.ipynb`** + `configs/pretrain_10ep.yaml` — trains the vocab-16384 tokenizer on
-   the full CodeSearchNet-Java corpus, then runs T5 span-corruption pretraining for 10 epochs,
-   checkpointing at epochs 1/3/10.
+1. **Tokenizer + pretrain** — `pop tokenizer` trains the vocab-16384 SentencePiece model on the
+   CodeSearchNet-Java corpus, then `pop pretrain --config configs/pretrain_10ep.yaml` runs T5
+   span-corruption pretraining for 10 epochs, checkpointing at epochs 1/3/10.
    - Rough runtime: tokenizer training a few minutes; pretraining is the long pole, likely several
      hours for 50K methods × 10 epochs on a T5-base-sized model on a T4 — **estimate; confirm
      against your own first-epoch wall time and extrapolate**.
    - Produces: `outputs/tokenizer/` and `outputs/pretrain/final/` (plus the epoch-1/epoch-3
      checkpoints the scaling curves consume).
-2. **`colab_finetune.ipynb`** — re-upload `outputs/tokenizer/` and `outputs/pretrain/final/` from
-   step 1 into the session first. Then, editing the notebook's `CONFIG` variable and re-running the
-   run cell once per config:
+2. **Six finetune → generate → eval cycles**, one per system, headline comparison first
+   (`A_ep10`, `B_seed0`, then `A_ep3`, `A_ep1`, `B_seed1`, `B_seed2`):
    - `configs/finetune_A_ep{1,3,10}.yaml` — arm A (pretrained + finetuned), epochs swept at fixed
      seed 42.
    - `configs/finetune_B_seed{0,1,2}.yaml` — arm B (finetuned only; these configs deliberately omit
@@ -92,7 +92,9 @@ remains as reference.
    - Rough runtime per config: finetuning a T5-base on the CodeXGLUE-medium train split, tens of
      minutes to ~1–2 hours depending on epoch count — **estimate**; these six configs are the bulk
      of the stage's GPU time.
-   - Produces: each config's `outputs/finetune_*/best/` checkpoint directory.
+   - Produces: each config's `outputs/finetune_*/best/` checkpoint directory and
+     `results/finetune_{A_ep1,A_ep3,A_ep10,B_seed0,B_seed1,B_seed2}_test.json`. Intermediate
+     `checkpoint-*` dirs are pruned after each system's eval to bound Drive usage.
 
 ### The EM>0 gate
 

@@ -92,9 +92,9 @@ Drive-symlinked `outputs/`), as the first work of that session:
 | **Verify (one line)** | `!ls outputs/pretrain/final outputs/pretrain/epoch-1 outputs/pretrain/epoch-3` all list a `config.json` + weights |
 | **Resume after disconnect** | The T5 pretrainer auto-resumes from the latest `outputs/pretrain/checkpoint-*` on Drive; re-run the `pop pretrain` line. If `epoch-{1,3}` already exist and load, Step 0 is done — skip straight to Step 2. |
 
-Do **not** use `notebooks/colab_pretrain.ipynb` for this: it is an earlier launcher that
-`git clone`s a branch without the `epoch-{1,3}` milestone dirs and uses interactive W&B — it will
-not produce the artifacts Step 2 needs.
+Run the pretrain here rather than reusing an older one from elsewhere: the `epoch-{1,3}` milestone
+dirs Step 2 loads come from the milestone callback in `src/pop/train/pretrain.py`, so the pretrain
+has to run with the current code.
 
 ---
 

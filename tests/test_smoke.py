@@ -18,13 +18,15 @@ FIXTURES_DIR = REPO_ROOT / "tests" / "fixtures"
 CONFIGS_DIR = REPO_ROOT / "configs"
 NOTEBOOKS_DIR = REPO_ROOT / "notebooks"
 
-NOTEBOOK_NAMES = [
-    "colab_pretrain.ipynb",
-    "colab_finetune.ipynb",
-    "colab_rag.ipynb",
-    "colab_scaling.ipynb",
-    "colab_lora.ipynb",
-]
+# Every notebook in notebooks/, discovered rather than listed: a hand-maintained list silently
+# stopped covering colab_phase2.ipynb and colab_execbench.ipynb when those were added.
+NOTEBOOK_PATHS = sorted(NOTEBOOKS_DIR.glob("colab_*.ipynb"))
+NOTEBOOK_NAMES = [path.name for path in NOTEBOOK_PATHS]
+
+# The notebooks that offer a Weights & Biases cell. It must be an interactive `wandb.login()` so a
+# key is never pasted into a committed cell; colab_phase2 and colab_execbench deliberately have no
+# W&B cell at all (Run all must never stall waiting for input).
+WANDB_NOTEBOOK_NAMES = ["colab_lora.ipynb", "colab_rag.ipynb", "colab_scaling.ipynb"]
 
 
 # ---- SmokeConfig ----
@@ -200,9 +202,14 @@ def test_lora_qwen_config_file_exists_and_is_valid_yaml():
 _SECRET_PATTERNS = ("api_key=", "api_key = ", "api_key: ", "sk-", "AKIA", "-----BEGIN")
 
 
-def test_notebooks_exist():
-    for name in NOTEBOOK_NAMES:
-        assert (NOTEBOOKS_DIR / name).is_file(), name
+def test_the_expected_notebooks_are_present():
+    assert NOTEBOOK_NAMES == [
+        "colab_execbench.ipynb",
+        "colab_lora.ipynb",
+        "colab_phase2.ipynb",
+        "colab_rag.ipynb",
+        "colab_scaling.ipynb",
+    ]
 
 
 def test_notebooks_are_nbformat_valid():
@@ -237,7 +244,7 @@ def test_notebooks_contain_no_obvious_secrets():
 def test_notebooks_use_interactive_wandb_login():
     import nbformat
 
-    for name in NOTEBOOK_NAMES:
+    for name in WANDB_NOTEBOOK_NAMES:
         nb = nbformat.read(NOTEBOOKS_DIR / name, as_version=4)
         source = "\n".join(
             "".join(cell.source) if isinstance(cell.source, list) else cell.source
@@ -246,7 +253,13 @@ def test_notebooks_use_interactive_wandb_login():
         assert "wandb.login()" in source, f"{name} must call wandb.login() interactively"
 
 
-def test_notebooks_install_from_repo_git_url():
+def test_notebooks_install_from_the_drive_zip_not_a_git_branch():
+    """Every notebook must install `pop` from the Drive-uploaded `pop_repo.zip`.
+
+    Two earlier notebooks instead ran `git clone -b <branch>`, and rotted the moment that
+    branch stopped existing -- Run all failed at the install cell. The zip is built from the
+    reader's own checkout (`git archive HEAD`), so it cannot go stale that way.
+    """
     import nbformat
 
     for name in NOTEBOOK_NAMES:
@@ -255,7 +268,15 @@ def test_notebooks_install_from_repo_git_url():
             "".join(cell.source) if isinstance(cell.source, list) else cell.source
             for cell in nb.cells
         )
-        assert "github.com/yib7/Strats-for-Bug-Fixing" in source
+        assert "pop_repo.zip" in source, f"{name} must install from pop_repo.zip"
+        code = "\n".join(
+            "".join(cell.source) if isinstance(cell.source, list) else cell.source
+            for cell in nb.cells
+            if cell.cell_type == "code"
+        )
+        assert "git clone" not in code, f"{name} must not git clone a branch"
+        if "github.com" in source:
+            assert "github.com/yib7/Strats-for-Bug-Fixing" in source, name
 
 
 # ---- results/smoke.json (committed from the verified run) ----
