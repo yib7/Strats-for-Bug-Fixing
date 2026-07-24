@@ -5,15 +5,30 @@
 - Upstream lineage per that repo's README: transformed from OpenAI's HumanEval
   (https://github.com/openai/human-eval, MIT) via the ASE'23 CLM replication package
   (https://github.com/lin-tan/clm).
-- License: **no `LICENSE` file is present in the source repo at the vendored commit.** No
-  `LICENSE.md`/`COPYING` either. The repo's own README does not state redistribution terms.
-  The underlying OpenAI HumanEval problem statements are MIT-licensed; the Java transformation
-  (buggy-program mutations + JUnit ports) by the CLM/ASSERT-KTH authors carries no explicit
-  license grant in this snapshot. Vendored here read-only for non-commercial research benchmark
-  use (execution-harness testing), consistent with how the dataset is used by the APR research
-  community (ASE'23 CLM paper and follow-ups). No `LICENSE` file is fabricated; this note stands
-  in its place. Flagged as a documented gap, not a blocker per this task's benchmark-vendoring
-  scope.
+- License: **no `LICENSE` file is present in the source repo** — not at the vendored commit and
+  not at the current default branch (re-checked 2026-07-24). No `LICENSE.md`/`COPYING` either, and
+  the repo's own README does not state redistribution terms.
+
+### Upstream licence chain
+
+The two upstreams this snapshot derives from *are* licensed permissively:
+
+| Layer | Source | License |
+|---|---|---|
+| Original problem set | [openai/human-eval](https://github.com/openai/human-eval) | MIT |
+| Java transformation (buggy mutants + JUnit ports), ASE'23 CLM replication package | [lin-tan/clm](https://github.com/lin-tan/clm) | BSD 3-Clause, "Copyright (c) 2023", ASSET research group, Purdue University (verified 2026-07-24) |
+| Snapshot vendored here | [ASSERT-KTH/human-eval-java](https://github.com/ASSERT-KTH/human-eval-java) | **none stated** |
+
+Both upstream grants (MIT and BSD 3-Clause) permit redistribution with attribution, and the
+ASSERT-KTH repo presents itself as a redistribution of that CLM work rather than as new authorship.
+On that reading, redistributing this subset with attribution to all three layers is permitted. That
+inference is **not** a substitute for an explicit grant, however: the vendored snapshot itself
+carries none, so its status is best described as *permissive by lineage, unstated at the snapshot*.
+
+The material is vendored read-only for research benchmark use (execution-harness testing),
+consistent with how the dataset is used across the APR research community. No `LICENSE` file is
+fabricated; this note stands in its place, and attribution to OpenAI, the CLM/ASSET authors, and
+ASSERT-KTH is carried in the repo's credits.
 
 ## What was vendored
 
