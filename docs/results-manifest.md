@@ -1,8 +1,8 @@
 # Results manifest — the full study's `results/` inventory
 
-The authoritative list of every results file the complete four-arm study contains, so "is the study
-intact?" is checkable at a glance. ✅ = committed / done. Every artifact is now present, including the
-formerly-optional `execbench_B.json` (arm B execution — see [`docs/handoff.md`](handoff.md)).
+The authoritative list of every results file the four-arm study contains, so "is the study intact?"
+is checkable at a glance. ✅ = committed. Every artifact is present, including `execbench_B.json`
+(arm B execution — see [`gpu-reproduction.md`](gpu-reproduction.md)).
 
 The four arms: **A** pretrain→finetune T5 · **B** from-scratch T5 · **C** RAG Qwen ·
 **D** LoRA Qwen. Every JSON follows the `pop.eval.metrics.write_results` schema

@@ -1,8 +1,8 @@
 # pretrain-or-prompt — study report
 
-> **Status: complete.** All four arms — **A** (pretrain→finetune T5), **B** (from-scratch T5),
+> All four arms — **A** (pretrain→finetune T5), **B** (from-scratch T5),
 > **C** (RAG-prompted Qwen2.5-Coder-1.5B-Instruct), **D** (LoRA-finetuned Qwen2.5-Coder-1.5B) —
-> are filled with the **real committed numbers** from the Colab GPU batch (`results/*.json`).
+> report **real measured numbers** from the Colab GPU batch, committed under `results/*.json`.
 > Two lenses: **Track 1** — CodeBLEU / exact-match / syntax-validity on the full 6,545-pair
 > CodeXGLUE test split; **Track 2** — execution pass@1 on 201 real Java bugs (QuixBugs-Java +
 > HumanEval-Java) through a JDK harness validated 201/201 on reference patches. It keeps an
@@ -244,7 +244,7 @@ bring in C and D). They are stated as honest negatives.
   every number in this report was cross-checked directly against its source file (the A/B finetune
   batch is additionally written up in `results/phase2_summary.md`). Reproducing the runs from
   scratch — rather than trusting the committed JSONs — requires re-executing the notebooks on a GPU
-  (`docs/handoff.md`).
+  (`docs/gpu-reproduction.md`).
 
 ## Reproducing the figures
 

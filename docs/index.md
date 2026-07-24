@@ -12,8 +12,8 @@ built to avoid.
 
 | Arm | System | CodeBLEU | Exec pass@1 | Status |
 |-----|--------|----------|-------------|--------|
-| **A** | pretrain → finetune T5-small | 0.477 | 0.0% | real (Phase-2 A100 batch) |
-| **B** | finetune-from-scratch T5-small | 0.479 | — (not run) | real (Phase-2 A100 batch) |
+| **A** | pretrain → finetune T5-small | 0.477 | 0.0% | real (A100 GPU batch) |
+| **B** | finetune-from-scratch T5-small | 0.479 | — (not run) | real (A100 GPU batch) |
 | **C** | RAG-prompted Qwen2.5-Coder-1.5B | 0.652 | **35.8%** | real (Colab GPU batch) |
 | **D** | LoRA-finetuned Qwen2.5-Coder-1.5B | **0.854** | 26.4% | real (Colab GPU batch) |
 

@@ -13,12 +13,13 @@ nav:
   - Study report: report.md
   - Measurement notes: measurement.md
 
-# Internal process docs and the Colab handoff notes live under docs/ but are not
-# part of the published site; excluding them keeps `mkdocs build` warning-free.
+# The operational runbooks and the results inventory live under docs/ for readers who
+# reproduce the study from the repo, but are not part of the published narrative site;
+# excluding them keeps `mkdocs build` warning-free.
 exclude_docs: |
-  handoff.md
+  gpu-reproduction.md
   colab-runbook.md
-  gpu-runbook-final.md
+  gpu-runbook.md
   results-manifest.md
 
 markdown_extensions:

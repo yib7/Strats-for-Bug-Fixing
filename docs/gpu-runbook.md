@@ -1,37 +1,37 @@
 # Consolidated GPU runbook — run the whole study in one Colab sitting
 
-> **Status: complete** — these runs have been executed; the results are in
-> [`report.md`](report.md). This document is kept as the historical operational runbook.
+This is the step-by-step to regenerate every result of the "pretrain, fine-tune, or prompt?" study
+in a single Colab GPU session, and to check at the end that nothing is missing. It sequences the
+four arms' GPU work (RAG, scaling, LoRA, execution-eval) plus the analysis aggregation, respecting
+the one real dependency: the scaling curves need a fresh pretrain.
 
-This is **the** step-by-step to generate every remaining result of the "pretrain, fine-tune,
-or prompt?" study in a single Colab GPU session, and to check at the end that nothing is
-missing. It sequences the four arms' GPU work (RAG, scaling, LoRA, execution-eval) plus the
-analysis aggregation, respecting the one real dependency (the scaling curves need a fresh pretrain).
+Every step here is CPU-tested and the notebooks are resumable. No secrets are required: W&B stays
+optional (`WANDB_API_KEY`, see `.env.example`) and no cell needs it.
 
-Everything here is **build-complete and CPU-tested** already. This document is the run *you* press
-in *your* Colab account. No secrets: W&B stays optional and is never required by any cell.
+The committed `results/*.json` already contain every number in the report — running this batch
+reproduces them from scratch rather than trusting those files.
 
-- **Inventory of what "done" means:** [`docs/results-manifest.md`](results-manifest.md).
-- **Cycle-2 background** (GPU choice table, disconnect/resume mechanics, EM-gate meaning):
-  [`docs/colab-runbook.md`](colab-runbook.md).
-- **The report the results flow into:** [`docs/report.md`](report.md) — already filled with the
-  committed numbers; re-running this batch reproduces them from scratch rather than trusting the
-  committed `results/*.json`.
+- **Inventory of what "complete" means:** [`results-manifest.md`](results-manifest.md).
+- **Environments, per-arm launch order, and the local ROCm path:**
+  [`gpu-reproduction.md`](gpu-reproduction.md).
+- **GPU-choice table, disconnect/resume mechanics, EM-gate behaviour:**
+  [`colab-runbook.md`](colab-runbook.md).
+- **The report the results flow into:** [`report.md`](report.md).
 
 ## Before you start — build & upload the Colab payload
 
-The private repo travels to Colab as a **zip on your Drive** (no token-based `git clone`).
-Rebuild it from the exact branch HEAD you reviewed, then upload it:
+The repo travels to Colab as a **zip on your Drive**, which avoids needing a token-based
+`git clone` in the notebook. Rebuild it from the exact commit you intend to run, then upload it:
 
 ```bash
 mkdir -p dist
 git archive --format=zip -o dist/pop_repo.zip HEAD
 ```
 
-Verify locally that it contains this cycle's new code, then upload `dist/pop_repo.zip` to the
-**one shared workspace** `Drive/MyDrive/pop_cycle3/pop_repo.zip` — all three cycle-3 notebooks
-unzip from this single location (into `/content/repo`), so you upload it just once and every
-arm's results co-locate under one `results/` for the Step-5 aggregation:
+Verify locally that the zip contains the current code, then upload `dist/pop_repo.zip` to the
+**one shared workspace** `Drive/MyDrive/pop_cycle3/pop_repo.zip` — the RAG, scaling and LoRA
+notebooks all unzip from this single location (into `/content/repo`), so you upload it just once
+and every arm's results co-locate under one `results/` for the Step-5 aggregation:
 
 ```bash
 python -c "import zipfile; z=zipfile.ZipFile('dist/pop_repo.zip'); \
@@ -45,7 +45,7 @@ sum(n.startswith('configs/finetune_scale_') for n in z.namelist()), 'scale confi
 (the trainers auto-scale the micro-batch to VRAM and preserve effective batch 64). Pick
 Runtime → Change runtime type → GPU before running any notebook.
 
-**Drive layout the notebooks expect:** all three cycle-3 notebooks share **one** Drive
+**Drive layout the notebooks expect:** the RAG, scaling and LoRA notebooks share **one** Drive
 workspace, `Drive/MyDrive/pop_cycle3/`, and each symlinks `outputs/`, `results/`, `logs/` into
 it so artifacts survive session resets. Because the `outputs/` subdirs (`rag_*`,
 `finetune_scale_*`, `lora_qwen`, …), the `results/*.json` filenames, and each sweep's `logs/`
@@ -60,17 +60,17 @@ session** (Step 0 first).
 
 **Why this is mandatory.** The scaling sweep (Step 2) finetunes *from* pretrain checkpoints:
 arm-A data configs load `outputs/pretrain/final`, and the pretrain-compute configs load
-`outputs/pretrain/epoch-{1,3}`. The stable `epoch-{1,3}` dirs are a **this-cycle** change
-(the milestone callback in `src/pop/train/pretrain.py`); **the earlier pretrain run predates it**,
-so pretrain must be **re-run with the current code** to produce them. Seed 42, ~1 h on A100.
+`outputs/pretrain/epoch-{1,3}`. The stable `epoch-{1,3}` dirs come from the milestone callback in
+`src/pop/train/pretrain.py`, so pretrain must be run with the current code to produce them.
+Seed 42, ~1 h on A100.
 
-> Documented minor inconsistency: the 52K data point and the ep10 pretrain-compute point reuse
-> the **committed cycle-2** runs (`finetune_A_ep10` / `finetune_B_seed{0,1}`), which came from a
-> *different* pretrain instance than this fresh one. The curves are internally consistent within
-> each sweep; the reused top points are labelled as reference and this seam is noted in the report.
+> Documented minor inconsistency: the 52K data point and the ep10 pretrain-compute point reuse the
+> committed `finetune_A_ep10` / `finetune_B_seed{0,1}` runs, which came from a *different* pretrain
+> instance than this fresh one. The curves are internally consistent within each sweep; the reused
+> top points are labelled as reference and this seam is noted in the report.
 
-**Run it inside `colab_scaling.ipynb`** (so it uses the zip-installed cycle-3 `pop` and writes to
-the Drive-symlinked `outputs/`), as the first work of that session:
+**Run it inside `colab_scaling.ipynb`** (so it uses the zip-installed `pop` and writes to the
+Drive-symlinked `outputs/`), as the first work of that session:
 
 1. Open `notebooks/colab_scaling.ipynb`; run cells **0–4** (Python/GPU check → mount Drive →
    unzip `pop_repo.zip` + `pip install -e .` → symlink `outputs/`/`results/`/`logs/` to
@@ -92,9 +92,9 @@ the Drive-symlinked `outputs/`), as the first work of that session:
 | **Verify (one line)** | `!ls outputs/pretrain/final outputs/pretrain/epoch-1 outputs/pretrain/epoch-3` all list a `config.json` + weights |
 | **Resume after disconnect** | The T5 pretrainer auto-resumes from the latest `outputs/pretrain/checkpoint-*` on Drive; re-run the `pop pretrain` line. If `epoch-{1,3}` already exist and load, Step 0 is done — skip straight to Step 2. |
 
-Do **not** use the old `notebooks/colab_pretrain.ipynb` for this: it is a cycle-1 launcher that
-`git clone`s an old branch (no `epoch-{1,3}` dirs) and uses interactive W&B — it will not produce
-the artifacts Step 2 needs.
+Do **not** use `notebooks/colab_pretrain.ipynb` for this: it is an earlier launcher that
+`git clone`s a branch without the `epoch-{1,3}` milestone dirs and uses interactive W&B — it will
+not produce the artifacts Step 2 needs.
 
 ---
 
@@ -190,9 +190,9 @@ score with the JDK harness (`pop execbench --predictions`, already 201/201 on re
 `--bench all` reloads the arm's model once per benchmark; splitting them loads it once per cell.
 Then concatenate the two jsonl and score once (each record carries its own `bench`).
 
-**Arm A (pretrained→finetuned T5)** — needs a finetuned arm-A T5 dir. Reuse the cycle-2
-`outputs/finetune_A_ep10/best` if it is on Drive; otherwise re-finetune it first (it loads the
-Step-0 pretrain): `!pop finetune --config configs/finetune_A_ep10.yaml`.
+**Arm A (pretrained→finetuned T5)** — needs a finetuned arm-A T5 dir. Reuse
+`outputs/finetune_A_ep10/best` if it is already on Drive; otherwise re-finetune it first (it loads
+the Step-0 pretrain): `!pop finetune --config configs/finetune_A_ep10.yaml`.
 
 ```bash
 # generate (two cells)
@@ -269,50 +269,30 @@ you can run Step 5 mid-batch to watch the study fill in.
 
 ---
 
-## Completeness checklist — every expected `results/*.json`
+## Completeness check — every `results/*.json` this batch produces
 
-Tick each once its file exists on Drive. Full inventory with status also in
-[`docs/results-manifest.md`](results-manifest.md).
+The full inventory, with each file's role, is in [`results-manifest.md`](results-manifest.md); all
+of these are committed in this repo, so you can diff a fresh run against them.
 
-**Reference (already committed from cycle 2 — reused, not re-run):**
-- [x] `results/finetune_A_ep10_test.json`  (arm A 52K + ep10 references)
-- [x] `results/finetune_B_seed0_test.json`, `results/finetune_B_seed1_test.json`  (arm B 52K)
-- [x] `results/finetune_B_seed2_test.json`  (extra arm-B seed, for the four-arm figure band)
-- [x] `results/execbench_validate_references.json`  (harness sanity, 201/201)
+| Step | Produces | Count |
+|---|---|---|
+| Reference (reused, not re-run) | `finetune_A_ep10_test.json`, `finetune_B_seed{0,1,2}_test.json`, `execbench_validate_references.json` | 5 |
+| 1 — RAG | `rag_{bm25,codebert}_k{0,1,3,5}_test.json` | 8 |
+| 2 — Scaling data curve | `finetune_scale_{A,B}_n{1k,5k,15k}_seed{0,1}_test.json` | 12 |
+| 2 — Pretrain-compute curve | `finetune_ptcompute_ep{1,3}_seed42_test.json` | 2 |
+| 3 — LoRA | `lora_qwen_test.json` | 1 |
+| 4 — Execution eval | `execbench_{A,B,C,D}.json` | 4 |
+| 5 — Derived CSVs | `scaling_data.csv`, `execbench_agreement.csv` | 2 |
 
-**Step 1 — RAG (8):**
-- [ ] `results/rag_bm25_k0_test.json`   - [ ] `results/rag_codebert_k0_test.json`
-- [ ] `results/rag_bm25_k1_test.json`   - [ ] `results/rag_codebert_k1_test.json`
-- [ ] `results/rag_bm25_k3_test.json`   - [ ] `results/rag_codebert_k3_test.json`
-- [ ] `results/rag_bm25_k5_test.json`   - [ ] `results/rag_codebert_k5_test.json`
+**This batch produces 27 JSONs + 2 CSVs**; the 5 reference files are reused rather than regenerated.
 
-**Step 2 — Scaling data curve (12):**
-- [ ] `results/finetune_scale_A_n1k_seed0_test.json`  - [ ] `results/finetune_scale_A_n1k_seed1_test.json`
-- [ ] `results/finetune_scale_A_n5k_seed0_test.json`  - [ ] `results/finetune_scale_A_n5k_seed1_test.json`
-- [ ] `results/finetune_scale_A_n15k_seed0_test.json` - [ ] `results/finetune_scale_A_n15k_seed1_test.json`
-- [ ] `results/finetune_scale_B_n1k_seed0_test.json`  - [ ] `results/finetune_scale_B_n1k_seed1_test.json`
-- [ ] `results/finetune_scale_B_n5k_seed0_test.json`  - [ ] `results/finetune_scale_B_n5k_seed1_test.json`
-- [ ] `results/finetune_scale_B_n15k_seed0_test.json` - [ ] `results/finetune_scale_B_n15k_seed1_test.json`
+A one-line check that a run is complete:
 
-**Step 2 — Pretrain-compute curve (2):**
-- [ ] `results/finetune_ptcompute_ep1_seed42_test.json`
-- [ ] `results/finetune_ptcompute_ep3_seed42_test.json`
+```bash
+ls results/rag_*_test.json results/finetune_scale_*_test.json \
+   results/finetune_ptcompute_*_test.json results/lora_qwen_test.json \
+   results/execbench_[ABCD].json | wc -l   # 27
+```
 
-**Step 3 — LoRA (1):**
-- [ ] `results/lora_qwen_test.json`
-
-**Step 4 — Execution-eval (all 4 arms):**
-- [ ] `results/execbench_A.json`   (arm A T5)
-- [ ] `results/execbench_B.json`   (arm B T5)
-- [ ] `results/execbench_C.json`   (arm C RAG)
-- [ ] `results/execbench_D.json`   (arm D LoRA)
-
-**Step 5 — Derived (2 CSVs, regenerated locally too):**
-- [ ] `results/scaling_data.csv`
-- [ ] `results/execbench_agreement.csv`
-
-**Total to produce this batch: 8 + 14 + 1 + 3 (+1 optional) = 26–27 JSONs + 2 CSVs.**
-
-When every required box is ticked: zip `results/` (and any `outputs/` you want to keep) back to
-your local clone, commit them on a results-ingest branch, re-run `scripts/figures/make_all.py`
-locally, and fill the numbers in `docs/report.md`. That closes the study.
+When the batch is done, copy `results/` (and any `outputs/` worth keeping) back to a local clone
+and re-run `scripts/figures/make_all.py` to render the figures from the fresh numbers.

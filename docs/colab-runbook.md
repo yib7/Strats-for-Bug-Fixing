@@ -1,9 +1,6 @@
-# Colab runbook -- Phase 2 in one notebook, resumable
+# Colab runbook -- the T5 arms in one notebook, resumable
 
-> **Status: complete** — these runs have been executed; the results are in
-> [`report.md`](report.md). This document is kept as the historical operational runbook.
-
-The whole Phase-2 retraining (tokenizer -> 10-epoch pretrain -> 6 finetuned systems ->
+The whole T5 retraining batch (tokenizer -> 10-epoch pretrain -> 6 finetuned systems ->
 generate -> eval) runs from **one notebook**, `notebooks/colab_phase2.ipynb`, driving the
 resumable orchestrator `scripts/run_training.py`. Every artifact (checkpoints, results,
 progress logs) lives on **your Google Drive**, so Colab disconnects cost nothing but time.
@@ -82,8 +79,8 @@ them -- check STATUS.md durations and extrapolate.
 
 After the first system (`A_ep10`) is generated and scored, the orchestrator **halts if
 exact match is exactly 0.0** (exit code 3, clear message in the log). Per
-`docs/handoff.md`, all-zero EM at this scale means a decoding bug, and the next move is a
-greedy-vs-beam-5 sweep (`pop generate --num-beams 5` on the same checkpoint) and eyeballing
+[`gpu-reproduction.md`](gpu-reproduction.md), all-zero EM at this scale points at a decoding bug,
+and the next move is a greedy-vs-beam-5 sweep (`pop generate --num-beams 5`) and eyeballing
 `outputs/finetune_A_ep10/best/predictions_test.jsonl` -- not burning quota on five more
 all-zero systems. Once diagnosed, re-run with `--skip-gate` if that's the informed call.
 
@@ -112,10 +109,8 @@ Bring back to the repo: download those 6 JSONs (+ SUMMARY.md) and drop them into
 
 ## Local-GPU fallback (unchanged)
 
-The same orchestrator runs on the RX 9070: `.venv-rocm\Scripts\python.exe
-scripts\run_training.py`. The 2026-07-17 desktop freezes were diagnosed as (a) a
-`UsbHub3.sys` driver bluescreen unrelated to training and (b) the one-time batch-32/64
-memory *probes* spilling into system RAM -- the real configs run at ~5.5 GB of 16 GB VRAM,
-and the trainers now hard-cap GPU memory (`POP_GPU_MEM_FRACTION`, default 0.85) so a spill
-can't recur. Colab remains the reproduction check for any local number destined for the
-write-up (see `docs/handoff.md`).
+The same orchestrator runs on an AMD RX 9070: `.venv-rocm\Scripts\python.exe
+scripts\run_training.py`. The real configs run at ~5.5 GB of 16 GB VRAM, and the trainers hard-cap
+GPU memory (`POP_GPU_MEM_FRACTION`, default 0.85) so the one-time batch-size probes cannot spill
+into system RAM. Colab remains the reproduction check for any local number destined for the
+write-up (see [`gpu-reproduction.md`](gpu-reproduction.md)).
