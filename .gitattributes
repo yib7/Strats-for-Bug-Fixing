@@ -1,0 +1,45 @@
+# Line-ending and diff policy.
+#
+# Why this file exists: without it, normalization depends entirely on each contributor's local
+# `core.autocrlf`. This repo's index happens to be 100% LF only because the machine it was
+# authored on sets `core.autocrlf=true` globally. On a checkout with `core.autocrlf=false` (the
+# Linux/macOS default, and plenty of Windows setups) the documented reproduce step
+# `python scripts/figures/make_all.py` rewrote results/*.csv with CRLF against an LF index and
+# left the tree dirty on every run.
+#
+# `eol=lf` (not `eol=native`) is deliberate: CI is Linux, the derived CSVs under results/ are
+# compared byte-for-byte, and a working tree that is identical on every platform is what makes
+# "run the two documented commands and `git status` is still clean" true everywhere. No tracked
+# file needs CRLF -- there are no .bat/.cmd/.ps1 scripts in this repo.
+
+# Normalize every text file to LF in the index, and check it out as LF.
+* text=auto eol=lf
+
+# Explicitly text, so a stray CR in one file can never flip git's auto-detection.
+*.py      text eol=lf
+*.md      text eol=lf
+*.yaml    text eol=lf
+*.yml     text eol=lf
+*.toml    text eol=lf
+*.json    text eol=lf
+*.jsonl   text eol=lf
+*.csv     text eol=lf
+*.txt     text eol=lf
+*.java    text eol=lf
+*.ipynb   text eol=lf
+*.lock    text eol=lf
+*.example text eol=lf
+.gitignore      text eol=lf
+.gitattributes  text eol=lf
+.python-version text eol=lf
+LICENSE   text eol=lf
+
+# Binary -- never transformed, never diffed as text.
+*.png     binary
+*.jar     binary
+*.model   binary
+*.safetensors binary
+*.ckpt    binary
+*.pt      binary
+*.pth     binary
+*.bin     binary

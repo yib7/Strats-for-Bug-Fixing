@@ -138,5 +138,7 @@ def write_results(name: str, metrics: dict, config: dict, *, overwrite: bool | N
         "timestamp": datetime.now(UTC).isoformat(),
         "git_sha": _git_sha(),
     }
-    path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+    # Trailing newline: POSIX text-file convention, and it keeps `git diff` from reporting
+    # "\ No newline at end of file" on every result. Matches scripts/build_benchmark_manifests.py.
+    path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
     return path
