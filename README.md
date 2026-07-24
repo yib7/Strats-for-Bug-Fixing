@@ -72,24 +72,27 @@ headline finding (see [the report](docs/report.md) §"Execution vs CodeBLEU").*
 
 ## What you need
 
-| | |
+| Requirement | Detail |
 |---|---|
-| **Python 3.11 or 3.12** | **3.13 and newer cannot install this project.** `codebleu` 0.7.0 requires `tree-sitter` 0.22.x, which publishes wheels for cp39–cp312 only. Step 3 below installs a private CPython 3.12 for you, so you do not need one on `PATH`. |
-| **~3 GB of free disk** | for the virtual environment; `torch` is most of it. |
-| **Nothing else** | No GPU, no account, no API key, no environment variable. Past the package downloads in step 3, the walkthrough below makes no network requests at all. |
+| **`git` and `uv`** | The only two tools you install yourself. Step 2 has the `uv` one-liner; `uv` then supplies the interpreter and every package. |
+| **Python 3.11 or 3.12** | **3.13 and newer cannot install this project.** `codebleu` 0.7.0 requires `tree-sitter` 0.22.x, which publishes wheels for cp39–cp312 only. Step 3 fetches a private CPython 3.12 for you, so you do not need one on `PATH`. |
+| **~2.2 GB of free disk** | A 1.1 GB virtual environment plus 1.1 GB in `uv`'s shared download cache. `torch` is most of both. |
+| **Nothing else** | No GPU, no account, no API key, no environment variable, no compiler. Past the package downloads in step 3, the walkthrough below makes no network requests at all. |
 
 A **JDK 17 or newer** on `PATH` is needed for one thing only: the Java execution harness
 (`pop execbench`, and the tests marked `jdk`). The CPU walkthrough below never calls it. CI uses
 Temurin 17; development here is on Temurin 21.
 
 **Platforms.** Windows 11 (developed and tested here) and Linux (GitHub Actions `ubuntu-latest`, on
-every push). **macOS is untested** — nothing in the code is platform-specific and it ought to work,
+every push). **macOS is untested.** Nothing in the code is platform-specific and it ought to work,
 but no one has run it, so it is not a support claim.
 
-## Reproduce it — CPU only, about five minutes
+## Reproduce it — CPU only, a couple of minutes
 
 Nothing here retrains anything. Every number in the report was produced on a GPU and is committed
-under `results/`; these steps rebuild the study's outputs from those committed measurements.
+under `results/`; these steps rebuild the study's outputs from those committed measurements. Clone
+to first result took **96 seconds** on a fresh Windows 11 machine with an empty package cache —
+budget more if your connection is slower, since step 3 downloads about 1.1 GB.
 
 **Step 1 — clone the repo.**
 
@@ -114,7 +117,7 @@ uv sync --frozen
 
 `uv` reads `.python-version` and `uv.lock`, downloads CPython 3.12 if your machine has no
 compatible interpreter, creates `.venv`, and installs the exact dependency versions CI tests
-against plus `pop` itself. There is no activation step — the `uv run` commands below find this
+against plus `pop` itself. There is no activation step: the `uv run` commands below find this
 environment on every platform.
 
 **Step 4 — run the whole pipeline end to end.**
@@ -123,9 +126,10 @@ environment on every platform.
 uv run pop smoke
 ```
 
-Tokenizer training → pretraining → finetuning → generation → scoring, on tiny committed fixtures,
-in about ten seconds on a CPU. It prints a summary table and writes `results/smoke_local.json`,
-which is gitignored: an ad-hoc run can never overwrite a published measurement.
+Tokenizer training → pretraining → finetuning → generation → scoring, on tiny committed fixtures.
+It prints a summary table and writes `results/smoke_local.json`, which is gitignored — an ad-hoc run
+can never overwrite a published measurement. Expect about a minute the first time (Python is
+byte-compiling the packages it just installed) and about 8 seconds on every run after that.
 
 **Step 5 — rebuild the figures and the docs site** *(optional — skip it if you only wanted to
 confirm the install works)*.
@@ -143,8 +147,9 @@ uv run pop --help                            # all ten subcommands
 uv run pop execbench --validate-references   # needs a JDK: compiles and runs all 201 bugs
 ```
 
-Failures print one line, not a traceback: exit **2** means bad or missing input, exit **1** means
-the run happened and failed. Set `POP_TRACEBACK=1` to get the full traceback back.
+A missing or malformed input — no config file, broken YAML, a prediction record without a
+`reference` key, no JDK on `PATH` — prints one actionable line and exits **2**, never a traceback.
+Set `POP_TRACEBACK=1` if you want the traceback back.
 
 For the full GPU reproduction (pretrain → finetune → RAG → LoRA → execution eval), see
 [docs/gpu-runbook.md](docs/gpu-runbook.md).
