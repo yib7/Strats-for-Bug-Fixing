@@ -1,24 +1,16 @@
-# venvs / package management
+# Environments this repo creates: `.venv` is the documented CPU env (README), `.venv-rocm` is the
+# separate AMD/ROCm env built by scripts/setup_rocm_windows.py (docs/gpu-reproduction.md).
 .venv/
 .venv-rocm/
+# Guards for tool conventions this project does not use but a contributor might reach for
+# (a different venv name, a setuptools build, coverage, tox/nox, mypy, a JS toolchain).
+# None of these fire today; they are here so an accidental one is never committed.
 venv/
 env/
 __pycache__/
 *.py[cod]
 *.egg-info/
-.eggs/
 build/
-dist/
-
-# uv
-uv.lock.bak
-
-# mkdocs build output
-site/
-
-# caches / test + coverage artifacts
-.pytest_cache/
-.ruff_cache/
 .mypy_cache/
 .cache/
 .tox/
@@ -27,24 +19,38 @@ site/
 .coverage.*
 coverage.xml
 htmlcov/
+node_modules/
+
+# `dist/` is not a wheel dir here: `git archive --format=zip -o dist/pop_repo.zip HEAD` builds the
+# Colab payload there (docs/gpu-runbook.md). It is ~1.4 MB of the repo's own source, re-derivable
+# from any commit, and must never be committed back into the repo it contains.
+dist/
+
+# mkdocs build output (`mkdocs build` -> ./site); regenerated from docs/ on demand.
+site/
+
+# caches / notebook checkpoints / stray logs
+.pytest_cache/
+.ruff_cache/
 .ipynb_checkpoints/
 *.log
 
-# results / artifacts (raw run outputs; keep summaries out of git)
-results/raw/
+# Run artifacts. Every config writes its checkpoints under `outputs/<name>/` and the orchestrators
+# (scripts/run_{training,rag,scaling}.py) write STATUS.md + per-step logs under `logs/`; on Colab
+# both are symlinks into Google Drive. `wandb/` appears only when WANDB_API_KEY is set. All three
+# are gigabytes of derived data whose committed summary is results/*.json.
+outputs/
+logs/
+wandb/
 # Local/ad-hoc runs. `pop smoke` and `pop execbench` default to `*_local*` names precisely so an
 # ordinary run cannot overwrite a committed, published measurement -- write_results refuses to
 # replace any *other* name. Their output is scratch, never a study result, so it is ignored.
 # Keep this pattern in lockstep with `pop.eval.metrics.is_scratch_run_name`.
 results/*_local*.json
 # NOTE: results/scaling_data.csv and results/execbench_agreement.csv are the derived analysis CSVs.
-# They are now COMMITTED (not ignored): scripts/figures/make_all.py rebuilds them from the committed
+# They are COMMITTED (not ignored): scripts/figures/make_all.py rebuilds them from the committed
 # results/*.json before rendering, so the figures reproduce from a clean checkout without any
 # fixture fallback.
-wandb/
-outputs/
-checkpoints/
-logs/
 
 # OS / editor
 .DS_Store
@@ -52,9 +58,6 @@ Thumbs.db
 .vscode/
 .idea/
 *.swp
-
-# node (only if a docs/tooling dep ever pulls it in)
-node_modules/
 
 # model weights & archives - never belong in git (see docs/gpu-reproduction.md for where
 # checkpoints live instead)
