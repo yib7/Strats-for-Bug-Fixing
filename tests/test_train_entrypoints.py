@@ -257,7 +257,7 @@ def test_run_smoke_forces_report_to_empty(tmp_path, monkeypatch):
     assert seen["finetune"] == [], "run_smoke must pass report_to=[] to run_finetune"
 
 
-def test_trainers_default_to_wandb_only_when_the_key_is_set(monkeypatch):
+def test_trainers_default_to_wandb_only_when_the_key_is_set():
     """The opt-out must not change the normal GPU path: report_to is still key-driven."""
     import inspect
 
