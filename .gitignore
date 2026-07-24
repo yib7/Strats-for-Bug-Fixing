@@ -43,4 +43,8 @@ Thumbs.db
 # secrets
 .env
 *.env
+
+# agent/session scaffolding - development-only, never part of the shipped project
 .superpowers/
+.autopilot/
+.claude/
