@@ -7,6 +7,15 @@ use_directory_urls: true
 
 theme:
   name: readthedocs
+  # The theme's default (`highlightjs: true`) injects highlight.js and its stylesheet from
+  # cdnjs.cloudflare.com into every page -- unpinned, without Subresource Integrity. On the
+  # published site that means every visitor executes third-party JavaScript and hands a CDN
+  # their IP and User-Agent. Off; the `codehilite` extension below highlights with Pygments
+  # at build time instead, so the site makes no third-party requests.
+  highlightjs: false
+
+extra_css:
+  - css/pygments.css
 
 nav:
   - Home: index.md
@@ -25,6 +34,9 @@ exclude_docs: |
 markdown_extensions:
   - tables
   - fenced_code
+  # Build-time syntax highlighting (Pygments), replacing the theme's CDN-hosted
+  # highlight.js. Styling comes from the locally served docs/css/pygments.css.
+  - codehilite
   - admonition
   - toc:
       permalink: true

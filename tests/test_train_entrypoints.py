@@ -218,6 +218,20 @@ class _StopAfterTrainers(RuntimeError):
 # --- report_to plumbing: `pop smoke` must not ship a run to wandb -------------------------
 
 
+def test_the_suite_wide_telemetry_guard_is_active():
+    """Regression: with `WANDB_API_KEY` exported -- the normal state of an ML practitioner's
+    shell -- a bare `pytest` authenticated against api.wandb.ai, started a run, handed wandb
+    the repo's `remote.origin.url` and HEAD sha, and resolved wandb's Sentry endpoint. The
+    autouse guard in `tests/conftest.py` neutralizes that; it is autouse and therefore easy
+    to disable by accident, so pin its effect."""
+    import os
+
+    assert "WANDB_API_KEY" not in os.environ
+    assert os.environ["WANDB_MODE"] == "disabled"
+    assert os.environ["WANDB_ERROR_REPORTING"] == "false"
+    assert os.environ["HF_HUB_DISABLE_TELEMETRY"] == "1"
+
+
 def test_run_smoke_forces_report_to_empty(tmp_path, monkeypatch):
     """Regression: `pop smoke` is documented as network-free in three places, but the
     trainers enabled the wandb integration purely on WANDB_API_KEY being present -- the

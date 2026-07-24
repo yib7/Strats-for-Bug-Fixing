@@ -629,7 +629,7 @@ def _run_execbench(args: argparse.Namespace) -> int:
             if args.limit is not None:
                 entries = entries[: args.limit]
             for entry in entries:
-                fixed_path = harness_mod.BENCHMARKS_DIR / bench / entry["fixed_file"]
+                fixed_path = harness_mod.bench_source_path(bench, entry["fixed_file"])
                 candidate_src = fixed_path.read_text(encoding="utf-8")
                 tasks.append((entry["bug_id"], bench, candidate_src))
 
@@ -679,13 +679,24 @@ def _run_execbench(args: argparse.Namespace) -> int:
 
     single_bench = args.bench if args.bench != "all" else None
     records = _read_jsonl(predictions_path, required=("bug_id", "prediction"))
+    # `--bench` is constrained by argparse `choices`; a per-record `bench` is not, and it is
+    # read from an untrusted data file straight into a filesystem path (the manifest to load,
+    # the Java sources to compile, the temp-dir prefix). Validate it against the same set.
+    known_benches = tuple(b for b in EXECBENCH_CHOICES if b != "all")
     tasks = []
-    for record in records:
+    for index, record in enumerate(records, 1):
         bench = record.get("bench") or single_bench
         if bench is None:
             print(
                 "pop execbench: predictions record missing 'bench' and --bench is 'all'; "
                 "specify --bench quixbugs|humaneval_java or add a 'bench' field per record",
+                file=sys.stderr,
+            )
+            return 2
+        if bench not in known_benches:
+            print(
+                f"pop execbench: {predictions_path}: record {index}: unknown benchmark "
+                f"{bench!r} (expected one of {', '.join(known_benches)})",
                 file=sys.stderr,
             )
             return 2

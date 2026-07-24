@@ -93,11 +93,47 @@ def _tail(text: str, max_chars: int = _STDOUT_TAIL_CHARS) -> str:
     return text[-max_chars:] if len(text) > max_chars else text
 
 
+def _bench_dir(bench: str) -> Path:
+    """`benchmarks/<bench>/`, rejecting a `bench` that is not a bare directory name.
+
+    `bench` is untrusted input: `pop execbench --predictions` takes it from the `bench`
+    field of each JSONL record, so a hand-crafted predictions file could otherwise pass
+    `../../..` and make the harness read a `manifest.json` (and the Java sources it names)
+    from anywhere on disk -- and `bench` also lands in the `tempfile` prefix in `run_bug`.
+    `Path(bench).name` strips any directory, drive and root, so it round-trips only for a
+    bare name; "." and ".." are special-cased because pathlib keeps ".." whole.
+    """
+    if not bench or bench in {".", ".."} or Path(bench).name != bench:
+        raise ValueError(
+            f"benchmark name must be a bare directory name under benchmarks/ "
+            f"(no path separators or '..'), got {bench!r}"
+        )
+    return BENCHMARKS_DIR / bench
+
+
 def load_manifest(bench: str) -> list[dict]:
     if bench not in _MANIFEST_CACHE:
-        path = BENCHMARKS_DIR / bench / "manifest.json"
+        path = _bench_dir(bench) / "manifest.json"
         _MANIFEST_CACHE[bench] = json.loads(path.read_text(encoding="utf-8"))
     return _MANIFEST_CACHE[bench]
+
+
+def bench_source_path(bench: str, rel: str) -> Path:
+    """Resolve a manifest-named source file to an absolute path inside `benchmarks/<bench>/`.
+
+    Every Java path in a `manifest.json` (`buggy_file`, `fixed_file`, `test_files`,
+    `support_files`) goes through here. The manifest is vendored, but it is still a data
+    file that a contributor or a dropped-in benchmark can supply, and the files it names
+    are read and fed to `javac` -- whose diagnostics quote source lines into
+    `stdout_tail`, i.e. into `results/*.json`. Confining the resolved path to the
+    benchmark directory keeps a `../../..` entry from turning that into an arbitrary-file
+    read.
+    """
+    base = _bench_dir(bench).resolve()
+    path = (base / rel).resolve()
+    if path != base and base not in path.parents:
+        raise ValueError(f"{bench}: manifest path escapes the benchmark directory: {rel!r}")
+    return path
 
 
 def get_bug_entry(bench: str, bug_id: str) -> dict:
@@ -349,10 +385,9 @@ def run_bug(
 
     try:
         entry = get_bug_entry(bench, bug_id)
-    except (KeyError, FileNotFoundError) as e:
+    except (KeyError, FileNotFoundError, ValueError) as e:
+        # ValueError: `bench` is not a bare benchmark directory name (see `_bench_dir`).
         return ExecResult(bug_id, False, False, "harness_error", str(e), bench)
-
-    bench_dir = BENCHMARKS_DIR / bench
 
     tmp_ctx = None
     if workdir is None:
@@ -374,7 +409,7 @@ def run_bug(
             d.mkdir(parents=True)
 
         buggy_name = Path(entry["buggy_file"]).name
-        buggy_original = (bench_dir / entry["buggy_file"]).read_text(encoding="utf-8")
+        buggy_original = bench_source_path(bench, entry["buggy_file"]).read_text(encoding="utf-8")
         pkg_match = _PACKAGE_RE.search(buggy_original)
         normalized_src = (
             normalize_package(candidate_src, pkg_match.group(0)) if pkg_match else candidate_src
@@ -382,7 +417,9 @@ def run_bug(
         (src_dir / buggy_name).write_text(normalized_src, encoding="utf-8")
 
         for rel in (*entry.get("support_files", []), *entry["test_files"]):
-            text = (bench_dir / rel).read_text(encoding="utf-8")
+            text = bench_source_path(bench, rel).read_text(encoding="utf-8")
+            # `Path(rel).name`: the copy always lands directly in `src_dir`, never at a
+            # manifest-chosen subpath.
             (src_dir / Path(rel).name).write_text(text, encoding="utf-8")
 
         java_files = sorted(str(p) for p in src_dir.glob("*.java"))

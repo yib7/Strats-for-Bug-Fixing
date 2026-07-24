@@ -19,11 +19,13 @@ import pytest
 from pop.execbench.harness import (
     BENCHMARKS_DIR,
     JdkNotFoundError,
+    bench_source_path,
     classify_outcome,
     get_bug_entry,
     load_manifest,
     normalize_package,
     resolve_jdk,
+    run_bug,
 )
 from pop.execbench.score import aggregate, pass_at_k
 
@@ -298,6 +300,62 @@ class TestManifestIntegrity:
     def test_lib_jars_present(self):
         jars = list((BENCHMARKS_DIR / "lib").glob("*.jar"))
         assert len(jars) >= 2, "expected at least junit + hamcrest jars in benchmarks/lib"
+
+
+# --- path confinement of the untrusted `bench` / manifest paths --------------------------------
+
+
+class TestBenchNameIsConfined:
+    """`bench` reaches the filesystem from an untrusted predictions file (see
+    `_run_execbench`), and lands in a manifest path, the compiled Java sources and the
+    `tempfile` prefix. It must be a bare directory name under `benchmarks/`."""
+
+    @pytest.mark.parametrize(
+        "bad", ["../evil", "..\\evil", "a/b", "..", ".", "", "C:/Windows", "/etc"]
+    )
+    def test_load_manifest_rejects_a_bench_that_is_not_a_bare_name(self, bad):
+        with pytest.raises(ValueError, match="bare directory name"):
+            load_manifest(bad)
+
+    def test_run_bug_reports_a_bad_bench_as_harness_error_not_a_crash(self):
+        result = run_bug("BITCOUNT", "class X {}", "../../elsewhere")
+        assert result.error_kind == "harness_error"
+        assert "bare directory name" in result.stdout_tail
+
+    @pytest.mark.parametrize(
+        "rel",
+        [
+            "../../../etc/passwd",
+            "..\\..\\secrets.txt",
+            "../humaneval_java/manifest.json",  # a sibling benchmark is still outside
+        ],
+    )
+    def test_bench_source_path_rejects_a_manifest_entry_that_escapes(self, rel):
+        with pytest.raises(ValueError, match="escapes the benchmark directory"):
+            bench_source_path("quixbugs", rel)
+
+    def test_bench_source_path_resolves_a_normal_manifest_entry(self):
+        path = bench_source_path("quixbugs", "java_programs/BITCOUNT.java")
+        assert path.is_file()
+        assert path.parent.parent == (BENCHMARKS_DIR / "quixbugs").resolve()
+
+    def test_predictions_file_cannot_name_an_arbitrary_bench(self, tmp_path, monkeypatch):
+        """A hand-crafted predictions JSONL used to pass its `bench` field straight through
+        to `benchmarks/<bench>/manifest.json`, so `../../..` read a manifest (and the Java
+        sources it names) from anywhere on disk."""
+        from pop.cli import main as cli_main
+
+        predictions = tmp_path / "preds.jsonl"
+        predictions.write_text(
+            json.dumps({"bug_id": "PWN", "prediction": "class X {}", "bench": "../../elsewhere"})
+            + "\n",
+            encoding="utf-8",
+        )
+        monkeypatch.chdir(tmp_path)
+
+        rc = cli_main(["execbench", "--predictions", str(predictions)])
+        assert rc == 2
+        assert not (tmp_path / "results").exists()
 
 
 # --- predictions CLI mode, stub harness (no JDK) -----------------------------------------------

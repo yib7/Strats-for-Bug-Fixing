@@ -34,3 +34,25 @@ cross-arm findings, and limitations.
 ./.venv/Scripts/python.exe scripts/figures/make_all.py   # render docs/figures/*.png
 ./.venv/Scripts/python.exe -m mkdocs build               # build this site into ./site
 ```
+
+## Network and telemetry
+
+**No analytics, anywhere.** `pop` contains no tracking, crash reporting or usage pings, and this
+site loads no third-party scripts, fonts or stylesheets — syntax highlighting is rendered at build
+time rather than pulled from a CDN.
+
+**The local reproduction path makes no network connections at all.** `pop smoke`,
+`scripts/figures/make_all.py`, `mkdocs build`, the execution harness (`pop execbench`, which only
+runs a local `javac`/`java`) and the test suite were each run with Python's socket layer
+instrumented: zero outbound connections and zero DNS lookups. That holds even with `WANDB_API_KEY`
+exported — `pop smoke` explicitly opts out of experiment tracking.
+
+The full-study commands do use the network, and only these two third parties:
+
+| Who | Which commands | What is sent | How to stop it |
+|-----|----------------|--------------|----------------|
+| **Hugging Face Hub** | `pop tokenizer`, `pop generate`, `pop rag`, `pop lora`, `pop lora-generate` | Dataset/model downloads. `huggingface_hub` attaches a User-Agent carrying its own, Python and torch versions; `pop` sends no telemetry of its own. | `HF_HUB_DISABLE_TELEMETRY=1` trims the User-Agent; `HF_HUB_OFFLINE=1` blocks Hub access entirely |
+| **Weights & Biases** | `pop pretrain`, `pop finetune`, `pop lora` — **only** when `WANDB_API_KEY` is set | Training metrics, to *your own* W&B account | Leave `WANDB_API_KEY` unset (the default), or set `WANDB_MODE=offline` |
+
+No credential is ever written to `results/*.json`, to a checkpoint, or to a log: `WANDB_API_KEY` is
+read as a presence check only and its value is never passed on by `pop`.
