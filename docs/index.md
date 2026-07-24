@@ -30,10 +30,17 @@ cross-arm findings, and limitations.
 
 ## Reproduce locally
 
+Needs [uv](https://docs.astral.sh/uv/) and nothing else — it fetches CPython 3.12 (the project
+requires 3.11 or 3.12) and installs the locked dependency versions. No GPU, no API key.
+
 ```bash
-./.venv/Scripts/python.exe scripts/figures/make_all.py   # render docs/figures/*.png
-./.venv/Scripts/python.exe -m mkdocs build               # build this site into ./site
+uv sync --frozen                            # build .venv from the committed lockfile
+uv run pop smoke                            # the whole pipeline on tiny fixtures, ~10 s on CPU
+uv run python scripts/figures/make_all.py   # render docs/figures/*.png
+uv run python -m mkdocs build               # build this site into ./site
 ```
+
+The repo README has the step-by-step version, including how to install `uv`.
 
 ## Network and telemetry
 

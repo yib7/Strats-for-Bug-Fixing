@@ -249,8 +249,9 @@ bring in C and D). They are stated as honest negatives.
 ## Reproducing the figures
 
 ```bash
-./.venv/Scripts/python.exe scripts/figures/make_all.py   # writes docs/figures/*.png
-./.venv/Scripts/python.exe -m mkdocs build               # builds the static site
+uv sync --frozen                            # build .venv from the committed lockfile
+uv run python scripts/figures/make_all.py   # writes docs/figures/*.png
+uv run python -m mkdocs build               # builds the static site
 ```
 
 The figure scripts are deterministic (headless Agg backend, point estimates + committed data), so

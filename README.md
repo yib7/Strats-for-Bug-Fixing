@@ -67,26 +67,84 @@ headline finding (see [the report](docs/report.md) §"Execution vs CodeBLEU").*
 - **`benchmarks/`** — vendored QuixBugs-Java + HumanEval-Java + the JDK execution harness.
 - **`results/`** — the committed `*.json` metrics every number in the report traces back to.
 - **`docs/`** — the study report, measurement notes, and reproduction runbooks.
-- **`tests/`** — the test suite; run it with `pytest` (or `pytest -m "not jdk"` to skip the tests
-  that need a local JDK, which is what CI does).
+- **`tests/`** — the test suite; run it with `uv run pytest` (or `uv run pytest -m "not jdk"` to
+  skip the tests that need a local JDK, which is what CI does).
 
-## Reproduce
+## What you need
 
-Install (this repo uses a `.venv` + editable install):
+| | |
+|---|---|
+| **Python 3.11 or 3.12** | **3.13 and newer cannot install this project.** `codebleu` 0.7.0 requires `tree-sitter` 0.22.x, which publishes wheels for cp39–cp312 only. Step 3 below installs a private CPython 3.12 for you, so you do not need one on `PATH`. |
+| **~3 GB of free disk** | for the virtual environment; `torch` is most of it. |
+| **Nothing else** | No GPU, no account, no API key, no environment variable. Past the package downloads in step 3, the walkthrough below makes no network requests at all. |
+
+A **JDK 17 or newer** on `PATH` is needed for one thing only: the Java execution harness
+(`pop execbench`, and the tests marked `jdk`). The CPU walkthrough below never calls it. CI uses
+Temurin 17; development here is on Temurin 21.
+
+**Platforms.** Windows 11 (developed and tested here) and Linux (GitHub Actions `ubuntu-latest`, on
+every push). **macOS is untested** — nothing in the code is platform-specific and it ought to work,
+but no one has run it, so it is not a support claim.
+
+## Reproduce it — CPU only, about five minutes
+
+Nothing here retrains anything. Every number in the report was produced on a GPU and is committed
+under `results/`; these steps rebuild the study's outputs from those committed measurements.
+
+**Step 1 — clone the repo.**
 
 ```bash
-python -m venv .venv
-./.venv/Scripts/python.exe -m pip install -e ".[dev]"
+git clone https://github.com/yib7/Strats-for-Bug-Fixing.git
+cd Strats-for-Bug-Fixing
 ```
 
-Then, CPU-only, in order:
+**Step 2 — install `uv`** *(skip if `uv --version` already prints a version)*. It is the only tool
+you install by hand, and it is how CI builds this project too.
 
 ```bash
-./.venv/Scripts/pop smoke                                # end-to-end sanity check, no GPU needed
-./.venv/Scripts/python.exe scripts/figures/make_all.py   # render docs/figures/*.png from results/
-./.venv/Scripts/python.exe -m mkdocs build                # build the docs site into ./site
+curl -LsSf https://astral.sh/uv/install.sh | sh              # Linux / macOS
+powershell -c "irm https://astral.sh/uv/install.ps1 | iex"   # Windows
 ```
 
-None of the above retrains anything — every number in the report was produced on a Colab GPU and
-is committed under `results/`. For the full GPU reproduction (pretrain → finetune → RAG → LoRA →
-execution eval), see [docs/gpu-runbook.md](docs/gpu-runbook.md).
+**Step 3 — build the environment.**
+
+```bash
+uv sync --frozen
+```
+
+`uv` reads `.python-version` and `uv.lock`, downloads CPython 3.12 if your machine has no
+compatible interpreter, creates `.venv`, and installs the exact dependency versions CI tests
+against plus `pop` itself. There is no activation step — the `uv run` commands below find this
+environment on every platform.
+
+**Step 4 — run the whole pipeline end to end.**
+
+```bash
+uv run pop smoke
+```
+
+Tokenizer training → pretraining → finetuning → generation → scoring, on tiny committed fixtures,
+in about ten seconds on a CPU. It prints a summary table and writes `results/smoke_local.json`,
+which is gitignored: an ad-hoc run can never overwrite a published measurement.
+
+**Step 5 — rebuild the figures and the docs site** *(optional — skip it if you only wanted to
+confirm the install works)*.
+
+```bash
+uv run python scripts/figures/make_all.py   # re-render docs/figures/*.png from results/*.json
+uv run python -m mkdocs build               # build the study site into ./site
+```
+
+### Anything else worth running
+
+```bash
+uv run pytest                                # the test suite (add -m "not jdk" if you have no JDK)
+uv run pop --help                            # all ten subcommands
+uv run pop execbench --validate-references   # needs a JDK: compiles and runs all 201 bugs
+```
+
+Failures print one line, not a traceback: exit **2** means bad or missing input, exit **1** means
+the run happened and failed. Set `POP_TRACEBACK=1` to get the full traceback back.
+
+For the full GPU reproduction (pretrain → finetune → RAG → LoRA → execution eval), see
+[docs/gpu-runbook.md](docs/gpu-runbook.md).

@@ -116,10 +116,10 @@ The rest of the repo, top level:
 ## What runs without a GPU
 
 ```bash
-pop smoke                                  # the whole pipeline shape on tiny fixtures, ~9 s
-python scripts/figures/make_all.py         # rebuild the CSVs and re-render the figures, ~1 s
-python -m mkdocs build                     # build the docs site into ./site
-pytest                                     # the suite; `-m "not jdk"` drops the harness tests
+uv run pop smoke                           # the whole pipeline shape on tiny fixtures, ~9 s
+uv run python scripts/figures/make_all.py  # rebuild the CSVs and re-render the figures, ~1 s
+uv run python -m mkdocs build              # build the docs site into ./site
+uv run pytest                              # the suite; `-m "not jdk"` drops the harness tests
 ```
 
 `pop smoke` runs tokenizer training, pretraining, finetuning, generation and scoring end to end on
