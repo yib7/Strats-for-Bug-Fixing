@@ -25,6 +25,13 @@ ALL_SUBCOMMANDS = (*STUB_SUBCOMMANDS, *IMPLEMENTED_SUBCOMMANDS)
 
 EXECBENCH_CHOICES = ("quixbugs", "humaneval_java", "all")
 
+# Default `results/<name>.json` run names for `pop execbench`. Deliberately in the gitignored
+# `*_local*` scratch namespace (see `pop.eval.metrics.is_scratch_run_name`): the committed
+# results/execbench_validate_references.json is a published measurement docs/report.md cites,
+# and an ad-hoc run must never land on top of it.
+EXECBENCH_VALIDATE_RESULTS_NAME = "execbench_local_validate_references"
+EXECBENCH_PREDICTIONS_RESULTS_NAME = "execbench_local_predictions"
+
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
@@ -218,7 +225,9 @@ def build_parser() -> argparse.ArgumentParser:
     execbench_parser.add_argument(
         "--name",
         default=None,
-        help="Run name for results/<name>.json (default: 'execbench_<mode>')",
+        help="Run name for results/<name>.json (default: 'execbench_local_<mode>'). The "
+        "default is deliberately distinct from the committed results/execbench_*.json "
+        "files so an ad-hoc run can never clobber a published measurement.",
     )
     execbench_parser.add_argument(
         "--jdk",
@@ -242,7 +251,11 @@ def _run_smoke(args: argparse.Namespace) -> int:
         return 1
 
     cfg = SmokeConfig.from_yaml(config_path)
-    run_smoke(cfg)
+    try:
+        run_smoke(cfg)
+    except FileExistsError as e:
+        print(f"pop smoke: {e}", file=sys.stderr)
+        return 1
     return 0
 
 
@@ -408,11 +421,27 @@ def _run_generate(args: argparse.Namespace) -> int:
     return 0
 
 
+def _write_results(command: str, name: str, metrics: dict, config: dict):
+    """`write_results`, turning a refusal-to-clobber into a printed message and `None`.
+
+    `results/` holds committed, published measurements; `write_results` refuses to
+    replace one. The CLI reports that as a one-line actionable error rather than a
+    `FileExistsError` traceback (see `pop.eval.metrics.write_results`).
+    """
+    from pop.eval.metrics import write_results
+
+    try:
+        return write_results(name, metrics, config)
+    except FileExistsError as e:
+        print(f"pop {command}: {e}", file=sys.stderr)
+        return None
+
+
 def _run_eval(args: argparse.Namespace) -> int:
     import json
     from pathlib import Path
 
-    from pop.eval.metrics import evaluate_predictions, write_results
+    from pop.eval.metrics import evaluate_predictions
 
     predictions_path = Path(args.predictions)
     if not predictions_path.is_file():
@@ -431,7 +460,11 @@ def _run_eval(args: argparse.Namespace) -> int:
 
     metrics = evaluate_predictions(preds, refs)
     name = args.name or predictions_path.stem
-    results_path = write_results(name, metrics, config={"predictions": str(predictions_path)})
+    results_path = _write_results(
+        "eval", name, metrics, config={"predictions": str(predictions_path)}
+    )
+    if results_path is None:
+        return 1
 
     print(json.dumps(metrics, indent=2))
     print(f"Wrote results to {results_path}", file=sys.stderr)
@@ -518,7 +551,6 @@ def _run_execbench(args: argparse.Namespace) -> int:
     from concurrent.futures import ThreadPoolExecutor
     from pathlib import Path
 
-    from pop.eval.metrics import write_results
     from pop.execbench import harness as harness_mod
     from pop.execbench.score import aggregate
 
@@ -554,8 +586,9 @@ def _run_execbench(args: argparse.Namespace) -> int:
             results = list(pool.map(_run, tasks))
 
         metrics = aggregate(results)
-        name = args.name or "execbench_validate_references"
-        results_path = write_results(
+        name = args.name or EXECBENCH_VALIDATE_RESULTS_NAME
+        results_path = _write_results(
+            "execbench",
             name,
             metrics,
             config={
@@ -565,6 +598,8 @@ def _run_execbench(args: argparse.Namespace) -> int:
                 "jdk": jdk_info,
             },
         )
+        if results_path is None:
+            return 1
 
         print(json.dumps(metrics, indent=2))
         print(f"Wrote results to {results_path}", file=sys.stderr)
@@ -615,8 +650,9 @@ def _run_execbench(args: argparse.Namespace) -> int:
         results = list(pool.map(_run_pred, tasks))
 
     metrics = aggregate(results)
-    name = args.name or "execbench_predictions"
-    results_path = write_results(
+    name = args.name or EXECBENCH_PREDICTIONS_RESULTS_NAME
+    results_path = _write_results(
+        "execbench",
         name,
         metrics,
         config={
@@ -625,6 +661,8 @@ def _run_execbench(args: argparse.Namespace) -> int:
             "jdk": jdk_info,
         },
     )
+    if results_path is None:
+        return 1
 
     print(json.dumps(metrics, indent=2))
     print(f"Wrote results to {results_path}", file=sys.stderr)

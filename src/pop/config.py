@@ -197,7 +197,13 @@ class SmokeConfig(BaseModel):
     max_new_tokens: int = 64
 
     output_dir: Path = Path("outputs/smoke")
-    results_name: str = "smoke"
+    results_name: str = "smoke_local"
+    """Run name for `results/<results_name>.json`.
+
+    Deliberately NOT "smoke": `results/smoke.json` is a committed, published result that
+    `docs/report.md` and `tests/test_smoke.py` read. A local `pop smoke` writes the
+    gitignored `results/smoke_local.json` instead, so the documented first command a
+    visitor runs can never modify tracked data."""
 
     @classmethod
     def from_yaml(cls, path: str | Path) -> SmokeConfig:

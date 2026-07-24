@@ -269,3 +269,36 @@ def test_smoke_results_json_committed_with_non_null_metrics():
     assert metrics["n"] > 0
     assert metrics["codebleu"] is not None
     assert metrics["syntax_valid_rate"] is not None
+
+
+def test_smoke_never_writes_over_the_committed_results_file():
+    """A local `pop smoke` must not target the committed results/smoke.json.
+
+    Regression: the default `results_name` used to be "smoke", so the first command the
+    README tells a visitor to run silently rewrote a published, tracked measurement.
+    """
+    import yaml
+
+    from pop.config import SmokeConfig
+
+    assert SmokeConfig().results_name == "smoke_local"
+    shipped = yaml.safe_load((CONFIGS_DIR / "smoke.yaml").read_text(encoding="utf-8"))
+    assert shipped["results_name"] == "smoke_local"
+    assert (REPO_ROOT / "results" / "smoke.json").is_file()  # the one it must not touch
+
+
+def test_execbench_default_run_names_cannot_collide_with_committed_results():
+    """`pop execbench`'s defaults must land in the gitignored scratch namespace.
+
+    Regression: the defaults used to be `execbench_validate_references` /
+    `execbench_predictions`, so the command in `.github/workflows/ci.yml` overwrote the
+    committed 201/201 reference validation with a truncated 2-bug run.
+    """
+    from pop.cli import EXECBENCH_PREDICTIONS_RESULTS_NAME, EXECBENCH_VALIDATE_RESULTS_NAME
+    from pop.eval.metrics import is_scratch_run_name
+
+    assert is_scratch_run_name(EXECBENCH_VALIDATE_RESULTS_NAME)
+    assert is_scratch_run_name(EXECBENCH_PREDICTIONS_RESULTS_NAME)
+    # ...and the published file those defaults used to collide with is still guarded.
+    assert not is_scratch_run_name("execbench_validate_references")
+    assert (REPO_ROOT / "results" / "execbench_validate_references.json").is_file()

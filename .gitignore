@@ -32,6 +32,11 @@ htmlcov/
 
 # results / artifacts (raw run outputs; keep summaries out of git)
 results/raw/
+# Local/ad-hoc runs. `pop smoke` and `pop execbench` default to `*_local*` names precisely so an
+# ordinary run cannot overwrite a committed, published measurement -- write_results refuses to
+# replace any *other* name. Their output is scratch, never a study result, so it is ignored.
+# Keep this pattern in lockstep with `pop.eval.metrics.is_scratch_run_name`.
+results/*_local*.json
 # NOTE: results/scaling_data.csv and results/execbench_agreement.csv are the derived analysis CSVs.
 # They are now COMMITTED (not ignored): scripts/figures/make_all.py rebuilds them from the committed
 # results/*.json before rendering, so the figures reproduce from a clean checkout without any

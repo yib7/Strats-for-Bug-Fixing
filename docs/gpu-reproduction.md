@@ -54,9 +54,10 @@ uv run pop smoke
 This runs the *entire* pipeline shape (tokenizer train → pretrain → finetune → generate → score)
 end-to-end on CPU in well under a minute, against tiny committed fixtures (`tests/fixtures/smoke_*`,
 `configs/smoke.yaml`). It proves the code path works before spending GPU time on it. If `pop smoke`
-fails, nothing downstream will work either. A passing run writes `results/smoke.json` with non-null
-`codebleu`/`syntax_valid_rate` (exact match is expected to be 0.0 at this scale — it is a plumbing
-check, not a quality bar).
+fails, nothing downstream will work either. A passing run writes `results/smoke_local.json` with
+non-null `codebleu`/`syntax_valid_rate` (exact match is expected to be 0.0 at this scale — it is a
+plumbing check, not a quality bar). That file is gitignored scratch; the committed
+`results/smoke.json` from the verified reference run is never touched by a local `pop smoke`.
 
 **Before every notebook launch:** open the notebook's install cell and pin the exact commit you
 intend to run (see each notebook's install-cell markdown) rather than a moving branch tip.

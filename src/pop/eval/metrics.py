@@ -78,11 +78,54 @@ def _git_sha() -> str:
         return "unknown"
 
 
-def write_results(name: str, metrics: dict, config: dict) -> Path:
-    """Write `results/<name>.json` with schema {config, metrics, n, timestamp, git_sha}."""
+SCRATCH_NAME_MARKER = "_local"
+
+
+def is_scratch_run_name(name: str) -> bool:
+    """True for the ad-hoc `*_local*` run names the repo gitignores (`results/*_local*.json`).
+
+    These are the CLI's own defaults for `pop smoke` and `pop execbench`, so re-running
+    either command is idempotent. Every other name is treated as possibly-published data
+    and is guarded by `write_results`.
+    """
+    return SCRATCH_NAME_MARKER in name
+
+
+def write_results(name: str, metrics: dict, config: dict, *, overwrite: bool | None = None) -> Path:
+    """Write `results/<name>.json` with schema {config, metrics, n, timestamp, git_sha}.
+
+    `name` must be a bare filename (no path separators, no `..`, no drive letter): the
+    results directory is a flat namespace and `--name` comes straight from the CLI.
+
+    Refuses to replace an existing file, raising `FileExistsError`. The repo's `results/`
+    holds **committed, published** measurements that `docs/report.md` cites; silently
+    overwriting one with a fresh (possibly truncated) run would falsify the study.
+    `overwrite` defaults to `None` = "auto": the gitignored `*_local*` scratch names are
+    replaceable (see `is_scratch_run_name`), anything else is guarded. Pass an explicit
+    bool to override either way.
+
+    The directory is resolved from the current working directory on purpose, so running
+    a command from a scratch dir writes there instead of into the repo's `results/`.
+    """
+    # `Path(name).name` strips any directory, drive and root, so it round-trips only for a
+    # bare filename. "." and ".." are special-cased: pathlib keeps ".." as a whole component.
+    if not name or name in {".", ".."} or Path(name).name != name:
+        raise ValueError(
+            f"results name must be a bare filename (no path separators or '..'), got {name!r}"
+        )
+
+    if overwrite is None:
+        overwrite = is_scratch_run_name(name)
+
     results_dir = Path("results").resolve()
     results_dir.mkdir(parents=True, exist_ok=True)
     path = results_dir / f"{name}.json"
+
+    if path.exists() and not overwrite:
+        raise FileExistsError(
+            f"{path} already exists and may be a committed result. Pass --name <other> to "
+            f"write elsewhere, or delete the file if you intend to replace it."
+        )
 
     payload = {
         "config": config,

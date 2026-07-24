@@ -39,4 +39,6 @@ finetune_warmup_steps: 10
 max_new_tokens: 64
 
 output_dir: outputs/smoke
-results_name: smoke
+# NOT "smoke": results/smoke.json is the committed, published smoke result. A local run writes
+# the gitignored results/smoke_local.json so it can never clobber tracked data.
+results_name: smoke_local

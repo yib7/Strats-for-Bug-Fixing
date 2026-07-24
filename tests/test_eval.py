@@ -155,6 +155,55 @@ def test_write_results_writes_expected_schema(tmp_path, monkeypatch):
     assert "git_sha" in data
 
 
+def test_write_results_refuses_to_clobber_an_existing_file(tmp_path, monkeypatch):
+    # results/ holds committed, published measurements; a second run must not replace one.
+    monkeypatch.chdir(tmp_path)
+    metrics = {"em": 1.0, "em_raw": 0.0, "codebleu": 0.9, "syntax_valid_rate": 1.0, "n": 2}
+    path = write_results("published", metrics, {})
+    original = path.read_text(encoding="utf-8")
+
+    with pytest.raises(FileExistsError) as excinfo:
+        write_results("published", {"n": 1}, {})
+
+    assert "--name" in str(excinfo.value)
+    assert path.read_text(encoding="utf-8") == original  # untouched
+
+
+def test_write_results_overwrite_flag_allows_replacement(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    write_results("run", {"n": 2}, {})
+    path = write_results("run", {"n": 7}, {}, overwrite=True)
+    assert json.loads(path.read_text(encoding="utf-8"))["n"] == 7
+
+
+@pytest.mark.parametrize("name", ["smoke_local", "execbench_local_validate_references"])
+def test_write_results_scratch_names_are_replaceable(name, tmp_path, monkeypatch):
+    # The CLI's own gitignored `*_local*` defaults: re-running the documented commands
+    # must stay idempotent, so only *non*-scratch names get the clobber guard.
+    monkeypatch.chdir(tmp_path)
+    write_results(name, {"n": 2}, {})
+    path = write_results(name, {"n": 7}, {})
+    assert json.loads(path.read_text(encoding="utf-8"))["n"] == 7
+
+
+def test_scratch_run_name_matches_the_gitignore_pattern():
+    from pop.eval.metrics import is_scratch_run_name
+
+    assert is_scratch_run_name("smoke_local")
+    assert is_scratch_run_name("execbench_local_predictions")
+    assert not is_scratch_run_name("smoke")
+    assert not is_scratch_run_name("execbench_validate_references")
+    assert not is_scratch_run_name("finetune_A_ep10_test")
+
+
+@pytest.mark.parametrize("name", ["../oops", "sub/dir", "", ".", ".."])
+def test_write_results_rejects_names_that_escape_the_results_dir(name, tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    with pytest.raises(ValueError):
+        write_results(name, {"n": 1}, {})
+    assert not (tmp_path.parent / "oops.json").exists()
+
+
 # ---------------------------------------------------------------------------
 # bootstrap_ci
 # ---------------------------------------------------------------------------
