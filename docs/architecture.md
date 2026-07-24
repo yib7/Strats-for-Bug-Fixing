@@ -45,7 +45,7 @@ zero bugs. `docs/report.md` has the numbers and what they mean.
 201 vendored Java bugs both feed arms A, B, C and D; the arms emit predictions .jsonl, which fans
 out to pop eval (EM, CodeBLEU, syntax validity) and pop execbench (javac + JUnit per bug); both
 score into results/*.json, committed. From there the CSV builders feed scripts/figures/make_all.py,
-which renders docs/figures/*.png into docs/report.md — and results/*.json also feeds the report
+which renders docs/figures/*.png into docs/report.md, and results/*.json also feeds the report
 directly.](figures/pipeline.svg)](figures/pipeline.svg)
 
 The diagram's source is `docs/figures/pipeline.mmd`; `docs/figures/pipeline.svg` is the committed
