@@ -66,15 +66,19 @@ def evaluate_predictions(preds: list[str], refs: list[str]) -> dict:
 
 
 def _git_sha() -> str:
+    """The current commit sha, or "unknown" -- provenance stamping must never fail a run."""
     try:
         result = subprocess.run(
             ["git", "rev-parse", "HEAD"],
             capture_output=True,
             text=True,
+            encoding="utf-8",
+            errors="replace",
             check=True,
+            timeout=10,
         )
         return result.stdout.strip()
-    except (subprocess.CalledProcessError, FileNotFoundError):
+    except (subprocess.CalledProcessError, FileNotFoundError, subprocess.TimeoutExpired, OSError):
         return "unknown"
 
 

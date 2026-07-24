@@ -18,8 +18,11 @@ import json
 import os
 import platform
 import re
+import shutil
 import subprocess
 import tempfile
+import threading
+from collections import deque
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
@@ -27,6 +30,37 @@ BENCHMARKS_DIR = REPO_ROOT / "benchmarks"
 LIB_DIR = BENCHMARKS_DIR / "lib"
 
 _STDOUT_TAIL_CHARS = 4000
+
+# Bound on how much subprocess output is held in memory per stage (see `_run_with_timeout`).
+# 1 MiB is ~250x what `_tail` reports, so nothing a human would read is ever lost.
+_MAX_CAPTURE_CHARS = 1 << 20
+_READ_BLOCK_CHARS = 1 << 16
+_MAX_CAPTURE_BLOCKS = _MAX_CAPTURE_CHARS // _READ_BLOCK_CHARS
+
+# Max JVM heap for a candidate's JUnit run: stops a generated patch that allocates in a loop
+# from taking the JVM default (25% of physical RAM) -- times `--jobs`.
+#
+# Sized against the benchmarks, not guessed. The heaviest legitimate test is QuixBugs
+# KNAPSACK test_9 (capacity 6_404_180, 24 items), whose `int[25][6404181]` memo table is
+# 611 MiB on its own. Measured on the reference sources with JDK 21: -Xmx512m fails it with
+# `OutOfMemoryError: Java heap space` (reference validation drops to 200/201), 768m passes.
+# 2g is ~3.3x the largest real allocation -- enough headroom for a different JDK's GC while
+# still bounding a runaway candidate far below the default.
+_JVM_MAX_HEAP = "-Xmx2g"
+
+# Force the JVM to write its diagnostics as UTF-8, matching how `_run_with_timeout` decodes
+# them. Without this the JDK picks the *native* encoding for a redirected stream (cp1252 on a
+# typical Windows box), so the same bug produces different `stdout_tail` bytes on Windows and
+# on Linux CI. `sun.*` is the JDK 17 spelling, the unprefixed pair is JDK 19+; setting an
+# unknown system property is harmless, so both are passed.
+_JVM_UTF8_PROPS = (
+    "-Dstdout.encoding=UTF-8",
+    "-Dstderr.encoding=UTF-8",
+    "-Dsun.stdout.encoding=UTF-8",
+    "-Dsun.stderr.encoding=UTF-8",
+)
+# `javac` is itself a Java program; `-J` forwards an option to its launcher VM.
+_JAVAC_UTF8_PROPS = tuple(f"-J{prop}" for prop in _JVM_UTF8_PROPS)
 _PACKAGE_RE = re.compile(r"^\s*package\s+[\w.]+\s*;", re.MULTILINE)
 
 _MANIFEST_CACHE: dict[str, list[dict]] = {}
@@ -157,12 +191,30 @@ def jdk_identity(jdk: str | Path | None = None) -> dict:
 
     try:
         proc = subprocess.run(
-            [java_bin, "-version"], capture_output=True, text=True, errors="replace", timeout=15
+            [java_bin, "-version"],
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            timeout=15,
         )
         version_out = (proc.stdout + proc.stderr).strip()
         return {"jdk": jdk_str, "java": java_bin, "version": version_out}
+    except FileNotFoundError:
+        # The single most likely failure for a visitor: no JDK installed at all.
+        return {
+            "jdk": jdk_str,
+            "java": java_bin,
+            "version": None,
+            "error": f"{java_bin!r} not found (no JDK on PATH?)",
+        }
     except Exception as e:  # defensive: identity capture must never crash a run
-        return {"jdk": jdk_str, "java": java_bin, "version": None, "error": repr(e)}
+        return {
+            "jdk": jdk_str,
+            "java": java_bin,
+            "version": None,
+            "error": f"{e.__class__.__name__}: {e}",
+        }
 
 
 def _classpath_jars() -> list[str]:
@@ -195,32 +247,83 @@ def _kill_tree(proc: subprocess.Popen) -> None:
 
 
 def _run_with_timeout(cmd: list[str], cwd: Path, timeout_s: int) -> tuple[int | None, str]:
-    """Run `cmd`; returns (returncode, combined stdout+stderr) or (None, tail) on timeout."""
+    """Run `cmd`; returns (returncode, combined stdout+stderr) or (None, tail) on timeout.
+
+    The output is captured through a **bounded sliding window**: a reader thread keeps only
+    the most recent `_MAX_CAPTURE_CHARS` characters and discards the rest. `cmd` here runs
+    model-generated Java, so the stream is attacker-influenced and effectively unbounded --
+    a candidate patch that prints in a loop was measured buffering 461 MiB in 6 s, which at
+    the default 30 s timeout is ~2.7 GB per bug, times `--jobs`. Draining (rather than just
+    not reading) is deliberate: a full pipe buffer would block an otherwise-fine child.
+
+    The window keeps the *tail*, because that is what `_tail` reports and where a JUnit
+    failure trace lives; when anything was dropped a one-line notice is prefixed.
+    """
     popen_kwargs: dict = {}
     if platform.system() == "Windows":
         popen_kwargs["creationflags"] = subprocess.CREATE_NEW_PROCESS_GROUP
     else:
         popen_kwargs["start_new_session"] = True
 
+    # encoding is pinned: javac is invoked with `-encoding UTF-8` and the benchmark sources
+    # are UTF-8, so decoding with the platform locale (cp1252 on a typical Windows box)
+    # turns compiler diagnostics that quote a source line into mojibake -- and bakes it
+    # into results/*.json, where the same run then differs between Windows and Linux CI.
     proc = subprocess.Popen(
         cmd,
         cwd=cwd,
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
         text=True,
+        encoding="utf-8",
         errors="replace",
         **popen_kwargs,
     )
+
+    blocks: deque[str] = deque(maxlen=_MAX_CAPTURE_BLOCKS)
+    dropped = False
+
+    def _drain() -> None:
+        nonlocal dropped
+        stream = proc.stdout
+        if stream is None:
+            return
+        try:
+            while True:
+                block = stream.read(_READ_BLOCK_CHARS)
+                if not block:
+                    return
+                if len(blocks) == _MAX_CAPTURE_BLOCKS:
+                    dropped = True
+                blocks.append(block)  # deque.append is atomic; no lock needed
+        except (OSError, ValueError):
+            return  # the pipe was closed under us (kill/cleanup) -- keep what we have
+
+    reader = threading.Thread(target=_drain, name="execbench-drain", daemon=True)
+    reader.start()
+
+    timed_out = False
     try:
-        out, _ = proc.communicate(timeout=timeout_s)
-        return proc.returncode, out
+        proc.wait(timeout=timeout_s)
     except subprocess.TimeoutExpired:
+        timed_out = True
         _kill_tree(proc)
         try:
-            out, _ = proc.communicate(timeout=5)
-        except Exception:
-            out = ""
-        return None, out
+            proc.wait(timeout=5)
+        except subprocess.TimeoutExpired:
+            pass
+
+    reader.join(5)
+    if proc.stdout is not None:
+        try:
+            proc.stdout.close()
+        except OSError:
+            pass
+
+    out = "".join(blocks)
+    if dropped:
+        out = f"[pop: kept only the last ~{_MAX_CAPTURE_CHARS} characters of output]\n{out}"
+    return (None if timed_out else proc.returncode), out
 
 
 def run_bug(
@@ -260,10 +363,15 @@ def run_bug(
         work.mkdir(parents=True, exist_ok=True)
 
     try:
+        # Start from empty dirs even when an explicit `workdir` is reused: `javac` is handed
+        # `src_dir.glob("*.java")`, so a previous bug's leftover sources would be compiled
+        # together with this one's and silently corrupt the result.
         src_dir = work / "src"
         classes_dir = work / "classes"
-        src_dir.mkdir(parents=True, exist_ok=True)
-        classes_dir.mkdir(parents=True, exist_ok=True)
+        for d in (src_dir, classes_dir):
+            if d.exists():
+                shutil.rmtree(d)
+            d.mkdir(parents=True)
 
         buggy_name = Path(entry["buggy_file"]).name
         buggy_original = (bench_dir / entry["buggy_file"]).read_text(encoding="utf-8")
@@ -282,7 +390,7 @@ def run_bug(
         sep = _classpath_sep()
         classpath = sep.join(jars)
 
-        javac_cmd = [javac_bin, "-encoding", "UTF-8", "-d", str(classes_dir)]
+        javac_cmd = [javac_bin, *_JAVAC_UTF8_PROPS, "-encoding", "UTF-8", "-d", str(classes_dir)]
         if classpath:
             javac_cmd += ["-cp", classpath]
         javac_cmd += java_files
@@ -298,6 +406,8 @@ def run_bug(
         run_cp = sep.join([str(classes_dir), *jars])
         java_cmd = [
             java_bin,
+            _JVM_MAX_HEAP,
+            *_JVM_UTF8_PROPS,
             "-cp",
             run_cp,
             "org.junit.runner.JUnitCore",

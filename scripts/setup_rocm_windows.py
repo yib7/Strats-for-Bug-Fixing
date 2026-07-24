@@ -131,26 +131,40 @@ def run(cmd: list[str]) -> None:
     subprocess.run(cmd, check=True)
 
 
+_REPORT_IF_312 = "import sys; print(sys.executable if sys.version_info[:2] == (3, 12) else '')"
+
+
+def _probe_python312(cmd: list[str]) -> str | None:
+    """Return the interpreter `cmd` launches, if it is Python 3.12; else None."""
+    if shutil.which(cmd[0]) is None:
+        return None
+    try:
+        proc = subprocess.run(
+            [*cmd, "-c", _REPORT_IF_312],
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            timeout=60,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return None
+    return proc.stdout.strip() or None if proc.returncode == 0 else None
+
+
 def find_python312(explicit: str | None) -> str:
     if explicit:
         return explicit
-    candidates = [
-        Path.home() / "AppData/Local/Programs/Python/Python312/python.exe",
-        Path("C:/Python312/python.exe"),
-    ]
-    for c in candidates:
-        if c.is_file():
-            return str(c)
-    py = shutil.which("python")
-    if py:
-        ver = subprocess.run(
-            [py, "-c", "import sys; print(sys.version_info[:2] == (3, 12))"],
-            capture_output=True,
-            text=True,
-            check=True,
-        ).stdout.strip()
-        if ver == "True":
-            return py
+    # Ask the interpreters themselves rather than guessing install paths: the Windows
+    # launcher (`py`) knows every registered version, so no absolute path is baked in here.
+    for cmd in (["py", "-3.12"], ["python3.12"], ["python"]):
+        found = _probe_python312(cmd)
+        if found:
+            return found
+    # Last resort: the default per-user install location (relative to $HOME, not a fixed drive).
+    user_install = Path.home() / "AppData/Local/Programs/Python/Python312/python.exe"
+    if user_install.is_file():
+        return str(user_install)
     sys.exit("No Python 3.12 found; pass --python (AMD wheels are cp312-only).")
 
 

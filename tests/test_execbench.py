@@ -350,6 +350,191 @@ def test_execbench_predictions_mode_requires_bench_when_all(tmp_path, monkeypatc
     assert "bench" in result.stderr.lower()
 
 
+def test_execbench_fails_fast_with_an_actionable_message_when_no_jdk(tmp_path, monkeypatch, capsys):
+    """Regression: a missing JDK produced 201 opaque `harness_error`s and never said "JDK",
+    even though `jdk_identity()` had already computed the real diagnosis."""
+    from pop.cli import main
+    from pop.execbench import harness as harness_mod
+
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setattr(
+        harness_mod,
+        "jdk_identity",
+        lambda jdk=None: {
+            "jdk": None,
+            "java": "java",
+            "version": None,
+            "error": "'java' not found (no JDK on PATH?)",
+        },
+    )
+    ran: list[tuple] = []
+    monkeypatch.setattr(harness_mod, "run_bug", lambda *a, **k: ran.append(a))
+
+    rc = main(["execbench", "--validate-references", "--bench", "quixbugs", "--limit", "5"])
+    err = capsys.readouterr().err
+
+    assert rc == 2
+    assert "JDK" in err and "--jdk" in err
+    assert "Traceback" not in err
+    assert not ran, "must fail before executing any bug"
+    assert not (tmp_path / "results").exists(), "must not leave a partial results file"
+
+
+def test_jdk_identity_reports_a_readable_error_when_java_is_missing(monkeypatch):
+    import subprocess as sp
+
+    from pop.execbench.harness import jdk_identity
+
+    def boom(*a, **k):
+        raise FileNotFoundError(2, "The system cannot find the file specified")
+
+    monkeypatch.setattr(sp, "run", boom)
+    info = jdk_identity(None)
+    assert info["version"] is None
+    assert "no JDK on PATH" in info["error"]
+    assert "FileNotFoundError(2," not in info["error"]  # not a raw repr
+
+
+# --- _run_with_timeout: bounded capture of untrusted output (no JDK; uses this interpreter) ---
+
+
+class TestRunWithTimeoutIsBounded:
+    """`_run_with_timeout` runs model-generated Java, so its output is untrusted.
+
+    Regression: it used to call `proc.communicate()`, which buffers the whole stream --
+    measured 461 MiB in 6 s from a patch that just prints in a loop.
+    """
+
+    def test_output_is_capped_and_keeps_the_tail(self):
+        from pop.execbench.harness import _MAX_CAPTURE_CHARS, _run_with_timeout
+
+        # Emit ~8 MiB, far past the cap, ending with a marker the tail must retain.
+        program = (
+            "import sys\n"
+            "line = 'x' * 4096\n"
+            "for _ in range(2048):\n"
+            "    sys.stdout.write(line + '\\n')\n"
+            "sys.stdout.write('FINAL-MARKER\\n')\n"
+        )
+        rc, out = _run_with_timeout([sys.executable, "-c", program], cwd=Path.cwd(), timeout_s=120)
+
+        assert rc == 0
+        assert "FINAL-MARKER" in out, "the tail (where a JUnit failure trace lives) must survive"
+        assert "kept only the last" in out, "a truncation notice must say output was dropped"
+        # Bounded: the notice adds a short prefix, never another copy of the stream.
+        assert len(out) < _MAX_CAPTURE_CHARS + 4096
+
+    def test_short_output_is_returned_verbatim(self):
+        from pop.execbench.harness import _run_with_timeout
+
+        rc, out = _run_with_timeout(
+            [sys.executable, "-c", "print('hello harness')"], cwd=Path.cwd(), timeout_s=60
+        )
+        assert rc == 0
+        assert out.strip() == "hello harness"
+        assert "kept only the last" not in out
+
+    def test_timeout_returns_none_returncode_and_kills_the_child(self):
+        from pop.execbench.harness import _run_with_timeout
+
+        rc, _ = _run_with_timeout(
+            [sys.executable, "-c", "import time; time.sleep(60)"], cwd=Path.cwd(), timeout_s=2
+        )
+        assert rc is None
+
+    def test_a_chatty_child_that_exceeds_the_cap_still_terminates(self):
+        """The pipe must keep being drained past the cap, or the child blocks forever."""
+        from pop.execbench.harness import _run_with_timeout
+
+        program = (
+            "import sys\n"
+            "for _ in range(4096):\n"
+            "    sys.stdout.write('y' * 4096 + '\\n')\n"
+            "sys.exit(3)\n"
+        )
+        rc, _ = _run_with_timeout([sys.executable, "-c", program], cwd=Path.cwd(), timeout_s=120)
+        assert rc == 3, "child exited on its own; it was not killed by the timeout"
+
+    def test_non_utf8_bytes_do_not_crash_the_capture(self):
+        from pop.execbench.harness import _run_with_timeout
+
+        program = "import sys; sys.stdout.buffer.write(b'ok \\xff\\xfe bad bytes\\n')"
+        rc, out = _run_with_timeout([sys.executable, "-c", program], cwd=Path.cwd(), timeout_s=60)
+        assert rc == 0
+        assert "ok" in out and "bad bytes" in out  # errors="replace", never an exception
+
+
+class TestHarnessCommandHardening:
+    """The JVM invocations must cap heap and pin output encoding (see run_bug)."""
+
+    def test_java_run_command_caps_heap_and_pins_utf8(self, tmp_path, monkeypatch):
+        from pop.execbench import harness as harness_mod
+
+        seen: list[list[str]] = []
+
+        def fake_run(cmd, cwd, timeout_s):
+            seen.append(list(cmd))
+            return 0, ""
+
+        monkeypatch.setattr(harness_mod, "_run_with_timeout", fake_run)
+        monkeypatch.setattr(harness_mod, "resolve_jdk", lambda jdk: ("javac", "java"))
+
+        entry = get_bug_entry("quixbugs", "BITCOUNT")
+        fixed = (BENCHMARKS_DIR / "quixbugs" / entry["fixed_file"]).read_text(encoding="utf-8")
+        harness_mod.run_bug("BITCOUNT", fixed, "quixbugs", workdir=tmp_path / "w")
+
+        javac_cmd, java_cmd = seen
+        assert harness_mod._JVM_MAX_HEAP in java_cmd
+        assert "-Dstdout.encoding=UTF-8" in java_cmd
+        assert "-J-Dstdout.encoding=UTF-8" in javac_cmd
+        assert "-encoding" in javac_cmd  # source encoding, unchanged
+
+    def test_heap_ceiling_clears_the_heaviest_benchmark_test(self):
+        """The cap must bound a runaway candidate *without* failing a real reference bug.
+
+        QuixBugs KNAPSACK test_9 allocates an `int[25][6404181]` memo table = 611 MiB. A
+        512 MiB ceiling (the first value tried) turned that into an OutOfMemoryError and
+        dropped reference validation to 200/201, so the floor is a real constraint -- keep
+        a healthy multiple of it rather than trimming this back down.
+        """
+        from pop.execbench.harness import _JVM_MAX_HEAP
+
+        knapsack_table_mib = 25 * 6_404_181 * 4 / 1024**2
+        assert _JVM_MAX_HEAP.startswith("-Xmx")
+        size = _JVM_MAX_HEAP[len("-Xmx") :]
+        units = {"m": 1, "g": 1024}
+        heap_mib = int(size[:-1]) * units[size[-1].lower()]
+        assert heap_mib >= 2 * knapsack_table_mib, (
+            f"{_JVM_MAX_HEAP} leaves too little headroom over the {knapsack_table_mib:.0f} MiB "
+            "KNAPSACK test_9 allocation"
+        )
+
+    def test_reused_workdir_does_not_compile_a_previous_bugs_sources(self, tmp_path, monkeypatch):
+        """Regression: `workdir` is public API ("inspect artifacts after a run") and was
+        reused without clearing, so two bugs' .java files got compiled together."""
+        from pop.execbench import harness as harness_mod
+
+        seen: list[list[str]] = []
+
+        def fake_run(cmd, cwd, timeout_s):
+            seen.append(list(cmd))
+            return 0, ""
+
+        monkeypatch.setattr(harness_mod, "_run_with_timeout", fake_run)
+        monkeypatch.setattr(harness_mod, "resolve_jdk", lambda jdk: ("javac", "java"))
+
+        work = tmp_path / "shared"
+        harness_mod.run_bug(
+            "BITCOUNT", "package java_programs;\nclass BITCOUNT {}", "quixbugs", workdir=work
+        )
+        harness_mod.run_bug("GCD", "package java_programs;\nclass GCD {}", "quixbugs", workdir=work)
+
+        second_javac = seen[2]
+        assert not any("BITCOUNT" in arg for arg in second_javac), (
+            f"stale sources from the previous run were recompiled: {second_javac}"
+        )
+
+
 # --- real end-to-end (needs a local JDK) --------------------------------------------------
 
 

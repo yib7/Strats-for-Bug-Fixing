@@ -565,6 +565,20 @@ def _run_execbench(args: argparse.Namespace) -> int:
     jobs = max(1, args.jobs)
     jdk_info = harness_mod.jdk_identity(args.jdk)
 
+    # Fail fast on a missing/unusable JDK. Without this, every bug fails identically with a
+    # bare "harness_error" -- 201 opaque lines whose real cause (a FileNotFoundError for
+    # java/javac) is already sitting in `jdk_info` and only visible if the user opens the
+    # results JSON. Running first also means no partial results file is written.
+    if jdk_info.get("version") is None:
+        print(
+            f"pop execbench: no usable JDK found "
+            f"({jdk_info.get('error', 'java -version produced no output')}).\n"
+            f"  Install a JDK 17+ and put java/javac on PATH, or pass --jdk <jdk-home>.\n"
+            f"  Tried: {jdk_info.get('java') or jdk_info.get('jdk') or 'javac/java via PATH'}",
+            file=sys.stderr,
+        )
+        return 2
+
     if args.validate_references:
         tasks: list[tuple[str, str, str]] = []  # (bug_id, bench, candidate_src)
         for bench in benches:
