@@ -8,21 +8,7 @@ from __future__ import annotations
 import argparse
 import os
 import sys
-
-STUB_SUBCOMMANDS: tuple[str, ...] = ()
-IMPLEMENTED_SUBCOMMANDS = (
-    "smoke",
-    "tokenizer",
-    "pretrain",
-    "finetune",
-    "generate",
-    "eval",
-    "rag",
-    "lora",
-    "lora-generate",
-    "execbench",
-)
-ALL_SUBCOMMANDS = (*STUB_SUBCOMMANDS, *IMPLEMENTED_SUBCOMMANDS)
+from collections.abc import Callable
 
 EXECBENCH_CHOICES = ("quixbugs", "humaneval_java", "all")
 
@@ -41,9 +27,6 @@ def build_parser() -> argparse.ArgumentParser:
         "larger LLM with RAG, for Java bug fixing.",
     )
     subparsers = parser.add_subparsers(dest="command")
-
-    for name in STUB_SUBCOMMANDS:
-        subparsers.add_parser(name, help=f"{name} (not yet implemented)")
 
     smoke_parser = subparsers.add_parser(
         "smoke",
@@ -768,43 +751,29 @@ def main(argv: list[str] | None = None) -> int:
         return 2
 
 
+# The CLI surface, in `pop --help` order. `test_cli.py` pins this against the parser's own
+# registered subcommands, so a subcommand can never be given a parser without a handler (or a
+# handler without a parser).
+COMMANDS: dict[str, Callable[[argparse.Namespace], int]] = {
+    "smoke": _run_smoke,
+    "tokenizer": _run_tokenizer,
+    "pretrain": _run_pretrain,
+    "finetune": _run_finetune,
+    "generate": _run_generate,
+    "eval": _run_eval,
+    "rag": _run_rag,
+    "lora": _run_lora,
+    "lora-generate": _run_lora_generate,
+    "execbench": _run_execbench,
+}
+
+
 def _dispatch(args: argparse.Namespace, parser: argparse.ArgumentParser) -> int:
-    if args.command == "smoke":
-        return _run_smoke(args)
-
-    if args.command == "pretrain":
-        return _run_pretrain(args)
-
-    if args.command == "finetune":
-        return _run_finetune(args)
-
-    if args.command == "tokenizer":
-        return _run_tokenizer(args)
-
-    if args.command == "generate":
-        return _run_generate(args)
-
-    if args.command == "eval":
-        return _run_eval(args)
-
-    if args.command == "rag":
-        return _run_rag(args)
-
-    if args.command == "lora":
-        return _run_lora(args)
-
-    if args.command == "lora-generate":
-        return _run_lora_generate(args)
-
-    if args.command == "execbench":
-        return _run_execbench(args)
-
-    if args.command in STUB_SUBCOMMANDS:
-        print(f"pop {args.command}: not yet implemented", file=sys.stderr)
-        return 2
-
-    parser.print_help()
-    return 1
+    handler = COMMANDS.get(args.command)
+    if handler is None:
+        parser.print_help()
+        return 1
+    return handler(args)
 
 
 if __name__ == "__main__":

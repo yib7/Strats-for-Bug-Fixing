@@ -17,7 +17,6 @@ SUBCOMMANDS = [
     "lora-generate",
     "execbench",
 ]
-STUB_SUBCOMMANDS: list[str] = []
 CONFIG_SUBCOMMANDS = ["pretrain", "finetune", "rag", "lora", "lora-generate"]
 
 
@@ -40,11 +39,23 @@ def test_help_lists_subcommand(subcommand):
     assert subcommand in result.stdout
 
 
-@pytest.mark.parametrize("subcommand", STUB_SUBCOMMANDS)
-def test_stub_subcommand_not_implemented(subcommand):
-    result = run_pop(subcommand)
-    assert result.returncode == 2
-    assert "not yet implemented" in result.stderr.lower()
+def test_the_parser_and_the_dispatch_table_describe_the_same_cli():
+    """Every subcommand argparse accepts has a handler, and vice versa.
+
+    The parser is written out subcommand by subcommand (each has its own flags) while dispatch
+    is a table, so the two halves are only kept in step by this check.
+    """
+    import argparse
+
+    from pop.cli import COMMANDS, build_parser
+
+    registered = next(
+        action.choices
+        for action in build_parser()._actions
+        if isinstance(action, argparse._SubParsersAction)
+    )
+    assert sorted(registered) == sorted(COMMANDS)
+    assert sorted(COMMANDS) == sorted(SUBCOMMANDS)
 
 
 def test_no_args_exits_nonzero():
