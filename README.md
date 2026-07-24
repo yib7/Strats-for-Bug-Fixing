@@ -5,7 +5,9 @@ at fixing Java bugs?** Four arms, scored twice: once on surface similarity, once
 actually compiles and passes the bug's tests. The two scores disagree, and that turned out to be
 the finding.
 
+[![CI](https://github.com/yib7/Strats-for-Bug-Fixing/actions/workflows/ci.yml/badge.svg)](https://github.com/yib7/Strats-for-Bug-Fixing/actions/workflows/ci.yml)
 [![Python 3.11 | 3.12](https://img.shields.io/badge/python-3.11%20%7C%203.12-blue)](pyproject.toml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
 ![Terminal recording of the CPU reproduce path. `pop smoke` runs the tokenizer, pretrain, finetune,
 generate and score stages and prints its summary table; the figure script rewrites three PNGs;
@@ -219,3 +221,10 @@ For the full GPU reproduction (pretrain → finetune → RAG → LoRA → execut
 - Every `results/*.json` carries `git_sha: unknown`, because the Colab runs executed from an
   uploaded zip with no `.git`. The committed JSONs are the source of truth, and every number in the
   report was cross-checked against its own file.
+
+## License
+
+MIT, see [LICENSE](LICENSE). The benchmark programs and jars under `benchmarks/` are third party and
+keep their own licenses; [CREDITS.md](CREDITS.md) lists each one with its attribution terms. Release
+notes are in [CHANGELOG.md](CHANGELOG.md), and [SECURITY.md](SECURITY.md) covers reporting and what
+the execution harness does and does not sandbox.

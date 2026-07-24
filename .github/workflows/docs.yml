@@ -1,0 +1,61 @@
+name: Docs
+
+# Builds the MkDocs site and publishes it to GitHub Pages.
+#
+# Deliberately manual-only for now. Pages is not enabled on this repository, and a deploy job
+# against a disabled Pages site fails, which would leave a permanently red workflow on every push.
+# To turn the site on: enable Pages in Settings > Pages with "GitHub Actions" as the source, run
+# this workflow once from the Actions tab to confirm it deploys, then uncomment the `push` trigger
+# below so the site tracks `main`.
+
+on:
+  workflow_dispatch:
+  # push:
+  #   branches: [main]
+
+# Allow one deploy at a time; let a newer commit supersede an in-flight run.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v9.0.0
+
+      - name: Set up Python
+        run: uv python install 3.12
+
+      - name: Install dependencies
+        run: uv sync --frozen
+
+      # --strict turns a broken internal link or a missing nav page into a failed build, so a
+      # docs regression is caught here rather than shipped to the site.
+      - name: Build the site
+        run: uv run python -m mkdocs build --strict
+
+      - name: Upload the built site
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
