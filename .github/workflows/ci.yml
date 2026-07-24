@@ -37,4 +37,22 @@ jobs:
         run: uv run pytest -m "not jdk"
 
       - name: Execution harness smoke (2 QuixBugs reference bugs, real JDK)
+        # Writes results/execbench_local_validate_references.json -- the gitignored scratch
+        # name. It must never land on results/execbench_validate_references.json, which is
+        # the committed 201/201 reference validation docs/report.md cites.
         run: uv run pop execbench --validate-references --bench quixbugs --limit 2
+
+      - name: CPU reproduce path (smoke + figures + docs)
+        # The three commands the README tells every visitor to run. They were never
+        # exercised in CI despite being the primary user journey; all three are fast
+        # (~9s / ~1s / ~1s).
+        run: |
+          uv run pop smoke
+          uv run python scripts/figures/make_all.py
+          uv run python -m mkdocs build
+
+      - name: Working tree must be clean after the reproduce path
+        # The guard that would have caught both the results-clobbering bug and the CRLF
+        # churn before they were ever committed: running the documented commands must not
+        # modify a single tracked file.
+        run: git diff --exit-code

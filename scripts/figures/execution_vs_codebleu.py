@@ -8,12 +8,13 @@ CSV schema (see ``tests/fixtures/execbench_agreement_example.csv``)::
 
     arm,codebleu,pass_at_1,n_bugs
 
-The real per-arm execution predictions are aggregated into
-``results/execbench_agreement.csv`` (gitignored, regenerated from the GPU batch),
-so the committed figure renders from the fixture and is titled *illustrative
-fixture data*. When a real ``results/execbench_agreement.csv`` appears it is used
-automatically; a missing file degrades to a clearly-labelled empty placeholder
-rather than crashing.
+``results/execbench_agreement.csv`` is committed, and
+``scripts/figures/make_all.py`` rebuilds it from the committed ``results/*.json``
+before every render -- so the committed figure is real measured data. The fixture
+(``tests/fixtures/execbench_agreement_example.csv``) survives only as the fallback
+for a results directory with no agreement data; the *illustrative fixture data*
+title appears in that case and only in that case. A missing file degrades to a
+clearly-labelled empty placeholder rather than crashing.
 
 Run standalone:  ``python scripts/figures/execution_vs_codebleu.py``
 """

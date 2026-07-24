@@ -85,6 +85,10 @@ url = "https://download.pytorch.org/whl/cpu"
 explicit = true
 
 [tool.pytest.ini_options]
+# --strict-markers: without it a typo'd `@pytest.mark.jkd` is silently accepted, so a test
+# meant to be excluded from CI's `-m "not jdk"` selection runs there anyway (and fails on a
+# runner with no JDK). --strict-config does the same for typos in this section.
+addopts = "--strict-markers --strict-config"
 markers = [
     "jdk: marks tests that require a local JDK installation",
 ]

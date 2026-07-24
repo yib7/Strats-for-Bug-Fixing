@@ -14,9 +14,14 @@ CSV schema (one row per measured point; see
 
 One panel is drawn per ``axis`` present. Within a panel, each arm is one line
 (CodeBLEU vs ``x``, mean over seeds) with the seed min..max drawn as a shaded
-band. The real CSV is produced later from the Colab scaling eval; until then the
-committed figure renders from the fixture and is titled *illustrative fixture
-data* so it is never mistaken for a result.
+band.
+
+``results/scaling_data.csv`` is committed, and ``scripts/figures/make_all.py``
+rebuilds it from the committed ``results/*.json`` before every render -- so the
+committed figure is real measured data. The fixture
+(``tests/fixtures/scaling_data_example.csv``) survives only as the fallback for a
+results directory with no scaling data at all; the *illustrative fixture data*
+title appears in that case and only in that case.
 
 Run standalone:  ``python scripts/figures/scaling_curves.py``
 """

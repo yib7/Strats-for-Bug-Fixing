@@ -67,7 +67,8 @@ headline finding (see [the report](docs/report.md) §"Execution vs CodeBLEU").*
 - **`benchmarks/`** — vendored QuixBugs-Java + HumanEval-Java + the JDK execution harness.
 - **`results/`** — the committed `*.json` metrics every number in the report traces back to.
 - **`docs/`** — the study report, measurement notes, and reproduction runbooks.
-- **`tests/`** — the test suite (309 passed, 1 skipped).
+- **`tests/`** — the test suite; run it with `pytest` (or `pytest -m "not jdk"` to skip the tests
+  that need a local JDK, which is what CI does).
 
 ## Reproduce
 
