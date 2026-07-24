@@ -35,9 +35,11 @@ def normalize_code(s: str) -> str:
     """Collapse every whitespace run to a single space and strip the ends."""
     return _WHITESPACE_RUN.sub(" ", s.strip())
 
+
 def exact_match(pred: str, ref: str) -> bool:
     """Whitespace-normalized exact match (the metric used for scoring)."""
     return normalize_code(pred) == normalize_code(ref)
+
 
 def exact_match_raw(pred: str, ref: str) -> bool:
     """Strict exact match after strip only (the naive comparison, kept for contrast)."""
@@ -54,10 +56,10 @@ normalized numbers are always visible together.
 
 ```python
 pred = "public int add(int a, int b) {\treturn a + b;\t}"
-ref  = "public int add(int a, int b) { return a + b; }"
+ref = "public int add(int a, int b) { return a + b; }"
 
-assert exact_match_raw(pred, ref) is False   # naive: fails
-assert exact_match(pred, ref) is True        # normalized: passes
+assert exact_match_raw(pred, ref) is False  # naive: fails
+assert exact_match(pred, ref) is True  # normalized: passes
 ```
 
 A caveat this study is careful about (see [`report.md`](report.md) finding 2): the normalized metric

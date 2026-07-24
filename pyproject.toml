@@ -7,9 +7,15 @@ name = "pop"
 version = "0.1.0"
 description = "pretrain-or-prompt: does pretraining a small T5 beat prompting a larger LLM with RAG for Java bug fixing?"
 readme = "README.md"
-# 3.11 floor (not 3.12): Google Colab runtimes may lag a Python version behind;
-# keep source 3.11-compatible so `pip install -e .` works there.
-requires-python = ">=3.11"
+# Floor 3.11 (not 3.12): Google Colab runtimes may lag a Python version behind; keep source
+# 3.11-compatible so `pip install -e .` works there.
+# Ceiling 3.13: tree-sitter 0.22.x -- the only line codebleu 0.7.0 accepts, see the comment on the
+# pin below -- publishes wheels for cp39-cp312 only, and its sdist needs a C toolchain. Without this
+# bound the `%pip install -q -e .` in every `notebooks/colab_*.ipynb` fails on 3.13+ deep inside a
+# C extension build, with the reason swallowed by `-q`; with it, pip says `Package 'pop' requires a
+# different Python`. Colab's default is still 3.12, so this costs nothing today. Lift it together
+# with the tree-sitter pins, once codebleu lifts its cap.
+requires-python = ">=3.11,<3.13"
 license = { text = "MIT" }
 dependencies = [
     "torch",
@@ -22,8 +28,11 @@ dependencies = [
     "numpy",
     "tqdm",
     "codebleu",
-    # codebleu 0.7.0 requires tree-sitter<0.23; tree-sitter-java must stay on the
-    # matching ABI-14 build (0.23+ is ABI-15 and segfaults/TypeErrors against tree-sitter<0.23).
+    # Held back deliberately, not stale. codebleu 0.7.0 (the current release) declares
+    # `tree-sitter>=0.22,<0.23`, and tree-sitter 0.22.x accepts only grammar ABI 13-14
+    # (LANGUAGE_VERSION=14, MIN_COMPATIBLE_LANGUAGE_VERSION=13). tree-sitter-java 0.21.0 is the
+    # newest ABI-14 build; 0.23+ ships ABI-15 grammars and fails to load here with
+    # `TypeError: an integer is required`. These two move only when codebleu lifts its cap.
     "tree-sitter>=0.22,<0.23",
     "tree-sitter-java==0.21.0",
     "bm25s",
@@ -57,6 +66,15 @@ dev = [
     "matplotlib",
     "mkdocs",
 ]
+
+[tool.uv]
+# `tokenizers` is transitive (via transformers), so it is constrained here rather than declared as
+# a dependency the package does not import. Held at 0.22.x deliberately: it is the tokenizer runtime
+# behind every Qwen and CodeBERT number in `docs/report.md`, those results are committed under
+# `results/` and are never recomputed, and a tokenization change would silently desynchronise the
+# report from the code. transformers 5.14.1 caps it at <=0.23.0 anyway, so the only available move
+# is a minor bump with no security or feature driver. Revisit when the study is re-run end to end.
+constraint-dependencies = ["tokenizers<0.23"]
 
 [tool.uv.sources]
 torch = [{ index = "pytorch-cpu" }]
