@@ -142,9 +142,9 @@ uv run python -m mkdocs build               # build the study site into ./site
 ### Anything else worth running
 
 ```bash
-uv run pytest                                # the test suite (add -m "not jdk" if you have no JDK)
-uv run pop --help                            # all ten subcommands
-uv run pop execbench --validate-references   # needs a JDK: compiles and runs all 201 bugs
+uv run pytest                    # the test suite, ~55 s (add -m "not jdk" if you have no JDK)
+uv run pop --help                # all ten subcommands
+uv run pop execbench --validate-references --jobs 4   # needs a JDK; 201/201 in ~40 s
 ```
 
 A missing or malformed input — no config file, broken YAML, a prediction record without a
