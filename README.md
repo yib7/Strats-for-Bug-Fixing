@@ -6,8 +6,11 @@ actually compiles and passes the bug's tests. The two scores disagree, and that 
 the finding.
 
 [![CI](https://github.com/yib7/Strats-for-Bug-Fixing/actions/workflows/ci.yml/badge.svg)](https://github.com/yib7/Strats-for-Bug-Fixing/actions/workflows/ci.yml)
+[![Docs](https://github.com/yib7/Strats-for-Bug-Fixing/actions/workflows/docs.yml/badge.svg)](https://yib7.github.io/Strats-for-Bug-Fixing/)
 [![Python 3.11 | 3.12](https://img.shields.io/badge/python-3.11%20%7C%203.12-blue)](pyproject.toml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+
+**Read the study online: <https://yib7.github.io/Strats-for-Bug-Fixing/>**
 
 ![Terminal recording of the CPU reproduce path. `pop smoke` runs the tokenizer, pretrain, finetune,
 generate and score stages and prints its summary table; the figure script rewrites three PNGs;
@@ -101,7 +104,8 @@ at pass@1 = 0.](docs/figures/execution_vs_codebleu.png)
 
 ## Read the full study
 
-`uv run python -m mkdocs build` renders the whole analysis into `./site`:
+The site is published at **<https://yib7.github.io/Strats-for-Bug-Fixing/>**. To read it offline
+instead, `uv run python -m mkdocs build` renders the same thing into `./site`:
 
 ![The built study site: a left nav with Home, Architecture, Study report and Measurement notes; the
 four-arm results table showing CodeBLEU and execution pass@1 per arm; and the headline CodeBLEU and

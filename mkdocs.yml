@@ -11,6 +11,11 @@ use_directory_urls: true
 # unstyled error page. Keep this in step with the Pages deployment.
 site_url: https://yib7.github.io/Strats-for-Bug-Fixing/
 
+# Puts a "GitHub" link in the theme's sidebar, so a reader who arrives on the site can get to the
+# code without having to guess the URL.
+repo_url: https://github.com/yib7/Strats-for-Bug-Fixing
+repo_name: yib7/Strats-for-Bug-Fixing
+
 theme:
   name: readthedocs
   # The theme's default (`highlightjs: true`) injects highlight.js and its stylesheet from
