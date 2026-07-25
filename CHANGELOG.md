@@ -3,7 +3,7 @@
 Versions follow [semantic versioning](https://semver.org/). Each entry uses the same shape:
 `## vX.Y.Z - YYYY-MM-DD`, a one-line summary, then grouped bullets.
 
-## v1.0.0 - 2026-07-24
+## v1.0.0 - 2026-07-25
 
 First public release. The study is complete and every number in it traces to a committed file.
 
