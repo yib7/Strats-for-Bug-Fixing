@@ -54,15 +54,15 @@ including how to install `uv`.
 
 ## Network and telemetry
 
-**No analytics, anywhere.** `pop` contains no tracking, crash reporting or usage pings, and this
-site loads no third-party scripts, fonts or stylesheets. Syntax highlighting is rendered at build
-time rather than pulled from a CDN.
+There is no analytics anywhere in this project. `pop` contains no tracking, crash reporting or usage
+pings, and this site loads no third-party scripts, fonts or stylesheets; syntax highlighting is
+rendered at build time instead of being pulled from a CDN.
 
-**The local reproduction path makes no network connections at all.** `pop smoke`,
+The local reproduction path makes no network connections at all. `pop smoke`,
 `scripts/figures/make_all.py`, `mkdocs build`, the execution harness (`pop execbench`, which only
 runs a local `javac`/`java`) and the test suite were each run with Python's socket layer
-instrumented: zero outbound connections and zero DNS lookups. That holds even with `WANDB_API_KEY`
-exported, because `pop smoke` explicitly opts out of experiment tracking.
+instrumented, and all of them recorded zero outbound connections and zero DNS lookups. That holds
+even with `WANDB_API_KEY` exported, because `pop smoke` explicitly opts out of experiment tracking.
 
 The full-study commands do use the network, and only these two third parties:
 

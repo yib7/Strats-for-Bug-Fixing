@@ -6,7 +6,7 @@ with the license that actually governs it.
 
 ## Redistributed in this repository
 
-### QuixBugs (Java subset) — MIT
+### QuixBugs (Java subset): MIT
 
 `benchmarks/quixbugs/` holds 40 buggy programs, 40 reference fixes, 40 JUnit test classes and 2
 shared support classes from [jkoppel/QuixBugs](https://github.com/jkoppel/QuixBugs), at commit
@@ -17,7 +17,7 @@ shared support classes from [jkoppel/QuixBugs](https://github.com/jkoppel/QuixBu
 The full MIT permission notice is vendored verbatim at
 [`benchmarks/quixbugs/LICENSE`](benchmarks/quixbugs/LICENSE).
 
-### HumanEval-Java — permissive by lineage, unstated at the snapshot
+### HumanEval-Java: permissive by lineage, unstated at the snapshot
 
 `benchmarks/humaneval_java/` holds 163 buggy programs, 163 reference fixes and 163 JUnit test
 classes from [ASSERT-KTH/human-eval-java](https://github.com/ASSERT-KTH/human-eval-java) at commit
@@ -38,7 +38,7 @@ the contributors' names are not used to endorse derived products without permiss
 warranty disclaimer is reproduced. The full chain is recorded in
 [`benchmarks/humaneval_java/PROVENANCE.md`](benchmarks/humaneval_java/PROVENANCE.md).
 
-### JUnit 4.13.2 — Eclipse Public License 1.0
+### JUnit 4.13.2: Eclipse Public License 1.0
 
 `benchmarks/lib/junit-4.13.2.jar` is the unmodified binary artifact from Maven Central
 (`junit:junit:4.13.2`), used by the execution harness to run each bug's tests.
@@ -48,7 +48,7 @@ how to obtain the source. The license text is at <https://www.eclipse.org/legal/
 the source for this version is at <https://github.com/junit-team/junit4/tree/r4.13.2>. The jar is
 byte-identical to the published artifact and nothing in it has been modified.
 
-### Hamcrest Core 1.3 — BSD 3-Clause
+### Hamcrest Core 1.3: BSD 3-Clause
 
 `benchmarks/lib/hamcrest-core-1.3.jar` is the unmodified binary artifact from Maven Central
 (`org.hamcrest:hamcrest-core:1.3`), a JUnit 4 runtime dependency. Copyright (c) 2000-2006,

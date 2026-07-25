@@ -102,5 +102,5 @@ and `phase2_summary.md` (the T5 finetune batch write-up). Neither is counted in 
 | **Study total** | **36** |
 
 Arm B's execution point (`execbench_B.json`) measures 0.0% compile / 0.0% pass, identical to arm A.
-That is what pins the whole-file-vs-method mismatch as something both T5 arms share rather than an
-arm-A artifact.
+Both T5 arms failing the same way is what pins the whole-file-vs-method mismatch on the shared
+architecture, since an arm-A-only artifact would not reproduce under a different training run.

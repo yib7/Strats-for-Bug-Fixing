@@ -132,17 +132,16 @@ points, plus 2 pretrain-compute runs at pretrain-epoch∈{1,3}, plus the reused 
 (left) CodeBLEU vs finetune `train_n` for arms A and B at 1K/5K/15K/~52K pairs; (right) CodeBLEU vs
 pretraining epochs for arm A (finetuning from the epoch-1/3/10 pretrain checkpoints).
 
-**Data curve: convergence, not divergence.** Both arms rise monotonically with `train_n`, but the
-interesting result is what happens to the **gap** between them, not the rise itself. Arm A
-(pretrained) leads arm B (scratch) at every budget, but the lead shrinks as data grows: the A−B
-CodeBLEU gap runs ≈0.083 at 1K, ≈0.067 at 5K, ≈0.033 at 15K, and **≈0** at the full 52K split (A 0.477
-vs B mean 0.479, inside the seed band). Pretraining's head start is real, but it is a
-**small-data-budget effect**: it helps when finetune data is scarce and evaporates once there is
-enough finetune data to learn the task directly. This *refines*, rather than contradicts, finding 1
-below ("no benefit at full data"). The fuller picture is that pretraining buys a fast start, not a
-better ceiling. Syntax-validity shows the same convergence more sharply: it is **exactly 0% at 1K for
-both arms** (every prediction fails to parse, a hard floor rather than just a low score) and climbs to
-88–92% by 52K.
+**Data curve: the arms converge.** Both arms rise monotonically with `train_n`, and the result worth
+reading is in the **gap** between them. Arm A (pretrained) leads arm B (scratch) at every budget,
+but the lead shrinks as data grows: the A−B CodeBLEU gap runs ≈0.083 at 1K, ≈0.067 at 5K, ≈0.033 at
+15K, and **≈0** at the full 52K split (A 0.477 vs B mean 0.479, inside the seed band). Pretraining's
+head start is real, but it is a **small-data-budget effect**: it helps when finetune data is scarce
+and evaporates once there is enough finetune data to learn the task directly. That *refines* finding
+1 below ("no benefit at full data") by locating where the benefit lives: pretraining buys speed of
+convergence while leaving the ceiling where it was. Syntax-validity shows the same convergence more
+sharply. It is **exactly 0% at 1K for both arms**, a hard floor where every prediction fails to
+parse, and climbs to 88–92% by 52K.
 
 **Pretrain-compute curve: flat.** Finetuning arm A from pretrain checkpoints saved at
 pretrain-epoch 1/3/10 gives CodeBLEU **0.4688 / 0.4635 / 0.4770** (syntax-valid 0.897 / 0.904 /
@@ -214,14 +213,13 @@ Several of these are negative results, and they are reported as such.
    Execution is the ground truth for "does it run," and here it says something CodeBLEU alone would
    get backwards.
 
-6. **EM≈0 for T5 is a model property, not a broken metric.** A strict-`==` exact-match metric can
-   report 0% EM everywhere purely as a whitespace artifact (the pitfall in
+6. **The same metric that scores T5 at zero registers 9.47% for LoRA.** A strict-`==` exact-match
+   metric can report 0% EM everywhere purely as a whitespace artifact (the pitfall in
    [`measurement.md`](measurement.md) §1); this study uses the fixed, whitespace-normalized metric.
-   That fixed metric still returns EM≈0 for T5 (finding 2: 0–4 of 6,545), but the *same* metric
-   registers **real, non-trivial exact matches** for the Qwen arms: RAG's best config gets 1.89% EM,
-   and LoRA gets **9.47% EM** (620 of 6,545 predictions whitespace-normalized identical to the
-   reference). The metric clearly *can* register a match when a capable-enough model makes one, so
-   T5's EM≈0 is a property of that model on this task, not a measurement failure.
+   That fixed metric still returns EM≈0 for T5 (finding 2: 0–4 of 6,545), while returning
+   substantial matches for the Qwen arms: RAG's best config gets 1.89% EM, and LoRA gets **9.47%**
+   (620 of 6,545 predictions whitespace-normalized identical to the reference). So the metric
+   registers a match whenever a model makes one. T5 simply does not make them.
 
 7. **Execution is the discriminating lens: only the LLM arms fix real bugs, and the T5 arms' 0% is a
    domain mismatch, not a null result.** C and D fix 26–36% of the 201 real bugs; the

@@ -55,20 +55,22 @@ theme has no mermaid renderer and this site deliberately loads no third-party Ja
 Every result JSON carries the same envelope, written by `pop.eval.metrics.write_results`:
 `{config, metrics, n, timestamp, git_sha}`.
 
-## Nothing here retrains on clone
+## Why a clone is fast
 
-The GPU work happened once, on Colab, and its output is committed. `results/` holds 36 study
-artifacts: 33 per-run metric JSONs, the harness validation run, and two derived CSVs.
-`docs/results-manifest.md` names every one and what it is for.
+Cloning this repo retrains nothing. The GPU work ran once on Colab and its output is committed:
+`results/` holds 36 study artifacts, which is 33 per-run metric JSONs, the harness validation run,
+and two derived CSVs. `docs/results-manifest.md` names every one and says what it is for.
 
-That is why the local path is cheap. `scripts/figures/make_all.py` rebuilds the two CSVs from the
-committed JSONs and re-renders all three figures in about a second, so the figures always reproduce
-from a clean checkout rather than from a stale cached CSV. Changing a number would mean re-running
-a GPU batch, not editing a file.
+Because those measurements are already in the tree, the local path only has to read them.
+`scripts/figures/make_all.py` rebuilds the two CSVs from the committed JSONs and re-renders all
+three figures in about a second, so a clean checkout draws its figures from the measurements
+themselves and never from a cached CSV that has drifted out of date. Changing a published number
+would mean running the GPU batch again.
 
-The reproduction path is documented in three places: `docs/gpu-runbook.md` (run the whole study in
-one Colab sitting), `docs/colab-runbook.md` (the resumable T5 orchestrator and its Drive setup), and
-`docs/gpu-reproduction.md` (environments, launch order per arm, and the local AMD/ROCm path).
+If you do want to run that batch, three documents cover it. `docs/gpu-runbook.md` walks through the
+whole study in one Colab sitting. `docs/colab-runbook.md` explains the resumable T5 orchestrator and
+its Drive setup. `docs/gpu-reproduction.md` covers the environments, the launch order per arm, and
+the local AMD/ROCm path.
 
 Each notebook in `notebooks/` is one GPU stage of that batch:
 
