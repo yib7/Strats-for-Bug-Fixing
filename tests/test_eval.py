@@ -196,7 +196,9 @@ def test_scratch_run_name_matches_the_gitignore_pattern():
     assert not is_scratch_run_name("finetune_A_ep10_test")
 
 
-@pytest.mark.parametrize("name", ["../oops", "sub/dir", "", ".", ".."])
+# the backslash cases must be rejected on POSIX too, where `\` is a legal filename
+# character: the guard's contract is "no path separators", not "none that this OS parses".
+@pytest.mark.parametrize("name", ["../oops", "sub/dir", "..\\oops", "sub\\dir", "", ".", ".."])
 def test_write_results_rejects_names_that_escape_the_results_dir(name, tmp_path, monkeypatch):
     monkeypatch.chdir(tmp_path)
     with pytest.raises(ValueError):

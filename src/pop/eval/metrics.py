@@ -113,7 +113,8 @@ def write_results(name: str, metrics: dict, config: dict, *, overwrite: bool | N
     """
     # `Path(name).name` strips any directory, drive and root, so it round-trips only for a
     # bare filename. "." and ".." are special-cased: pathlib keeps ".." as a whole component.
-    if not name or name in {".", ".."} or Path(name).name != name:
+    # `\` is tested separately because pathlib only treats it as a separator on Windows.
+    if not name or name in {".", ".."} or "\\" in name or Path(name).name != name:
         raise ValueError(
             f"results name must be a bare filename (no path separators or '..'), got {name!r}"
         )

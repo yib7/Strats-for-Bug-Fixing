@@ -101,9 +101,12 @@ def _bench_dir(bench: str) -> Path:
     `../../..` and make the harness read a `manifest.json` (and the Java sources it names)
     from anywhere on disk -- and `bench` also lands in the `tempfile` prefix in `run_bug`.
     `Path(bench).name` strips any directory, drive and root, so it round-trips only for a
-    bare name; "." and ".." are special-cased because pathlib keeps ".." whole.
+    bare name; "." and ".." are special-cased because pathlib keeps ".." whole. `\\` is
+    tested explicitly rather than left to pathlib: it separates on Windows but is a legal
+    filename character on POSIX, so without it the same predictions file would be rejected
+    on one platform and accepted on the other.
     """
-    if not bench or bench in {".", ".."} or Path(bench).name != bench:
+    if not bench or bench in {".", ".."} or "\\" in bench or Path(bench).name != bench:
         raise ValueError(
             f"benchmark name must be a bare directory name under benchmarks/ "
             f"(no path separators or '..'), got {bench!r}"
@@ -127,10 +130,13 @@ def bench_source_path(bench: str, rel: str) -> Path:
     are read and fed to `javac` -- whose diagnostics quote source lines into
     `stdout_tail`, i.e. into `results/*.json`. Confining the resolved path to the
     benchmark directory keeps a `../../..` entry from turning that into an arbitrary-file
-    read.
+    read. Backslashes are normalised to `/` first so that a `..\\..\\` entry is caught on
+    POSIX too, where pathlib would otherwise read it as one long filename that never
+    leaves the directory -- the check has to hold wherever the manifest is read, not only
+    where it was written.
     """
     base = _bench_dir(bench).resolve()
-    path = (base / rel).resolve()
+    path = (base / rel.replace("\\", "/")).resolve()
     if path != base and base not in path.parents:
         raise ValueError(f"{bench}: manifest path escapes the benchmark directory: {rel!r}")
     return path
