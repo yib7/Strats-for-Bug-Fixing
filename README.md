@@ -11,7 +11,7 @@ the finding.
 
 ![Terminal recording of the CPU reproduce path. `pop smoke` runs the tokenizer, pretrain, finetune,
 generate and score stages and prints its summary table; the figure script rewrites three PNGs;
-mkdocs builds the site in 0.16 s; pytest reports 384 passed; and the Java execution harness
+mkdocs builds the site in 0.16 s; pytest reports 386 passed; and the Java execution harness
 validates 201 of 201 reference patches at pass_rate 1.0.](docs/media/reproduce.gif)
 
 Every command in that recording runs on a laptop CPU from a clean clone, with no GPU and no API
@@ -172,10 +172,15 @@ uv run python scripts/figures/make_all.py   # re-render docs/figures/*.png from 
 uv run python -m mkdocs build               # build the study site into ./site
 ```
 
+The committed PNGs were rendered on Windows. matplotlib rasterises text through whichever freetype
+its wheel was built against, so re-rendering on Linux or macOS reproduces the same plot from the
+same numbers but writes different bytes, and `git status` will show the three figures as modified.
+That is expected; `git checkout docs/figures` puts the committed copies back.
+
 ### Anything else worth running
 
 ```bash
-uv run pytest                    # the test suite, 384 tests, ~55 s (add -m "not jdk" if you have no JDK)
+uv run pytest                    # the test suite, 386 tests, ~55 s (add -m "not jdk" if you have no JDK)
 uv run pop --help                # all ten subcommands
 uv run pop execbench --validate-references --jobs 4   # needs a JDK; 201/201 in ~40 s
 ```

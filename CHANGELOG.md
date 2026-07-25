@@ -27,6 +27,6 @@ First public release. The study is complete and every number in it traces to a c
   evaluation, RAG, and the execution harness.
 - The CPU path reproduces the study's figures and site from committed results in about 96 seconds
   from a cold clone. Nothing in it retrains a model or needs a GPU.
-- 384 tests, hermetic and network-free. CI runs lint, format, the suite and a real JDK harness
-  smoke on every push.
+- 386 tests, hermetic and network-free. CI runs lint, format, the suite, a real JDK harness smoke
+  and the documented CPU reproduce path on every push.
 - Documentation site with the full report, measurement notes, and an architecture page.

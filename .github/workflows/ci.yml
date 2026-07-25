@@ -55,4 +55,15 @@ jobs:
         # The guard that would have caught both the results-clobbering bug and the CRLF
         # churn before they were ever committed: running the documented commands must not
         # modify a single tracked file.
-        run: git diff --exit-code
+        #
+        # docs/figures/*.png is excluded, and only it. matplotlib rasterises text through
+        # whichever freetype its wheel was built against, so the same figure from the same
+        # committed JSON is byte-different on Linux and Windows while being pixel-wise the
+        # same plot -- matplotlib's own suite compares figures with a tolerance rather than
+        # by hash for this reason. The committed PNGs were rendered on Windows, so asserting
+        # byte-identity here would assert a property of the renderer, not of the pipeline.
+        # Everything the study actually rests on -- results/, the derived CSVs, the docs --
+        # stays under the strict check. README step 5 documents the same caveat for anyone
+        # re-rendering locally.
+        run: |
+          git diff --exit-code -- . ':(exclude)docs/figures/*.png'
