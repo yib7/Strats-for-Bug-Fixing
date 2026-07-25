@@ -11,7 +11,7 @@ First public release. The study is complete and every number in it traces to a c
 
 - Four arms compared on Java bug fixing: A, a T5-small pretrained on CodeSearchNet then finetuned;
   B, the same T5-small finetuned from scratch; C, Qwen2.5-Coder-1.5B-Instruct prompted with one
-  retrieved exemplar; D, Qwen2.5-Coder-1.5B with a LoRA adapter.
+  retrieved exemplar; D, the same Qwen with a LoRA adapter.
 - Two evaluation tracks. Track 1 scores CodeBLEU, exact match and syntax validity on the 6,545-pair
   CodeXGLUE test split. Track 2 compiles and runs each candidate against 201 real bugs from
   QuixBugs and HumanEval-Java through a JDK harness.

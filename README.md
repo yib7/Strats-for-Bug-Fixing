@@ -15,8 +15,30 @@ mkdocs builds the site in 0.16 s; pytest reports 386 passed; and the Java execut
 validates 201 of 201 reference patches at pass_rate 1.0.](docs/media/reproduce.gif)
 
 Every command in that recording runs on a laptop CPU from a clean clone, with no GPU and no API
-key. The output is real, captured from a live run: `scripts/media/readme_walkthrough.txt` is the
+key. The output was captured from a live run: `scripts/media/readme_walkthrough.txt` is the
 storyboard, and it states exactly which lines were trimmed.
+
+## What the numbers mean
+
+Two scores do all the work here, and they measure different things.
+
+**CodeBLEU** asks how closely the fix *resembles* the known-good fix. It compares tokens, syntax
+tree and data flow, and returns a number from 0 to 1. It never runs the code, so a fix that reads
+plausibly but does not compile can still score well.
+
+**Execution pass@1** asks whether the fix *works*. Compile the model's first and only attempt with
+`javac`, run that bug's JUnit tests, and count it only if the tests pass. One attempt, no retries.
+
+The rest of the vocabulary, defined once:
+
+- An **arm** is one complete recipe for turning a buggy Java method into a fixed one. This study
+  compares four of them.
+- **RAG** (retrieval-augmented generation) means searching the training set for an already-fixed bug
+  that resembles this one and pasting it into the prompt as a worked example before asking for a fix.
+- **LoRA** is cheap finetuning: rather than updating all 1.5B weights, train a small adapter
+  alongside the frozen model. It fits on one consumer GPU.
+- **EM** (exact match) is the strictest score. The fix has to equal the reference character for
+  character once whitespace is normalized.
 
 ## What the study found
 
@@ -50,7 +72,9 @@ flowchart TB
     T2 --> R2["pass@1 ranks<br/><b>C 35.8%</b> · D 26.4% · A 0.0% · B 0.0%"]
 ```
 
-Same four arms, same decoding, two scores, and the ranking flips at the top.
+Same four arms, same decoding, two scores, and the ranking flips at the top. Arms C and D run on the
+same base model, `Qwen2.5-Coder-1.5B-Instruct`, so C against D is a clean prompting-vs-adapting
+comparison rather than a comparison of two different models.
 [docs/architecture.md](docs/architecture.md) traces the data flow behind this in detail.
 
 ## Results
@@ -162,7 +186,7 @@ uv run pop smoke
 Tokenizer training → pretraining → finetuning → generation → scoring, on tiny committed fixtures.
 It prints a summary table and writes `results/smoke_local.json`, which is gitignored, so an ad-hoc
 run can never overwrite a published measurement. Expect about a minute the first time (Python is
-byte-compiling the packages it just installed) and about 8 seconds on every run after that.
+byte-compiling the packages it just installed) and about 9 seconds on every run after that.
 
 **Step 5: rebuild the figures and the docs site** *(optional; skip it if you only wanted to
 confirm the install works)*.
@@ -221,8 +245,8 @@ For the full GPU reproduction (pretrain → finetune → RAG → LoRA → execut
 - The T5 arms' 0% execution pass is an input-distribution mismatch, not proof they learned nothing.
   Track 1 shows both arms learning the refinement task; the execution benchmark then hands them
   whole concrete Java files they were never trained on.
-- The larger base is Qwen2.5-Coder-1.5B. Qwen3-Coder exists, but its smallest published size is
-  30B-A3B, so the 1.5B tier has no Qwen3-Coder equivalent to swap in and rerun.
+- The larger base is Qwen2.5-Coder-1.5B-Instruct. Qwen3-Coder exists, but its smallest published
+  size is 30B-A3B, so the 1.5B tier has no Qwen3-Coder equivalent to swap in and rerun.
 - Every `results/*.json` carries `git_sha: unknown`, because the Colab runs executed from an
   uploaded zip with no `.git`. The committed JSONs are the source of truth, and every number in the
   report was cross-checked against its own file.

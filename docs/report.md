@@ -1,14 +1,14 @@
 # pretrain-or-prompt: study report
 
-> All four arms (**A** pretrain→finetune T5, **B** from-scratch T5,
-> **C** RAG-prompted Qwen2.5-Coder-1.5B-Instruct, **D** LoRA-finetuned Qwen2.5-Coder-1.5B)
-> report **real measured numbers** from the Colab GPU batch, committed under `results/*.json`.
-> Two lenses: **Track 1** is CodeBLEU / exact-match / syntax-validity on the full 6,545-pair
-> CodeXGLUE test split; **Track 2** is execution pass@1 on 201 real Java bugs (QuixBugs-Java +
-> HumanEval-Java) through a JDK harness validated 201/201 on reference patches. It keeps an
-> honest-negatives voice throughout: report what the data says, name what is still open, do not
-> oversell. Here the two lenses **disagree** with each other, which turns out to be the
-> headline finding (see Cross-arm findings §5).
+> Four arms: **A** pretrain→finetune T5-small, **B** from-scratch T5-small, **C** RAG-prompted
+> Qwen2.5-Coder-1.5B-Instruct, **D** LoRA-finetuned Qwen2.5-Coder-1.5B-Instruct. Arms C and D sit on
+> the same base model, so C against D compares prompting with adapting. Every number below was
+> measured on GPU and is committed under `results/*.json`.
+>
+> Two lenses. **Track 1** is CodeBLEU / exact-match / syntax-validity on the full 6,545-pair
+> CodeXGLUE test split. **Track 2** is execution pass@1 on 201 real Java bugs (QuixBugs-Java +
+> HumanEval-Java) through a JDK harness validated 201/201 on reference patches. The two lenses
+> **disagree**, and that disagreement is the headline finding (see Cross-arm findings §5).
 
 ## The question
 
@@ -27,25 +27,32 @@ bootstrap CIs, provenance on every `results/*.json`) and only then compares arms
 
 ## Method: the four arms
 
-| Arm | System | Adaptation | Status |
-|-----|--------|------------|--------|
-| **A** | T5-small (512/2048/64/8/6+6, vocab 16384, seq 512) | span-corruption **pretrain → finetune** | done, real (ep 1/3/10, seed 42) |
-| **B** | same T5-small | **finetune from random init** (no pretrain) | done, real (seeds 0/1/2) |
-| **C** | Qwen2.5-Coder-1.5B-Instruct | **RAG** prompt (BM25 / CodeBERT × k∈{0,1,3,5}) | done, real (best sweep config: codebert_k1) |
-| **D** | Qwen2.5-Coder-1.5B | **LoRA** finetune (r16/α32/drop0.05, q/k/v/o_proj) | done, real |
+| Arm | System | Adaptation | Runs behind it |
+|-----|--------|------------|----------------|
+| **A** | T5-small, built here from a manual config | span-corruption **pretrain → finetune** | finetune epochs 1/3/10, seed 42 |
+| **B** | same T5-small | **finetune from random init** (no pretrain) | seeds 0/1/2 |
+| **C** | Qwen2.5-Coder-1.5B-Instruct | **RAG** prompt (BM25 / CodeBERT × k∈{0,1,3,5}) | 8-config sweep; best is codebert_k1 |
+| **D** | Qwen2.5-Coder-1.5B-Instruct | **LoRA** finetune (r16/α32/drop0.05, q/k/v/o_proj) | one run |
+
+The T5 the study builds is t5-small sized: `d_model` 512, `d_ff` 2048, `d_kv` 64, 8 attention heads,
+6 encoder and 6 decoder layers, over a 16,384-token SentencePiece vocabulary trained in this repo,
+at sequence length 512. No pretrained checkpoint is downloaded for arms A or B. Span corruption is
+T5's usual pretraining objective: mask out random runs of tokens and have the model reconstruct
+them, so it learns the shape of Java before it ever sees a bug-fix pair.
 
 - **Data.** CodeXGLUE `code_x_glue_cc_code_refinement` (medium, Java). Test split = **6,545** buggy→fixed
   method pairs. RAG knowledge base is built **strictly from the train split** (leakage guard enforced
   in `pop rag`).
 - **Generation.** Greedy (`num_beams=1`), `max_new_tokens=256`, full test split, the same decoding for
   every arm so the comparison is fair.
-- **Metrics.** `em` (whitespace-normalized exact match), `em_raw` (strict, mirrors the old bug),
+- **Metrics.** `em` (whitespace-normalized exact match), `em_raw` (strict string equality, the naive
+  version kept alongside it for contrast; see [`measurement.md`](measurement.md) §1),
   `codebleu`, `syntax_valid_rate` (tree-sitter Java parse, no ERROR nodes). CIs via percentile
   bootstrap (`pop.eval.bootstrap`) where per-sample data is available; otherwise point estimates with
   the arm-B seed band.
 - **Execution lens (Track 2).** Predicted fixes run through the JDK harness over the 201 vendored
   QuixBugs-Java (40) + HumanEval-Java (161) bugs; the harness is validated **201/201 on reference
-  patches** (`results/execbench_validate_references.json`). Real pass@1 / compile-rate per arm:
+  patches** (`results/execbench_validate_references.json`). Measured pass@1 / compile-rate per arm:
   **A** 0.0% compile, 0.0% pass (100% `compile_error`, both benches); **B** 0.0% compile, 0.0% pass
   (100% `compile_error`, both benches); **C (RAG)** 70.6% compile, **35.8%** pass (QuixBugs 25.0%,
   HumanEval-Java 38.5%); **D (LoRA)** 69.2% compile, **26.4%** pass (QuixBugs 32.5%, HumanEval-Java
@@ -60,11 +67,11 @@ bootstrap CIs, provenance on every `results/*.json`) and only then compares arms
 arm B's seed band and arm A's finetune-epoch trend shown as error bars and connected
 markers.](figures/four_arm_comparison.png)](figures/four_arm_comparison.png)
 
-*Figure 1, `docs/figures/four_arm_comparison.png`. All four arms are real. Arm B's error bar is the
-seed 0/1/2 band; the connected markers on arm A trace the finetune-epoch trend (1→3→10); arm C's bar
-is the best config from the retriever×k sweep (codebert_k1); arm D is the single LoRA run.*
+*Figure 1, `docs/figures/four_arm_comparison.png`. Arm B's error bar is the seed 0/1/2 band; the
+connected markers on arm A trace the finetune-epoch trend (1→3→10); arm C's bar is the best config
+from the retriever×k sweep (codebert_k1); arm D is the single LoRA run.*
 
-**Arm A, pretrain → finetune T5 (real).** CodeBLEU and syntax-validity both rise monotonically with
+**Arm A, pretrain → finetune T5.** CodeBLEU and syntax-validity both rise monotonically with
 finetune epochs; exact match is ~0 throughout (audited, see findings).
 
 | config | em | em (count) | codebleu | syntax_valid_rate | n |
@@ -73,7 +80,7 @@ finetune epochs; exact match is ~0 throughout (audited, see findings).
 | A_ep3  | 0.0000 | 0/6545 | 0.4163 | 0.7911 | 6545 |
 | A_ep10 | 0.0005 | 3/6545 | 0.4770 | 0.9169 | 6545 |
 
-**Arm B, from-scratch T5 (real).** Ten epochs from random init, seed swept {0,1,2}. The seed spread is
+**Arm B, from-scratch T5.** Ten epochs from random init, seed swept {0,1,2}. The seed spread is
 tiny, which is what makes the A-vs-B comparison trustworthy rather than a single-seed fluke.
 
 | config | em | em (count) | codebleu | syntax_valid_rate | n |
@@ -83,7 +90,7 @@ tiny, which is what makes the A-vs-B comparison trustworthy rather than a single
 | B_seed2 | 0.0005 | 3/6545 | 0.4835 | 0.8949 | 6545 |
 | **B (mean ± band)** | n/a | n/a | **0.479** (0.476–0.484) | **0.885** (0.878–0.895) | 6545 |
 
-**Arm C, RAG Qwen (real).** Retriever × k sweep, 8 configs, all real (`results/rag_*_test.json`):
+**Arm C, RAG Qwen.** Retriever × k sweep, 8 configs (`results/rag_*_test.json`):
 
 | retriever | k | codebleu | syntax_valid_rate | em |
 |-----------|---|----------|--------------------|-----|
@@ -105,7 +112,7 @@ well-chosen exemplar beats a longer context window here. BM25 and CodeBERT are n
 k, with CodeBERT marginally ahead at the k1 optimum (0.6517 vs 0.6359). Retrieval helping rather than
 hurting is itself a finding, see Cross-arm finding 4.
 
-**Arm D, LoRA Qwen (real).** A single LoRA finetune (r16/α32/drop0.05 on q/k/v/o_proj) of the same
+**Arm D, LoRA Qwen.** A single LoRA finetune (r16/α32/drop0.05 on q/k/v/o_proj) of the same
 1.5B Qwen base scores **CodeBLEU 0.8543, syntax-valid 0.9366, EM 0.0947**
 (`results/lora_qwen_test.json`), the best arm on both CodeBLEU and EM by a wide margin: +0.20 CodeBLEU
 over arm C's best RAG config and +0.38 over the T5 arms, with an EM rate ~5x arm C's best (9.47% vs
@@ -119,7 +126,7 @@ execution lens (Cross-arm findings 5 and 7).
 pairs for arms A and B, which track each other closely. Right, CodeBLEU against pretraining epochs
 (1, 3, 10) for arm A, essentially flat.](figures/scaling_curves.png)](figures/scaling_curves.png)
 
-*Figure 2, `docs/figures/scaling_curves.png`. Real data from `results/scaling_data.csv` (18 rows: 12
+*Figure 2, `docs/figures/scaling_curves.png`. Built from `results/scaling_data.csv` (18 rows: 12
 data-curve runs at train_n∈{1K,5K,15K}×seed{0,1} for arms A/B, plus the reused 52K/ep10 reference
 points, plus 2 pretrain-compute runs at pretrain-epoch∈{1,3}, plus the reused ep10 point).* Two curves:
 (left) CodeBLEU vs finetune `train_n` for arms A and B at 1K/5K/15K/~52K pairs; (right) CodeBLEU vs
@@ -139,9 +146,10 @@ both arms** (every prediction fails to parse, a hard floor rather than just a lo
 
 **Pretrain-compute curve: flat.** Finetuning arm A from pretrain checkpoints saved at
 pretrain-epoch 1/3/10 gives CodeBLEU **0.4688 / 0.4635 / 0.4770** (syntax-valid 0.897 / 0.904 /
-0.917), essentially flat across a 10x change in pretraining compute (epoch 3 isn't even
-monotonically between epoch 1 and epoch 10). More pretraining compute past epoch 1 buys
-**approximately nothing** on the downstream finetune metric.
+0.917), essentially flat across a 10x change in pretraining compute. The epoch-3 point does not even
+sit between the other two: it is the lowest of the three, so the small spread reads as noise rather
+than a trend. More pretraining compute past epoch 1 buys **approximately nothing** on the downstream
+finetune metric.
 
 ### Execution vs CodeBLEU
 
@@ -149,7 +157,7 @@ monotonically between epoch 1 and epoch 10). More pretraining compute past epoch
 at 35.8% despite a lower CodeBLEU than LoRA (D) at 26.4%, and the two T5 arms sit on top of each
 other at pass@1 = 0.](figures/execution_vs_codebleu.png)](figures/execution_vs_codebleu.png)
 
-*Figure 3, `docs/figures/execution_vs_codebleu.png`. Real per-arm execution predictions
+*Figure 3, `docs/figures/execution_vs_codebleu.png`. Per-arm execution predictions
 (`results/execbench_{A,B,C,D}.json`) plotted against each arm's Track-1 CodeBLEU.* Each arm is one
 point (x = CodeBLEU, y = execution pass@1). Arms A and B sit atop each other at pass@1 = 0.
 
@@ -167,8 +175,8 @@ should not stand in for execution when both are available.
 
 ## Cross-arm findings
 
-These are the findings the **real** committed four-arm data supports (1–3 are the A-vs-B story; 4–7
-bring in C and D). They are stated as honest negatives.
+What the committed four-arm data supports. Findings 1–3 are the A-vs-B story; 4–7 bring in C and D.
+Several of these are negative results, and they are reported as such.
 
 1. **Pretraining buys no measurable CodeBLEU benefit over from-scratch, at this scale.** A_ep10's
    CodeBLEU (0.477) sits *inside* arm B's seed-to-seed band (0.476–0.484). This is not a single-seed
@@ -209,7 +217,7 @@ bring in C and D). They are stated as honest negatives.
 6. **EM≈0 for T5 is a model property, not a broken metric.** A strict-`==` exact-match metric can
    report 0% EM everywhere purely as a whitespace artifact (the pitfall in
    [`measurement.md`](measurement.md) §1); this study uses the fixed, whitespace-normalized metric.
-   That fixed metric still returns EM≈0 for T5 (finding 2: 0–3 of 6,545), but the *same* metric
+   That fixed metric still returns EM≈0 for T5 (finding 2: 0–4 of 6,545), but the *same* metric
    registers **real, non-trivial exact matches** for the Qwen arms: RAG's best config gets 1.89% EM,
    and LoRA gets **9.47% EM** (620 of 6,545 predictions whitespace-normalized identical to the
    reference). The metric clearly *can* register a match when a capable-enough model makes one, so
@@ -264,5 +272,9 @@ uv run python scripts/figures/make_all.py   # writes docs/figures/*.png
 uv run python -m mkdocs build               # builds the static site
 ```
 
-The figure scripts are deterministic (headless Agg backend, point estimates + committed data), so
-re-running is safe and the committed PNGs do not churn.
+The figure scripts are deterministic (headless Agg backend, point estimates, committed data), so
+re-running them on the same machine reproduces the committed PNGs byte for byte. Across operating
+systems the bytes differ while the plot does not: matplotlib rasterises text through whichever
+freetype its wheel was built against, so a Linux or macOS re-render of the same numbers leaves the
+three figures showing as modified in `git status`. `git checkout docs/figures` restores the
+committed copies.

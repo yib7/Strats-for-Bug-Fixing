@@ -73,7 +73,8 @@ No dataset is vendored. The loaders fetch these at runtime, under the source's o
 
 Models, downloaded from Hugging Face at run time:
 
-- **Qwen2.5-Coder-1.5B-Instruct** and **Qwen2.5-Coder-1.5B**, Apache 2.0, used by arms C and D.
+- **Qwen2.5-Coder-1.5B-Instruct**, Apache 2.0. Arm C prompts it; arm D LoRA-adapts it. Both arms use
+  this same checkpoint.
 - **microsoft/codebert-base**, MIT, the dense retriever for arm C.
 
 Arms A and B use no pretrained checkpoint: `src/pop/models/t5_factory.py` builds a randomly

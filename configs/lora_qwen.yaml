@@ -15,8 +15,8 @@ train_split: train
 validation_split: validation
 max_seq_length: 512
 
-# Standard LoRA hyperparameters (PEFT defaults for a ~1.5B causal LM); revisit once a real
-# lora module/config exists.
+# Standard LoRA hyperparameters (PEFT defaults for a ~1.5B causal LM). Not swept: arm D is a
+# single run, so these are defaults rather than tuned values.
 lora_r: 16
 lora_alpha: 32
 lora_dropout: 0.05

@@ -78,7 +78,7 @@ The orchestrator's step order is:
    CodeSearchNet-Java corpus, then `pop pretrain --config configs/pretrain_10ep.yaml` runs T5
    span-corruption pretraining for 10 epochs, checkpointing at epochs 1/3/10.
    - Rough runtime: tokenizer training a few minutes; pretraining is the long pole, likely several
-     hours for 50K methods × 10 epochs on a T5-base-sized model on a T4. **Estimate; confirm
+     hours for 50K methods × 10 epochs on a t5-small-sized model on a T4. **Estimate; confirm
      against your own first-epoch wall time and extrapolate.**
    - Produces: `outputs/tokenizer/` and `outputs/pretrain/final/` (plus the epoch-1/epoch-3
      checkpoints the scaling curves consume).
@@ -89,7 +89,7 @@ The orchestrator's step order is:
    - `configs/finetune_B_seed{0,1,2}.yaml` is arm B (finetuned only; these configs deliberately omit
      `pretrained_model_path`, so `pop finetune` builds a fresh random init), same 10 epochs, seed
      swept for variance.
-   - Rough runtime per config: finetuning a T5-base on the CodeXGLUE-medium train split, tens of
+   - Rough runtime per config: finetuning the t5-small-sized model on the CodeXGLUE-medium train split, tens of
      minutes to ~1–2 hours depending on epoch count (**estimate**); these six configs are the bulk
      of the stage's GPU time.
    - Produces: each config's `outputs/finetune_*/best/` checkpoint directory and

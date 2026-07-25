@@ -10,12 +10,17 @@ built to avoid.
 
 ## The four arms
 
-| Arm | System | CodeBLEU | Exec pass@1 | Status |
-|-----|--------|----------|-------------|--------|
-| **A** | pretrain → finetune T5-small | 0.477 | 0.0% | real (A100 GPU batch) |
-| **B** | finetune-from-scratch T5-small | 0.479 | 0.0% | real (A100 GPU batch) |
-| **C** | RAG-prompted Qwen2.5-Coder-1.5B | 0.652 | **35.8%** | real (Colab GPU batch) |
-| **D** | LoRA-finetuned Qwen2.5-Coder-1.5B | **0.854** | 26.4% | real (Colab GPU batch) |
+| Arm | System | CodeBLEU | Exec pass@1 | Where it ran |
+|-----|--------|----------|-------------|--------------|
+| **A** | pretrain → finetune T5-small | 0.477 | 0.0% | A100 GPU batch |
+| **B** | finetune-from-scratch T5-small | 0.479 | 0.0% | A100 GPU batch |
+| **C** | RAG-prompted Qwen2.5-Coder-1.5B-Instruct | 0.652 | **35.8%** | Colab GPU batch |
+| **D** | LoRA-finetuned Qwen2.5-Coder-1.5B-Instruct | **0.854** | 26.4% | Colab GPU batch |
+
+CodeBLEU scores how closely the fix resembles the known-good fix, from 0 to 1, without ever running
+it. Execution pass@1 compiles the model's single attempt and runs the bug's tests, counting it only
+if they pass. Arms C and D share the same base model, so C against D compares prompting with
+adapting rather than two different models.
 
 ## Headline figure
 
@@ -23,7 +28,7 @@ built to avoid.
 LoRA-finetuned Qwen (D) leads on CodeBLEU at 0.854, RAG-prompted Qwen (C) follows at 0.652, and the
 two T5 arms sit together near 0.48.](figures/four_arm_comparison.png)](figures/four_arm_comparison.png)
 
-All four arms carry real, committed numbers (arm B's error bar is its seed 0/1/2 band; arm C's bar
+Every bar comes from a committed measurement (arm B's error bar is its seed 0/1/2 band; arm C's bar
 is the best config from its retriever×k sweep). CodeBLEU ranks the arms D > C > A ≈ B. Execution
 pass@1, which asks whether the fix actually compiles and runs against 201 real Java bugs, ranks them
 C > D > A ≈ B. LoRA (D) wins on surface similarity, RAG (C) fixes the most real bugs, and both T5
@@ -39,7 +44,7 @@ requires 3.11 or 3.12) and installs the locked dependency versions. No GPU, no A
 
 ```bash
 uv sync --frozen                            # build .venv from the committed lockfile
-uv run pop smoke                            # the whole pipeline on tiny fixtures, ~10 s on CPU
+uv run pop smoke                            # the whole pipeline on tiny fixtures, ~9 s on CPU
 uv run python scripts/figures/make_all.py   # render docs/figures/*.png
 uv run python -m mkdocs build               # build this site into ./site
 ```

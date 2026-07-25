@@ -3,9 +3,9 @@
 # (see scripts/build_smoke_fixtures.py). Run with: uv run pop smoke --config configs/smoke.yaml
 # (or just `uv run pop smoke`, since this is also the CLI's default config path).
 #
-# This is a *pipeline sanity check*, not a real training run -- vocab, model size, and epoch
-# counts here are deliberately tiny so the whole thing finishes in CPU-minutes. Real
-# hyperparameters (vocab 16384, T5-base dims, 10-epoch pretrain, etc.) live in the other
+# This is a *pipeline sanity check*, not a training run -- vocab, model size, and epoch
+# counts here are deliberately tiny so the whole thing finishes in CPU-minutes. The study's
+# hyperparameters (vocab 16384, t5-small dims, 10-epoch pretrain, etc.) live in the other
 # configs/*.yaml files for the GPU runs; see docs/gpu-reproduction.md.
 
 seed: 42
