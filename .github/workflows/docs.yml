@@ -1,17 +1,16 @@
 name: Docs
 
-# Builds the MkDocs site and publishes it to GitHub Pages.
+# Builds the MkDocs site and publishes it to GitHub Pages at
+# https://yib7.github.io/Strats-for-Bug-Fixing/
 #
-# Deliberately manual-only for now. Pages is not enabled on this repository, and a deploy job
-# against a disabled Pages site fails, which would leave a permanently red workflow on every push.
-# To turn the site on: enable Pages in Settings > Pages with "GitHub Actions" as the source, run
-# this workflow once from the Actions tab to confirm it deploys, then uncomment the `push` trigger
-# below so the site tracks `main`.
+# Pages is set to build from GitHub Actions, so the site tracks `main`: every push here rebuilds
+# and redeploys it. `workflow_dispatch` stays on so the site can be rebuilt by hand without an
+# empty commit.
 
 on:
+  push:
+    branches: [main]
   workflow_dispatch:
-  # push:
-  #   branches: [main]
 
 # Allow one deploy at a time; let a newer commit supersede an in-flight run.
 concurrency:
