@@ -1,8 +1,14 @@
 # Credits
 
-This project is MIT licensed (see [LICENSE](LICENSE)). It redistributes third-party material under
-`benchmarks/`, and it calls models and datasets it does not redistribute. Everything is listed here
-with the license that actually governs it.
+This project is MIT licensed (see [LICENSE](LICENSE)). That license covers the code, documentation,
+figures and results produced by this repository. Third-party material redistributed under
+`benchmarks/` keeps its own license, and the project also calls models and datasets it does not
+redistribute. Everything is listed here with the license that actually governs it.
+
+> The scope paragraph above used to sit at the bottom of `LICENSE` itself. It was moved here
+> because appending anything to the MIT text stops GitHub's licence detection matching it: the
+> repository sidebar read "Other" while the README badge said MIT. `LICENSE` is now the verbatim
+> MIT text and nothing else.
 
 ## Redistributed in this repository
 
