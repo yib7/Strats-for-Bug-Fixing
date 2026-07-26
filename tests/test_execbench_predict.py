@@ -11,7 +11,9 @@ from __future__ import annotations
 
 import json
 
-from pop.execbench.harness import load_manifest
+import pytest
+
+from pop.execbench.harness import BENCHMARKS_DIR, load_manifest
 from pop.execbench.predict import build_prediction_records, read_buggy_source, write_records
 
 # A 2-bug slice of a real manifest (like the CI smoke); no JDK is invoked on these.
@@ -78,6 +80,39 @@ def test_emitted_jsonl_is_parseable_by_execbench_predictions_reader(tmp_path):
     assert [t[0] for t in tasks] == [e["bug_id"] for e in entries]
     assert all(t[1] == BENCH for t in tasks)
     assert all(isinstance(t[2], str) and t[2] for t in tasks)
+
+
+@pytest.mark.parametrize(
+    "rel",
+    [
+        "../../../etc/passwd",
+        "..\\..\\secrets.txt",
+        "../humaneval_java/manifest.json",  # a sibling benchmark is still outside
+    ],
+)
+def test_read_buggy_source_rejects_a_manifest_entry_that_escapes(rel):
+    """`buggy_file` comes out of a data file and is read straight into a model's input.
+
+    This mirrors ``tests/test_execbench.py``'s ``bench_source_path`` escape test. Before
+    the fix this function composed ``BENCHMARKS_DIR / bench / entry["buggy_file"]``
+    directly -- the only benchmark path in the codebase that skipped the harness's
+    containment check.
+    """
+    with pytest.raises(ValueError, match="escapes the benchmark directory"):
+        read_buggy_source(BENCH, {"buggy_file": rel})
+
+
+@pytest.mark.parametrize("bad_bench", ["..", "../..", "a/b", "a\\b"])
+def test_read_buggy_source_rejects_a_bench_that_is_not_a_bare_name(bad_bench):
+    with pytest.raises(ValueError, match="bare directory name"):
+        read_buggy_source(bad_bench, {"buggy_file": "java_programs/BITCOUNT.java"})
+
+
+def test_read_buggy_source_reads_a_normal_entry_from_inside_the_benchmark_dir():
+    entry = load_manifest(BENCH)[0]
+    text = read_buggy_source(BENCH, entry)
+    on_disk = (BENCHMARKS_DIR / BENCH / entry["buggy_file"]).read_text(encoding="utf-8")
+    assert text == on_disk  # the guard did not change what a legitimate read returns
 
 
 def test_mismatched_generate_fn_length_raises():

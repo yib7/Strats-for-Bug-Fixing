@@ -201,3 +201,112 @@ def test_committed_execbench_agreement_csv_in_sync_with_builder(tmp_path):
     assert execution_vs_codebleu.load_agreement_rows(
         committed
     ) == execution_vs_codebleu.load_agreement_rows(fresh)
+
+
+# --------------------------------------------------------------------------- #
+# scratch runs must never reach a committed CSV                               #
+# --------------------------------------------------------------------------- #
+
+
+def test_scratch_rag_run_is_excluded_from_the_agreement_csv(tmp_path):
+    """A gitignored `*_local*` experiment must not change a committed derived CSV.
+
+    `make_all.py` rebuilds results/execbench_agreement.csv from a glob on every documented
+    reproduce run, so an unfiltered `rag_*_test.json` glob let a local scratch file silently
+    move the arm-C point -- and the contributor just sees an inexplicably dirty tree.
+    """
+    results = tmp_path / "results"
+    results.mkdir()
+    _write_result(results / "rag_bm25_k3_test.json", codebleu=0.42)
+    _write_result(results / "execbench_C.json", pass_rate=0.284, n=201)
+    # A local experiment that scores higher than every published RAG config.
+    _write_result(results / "rag_bm25_k3_local_test.json", codebleu=0.99)
+
+    rows = {r["arm"]: r for r in agg_exec.build_rows(results)}
+    assert rows["C"]["codebleu"] == 0.42, "a *_local* scratch run leaked into the committed CSV"
+
+
+def test_scratch_finetune_run_is_excluded_from_the_figure_loader(tmp_path):
+    """Same glob hazard in scripts/figures/_common.load_finetune_results."""
+    import _common
+
+    results = tmp_path / "results"
+    results.mkdir()
+    _write_result(results / "finetune_A_ep10_test.json", codebleu=0.48)
+    _write_result(results / "finetune_A_ep10_local_test.json", codebleu=0.99)
+
+    loaded = _common.load_finetune_results(results)
+    assert set(loaded) == {"finetune_A_ep10"}
+
+
+def test_scaling_builder_ignores_scratch_sweep_points(tmp_path):
+    """build_scaling_csv reads explicit names, not a glob -- pin that it stays that way."""
+    results = tmp_path / "results"
+    results.mkdir()
+    _write_result(results / "finetune_scale_A_n1k_seed0_test.json", codebleu=0.30, syntax=0.55)
+    _write_result(results / "finetune_scale_A_n1k_seed0_local_test.json", codebleu=0.99, syntax=0.1)
+
+    rows = [r for r in agg_scale.build_rows(results) if r["axis"] == "data" and r["x"] == 1000]
+    assert len(rows) == 1
+    assert rows[0]["codebleu"] == 0.30
+
+
+# --------------------------------------------------------------------------- #
+# --results-dir must not write back into the committed results/               #
+# --------------------------------------------------------------------------- #
+
+
+def test_scaling_main_with_results_dir_writes_beside_it_not_into_the_repo(tmp_path, capsys):
+    """`--results-dir X` used to read X but still default `--out` to results/scaling_data.csv.
+
+    `build_rows` degrades gracefully to fewer rows, so pointing at a partial directory
+    silently truncated the committed CSV. CI's clean-tree check only covers the make_all.py
+    path, which always reads the real RESULTS_DIR -- this one slipped past it.
+    """
+    results = tmp_path / "partial"
+    results.mkdir()
+    _write_result(results / "finetune_A_ep10_test.json", codebleu=0.48, syntax=0.9)
+
+    rc = agg_scale.main(["--results-dir", str(results)])
+    capsys.readouterr()
+
+    assert rc == 0
+    # Written next to --results-dir, not into the repo's committed results/.
+    assert (results / "scaling_data.csv").is_file()
+    assert agg_scale.resolve_out(
+        agg_scale.build_parser().parse_args(["--results-dir", str(results)])
+    ) == (results / "scaling_data.csv")
+
+
+def test_execbench_agreement_main_with_results_dir_writes_beside_it(tmp_path, capsys):
+    results = tmp_path / "partial"
+    results.mkdir()
+    _write_result(results / "finetune_A_ep10_test.json", codebleu=0.477)
+    _write_result(results / "execbench_A.json", pass_rate=0.124, n=201)
+
+    rc = agg_exec.main(["--results-dir", str(results)])
+    capsys.readouterr()
+
+    assert rc == 0
+    assert (results / "execbench_agreement.csv").is_file()
+
+
+def test_explicit_out_still_wins_over_the_derived_default(tmp_path, capsys):
+    """`--out` is still honoured verbatim when the caller passes it."""
+    results = tmp_path / "partial"
+    results.mkdir()
+    _write_result(results / "finetune_A_ep10_test.json", codebleu=0.48, syntax=0.9)
+    out = tmp_path / "elsewhere" / "mine.csv"
+
+    assert agg_scale.main(["--results-dir", str(results), "--out", str(out)]) == 0
+    capsys.readouterr()
+    assert out.is_file()
+    assert not (results / "scaling_data.csv").exists()
+
+
+def test_default_invocation_still_targets_the_committed_csv_paths():
+    """Without --results-dir, both builders keep writing the committed derived CSVs."""
+    scale_args = agg_scale.build_parser().parse_args([])
+    exec_args = agg_exec.build_parser().parse_args([])
+    assert Path(agg_scale.resolve_out(scale_args)) == agg_scale.OUT_PATH
+    assert Path(agg_exec.resolve_out(exec_args)) == agg_exec.OUT_PATH

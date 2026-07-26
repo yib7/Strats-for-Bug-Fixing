@@ -67,13 +67,20 @@ def _default_transformers_generator(model_name: str, gen_kwargs: dict) -> Genera
     tokenizer.clean_up_tokenization_spaces = False
 
     def generate(prompts: list[str]) -> list[str]:
-        raw_results = pipe(prompts, **gen_kwargs)
-        texts: list[str] = []
-        for prompt, result in zip(prompts, raw_results, strict=True):
-            item = result[0] if isinstance(result, list) else result
-            full_text = item["generated_text"]
-            texts.append(full_text[len(prompt) :] if full_text.startswith(prompt) else full_text)
-        return texts
+        # return_full_text=False makes the pipeline drop the prompt tokens itself, which is
+        # the only reliable way to do it: the pipeline's own `generated_text` is a *decode of
+        # the re-tokenized prompt*, not the string that was passed in, so chat-template
+        # rendering, special-token round-tripping or whitespace normalization can make the two
+        # differ. Recovering the completion by `full_text[len(prompt):] if
+        # full_text.startswith(prompt)` therefore had a silent else-branch that returned prompt
+        # + completion, and `extract_fix` would then pick the largest code block out of the
+        # *prompt* -- for k>=1 that is a retrieved exemplar's already-fixed method, emitted as
+        # if the model had produced it. This matches the LoRA arm's twin (train/lora.py).
+        raw_results = pipe(prompts, return_full_text=False, **gen_kwargs)
+        return [
+            (result[0] if isinstance(result, list) else result)["generated_text"]
+            for result in raw_results
+        ]
 
     return generate
 

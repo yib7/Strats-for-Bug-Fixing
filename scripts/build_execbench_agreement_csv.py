@@ -38,9 +38,12 @@ import json
 import sys
 from pathlib import Path
 
+from pop.eval.metrics import is_scratch_run_name
+
 REPO_ROOT = Path(__file__).resolve().parent.parent
 RESULTS_DIR = REPO_ROOT / "results"
-OUT_PATH = RESULTS_DIR / "execbench_agreement.csv"
+OUT_NAME = "execbench_agreement.csv"
+OUT_PATH = RESULTS_DIR / OUT_NAME
 
 CSV_FIELDS = ["arm", "codebleu", "pass_at_1", "n_bugs"]
 ARMS = ("A", "B", "C", "D")
@@ -59,9 +62,18 @@ def _load_metrics(name: str, results_dir: Path) -> dict | None:
 
 
 def _best_rag_codebleu(results_dir: Path) -> float | None:
-    """Highest CodeBLEU across committed ``rag_*_test.json`` (arm C = the best RAG config)."""
+    """Highest CodeBLEU across committed ``rag_*_test.json`` (arm C = the best RAG config).
+
+    Gitignored ``*_local*`` scratch runs are skipped. This CSV is a *committed* file that
+    ``scripts/figures/make_all.py`` rebuilds on every documented reproduce run, so without
+    the filter a contributor's local experiment (say ``rag_bm25_k3_local_test.json``)
+    silently moves the published arm-C point and leaves the working tree dirty for reasons
+    that read as inexplicable.
+    """
     best: float | None = None
     for path in sorted(results_dir.glob("rag_*_test.json")):
+        if is_scratch_run_name(path.stem):
+            continue
         metrics = json.loads(path.read_text(encoding="utf-8")).get("metrics", {})
         cb = metrics.get("codebleu")
         if cb is None:
@@ -135,7 +147,7 @@ def write_csv(rows: list[dict], out_path: Path = OUT_PATH) -> Path:
     return out_path
 
 
-def main(argv: list[str] | None = None) -> int:
+def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument(
         "--results-dir",
@@ -144,13 +156,29 @@ def main(argv: list[str] | None = None) -> int:
     )
     parser.add_argument(
         "--out",
-        default=str(OUT_PATH),
-        help="output CSV path (default: results/execbench_agreement.csv)",
+        default=None,
+        help=f"output CSV path (default: <results-dir>/{OUT_NAME})",
     )
-    args = parser.parse_args(argv)
+    return parser
+
+
+def resolve_out(args: argparse.Namespace) -> Path:
+    """Where to write, defaulting *beside the inputs* rather than into the repo's results/.
+
+    ``--out`` used to default to the committed ``results/execbench_agreement.csv`` no matter
+    what ``--results-dir`` said, so reading a partial directory wrote a silently truncated
+    version of a published file (``build_rows`` degrades to fewer rows rather than failing).
+    Deriving the default from ``--results-dir`` keeps the plain no-flags invocation writing
+    exactly where it always did, because ``--results-dir`` itself defaults to ``results/``.
+    """
+    return Path(args.out) if args.out is not None else Path(args.results_dir) / OUT_NAME
+
+
+def main(argv: list[str] | None = None) -> int:
+    args = build_parser().parse_args(argv)
 
     rows = build_rows(Path(args.results_dir))
-    path = write_csv(rows, Path(args.out))
+    path = write_csv(rows, resolve_out(args))
     arms = ", ".join(r["arm"] for r in rows) or "none"
     print(f"wrote {path} ({len(rows)} arm rows: {arms})")
     if not rows:

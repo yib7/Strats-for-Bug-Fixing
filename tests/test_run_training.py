@@ -51,6 +51,36 @@ def test_plan_limit_eval_caps_generate_only():
     assert "--limit" not in steps["finetune_A_ep10"].cmd
 
 
+def test_dry_run_marker_is_the_file_pop_smoke_actually_writes():
+    """The dry run's only artifact assertion has to name `pop smoke`'s real output.
+
+    It used to be hardcoded to ``results/smoke.json`` -- a *committed* file that
+    `pop smoke` deliberately never touches (SmokeConfig.results_name is "smoke_local",
+    so a local run cannot clobber published data). The marker therefore always existed
+    and the post-step check at the bottom of `main` passed whatever the smoke run did,
+    which is exactly what --dry-run exists to catch before spending GPU hours.
+    """
+    from pop.eval.metrics import is_scratch_run_name
+
+    from pop.config import SmokeConfig  # isort: skip
+
+    steps = run_training.plan_dry_run_steps()
+    assert [s.name for s in steps] == ["smoke"]
+    marker = steps[0].done_marker
+    assert marker.stem == SmokeConfig().results_name
+    assert marker.parent == run_training.RESULTS_DIR
+    # And it must be a scratch name, i.e. gitignored -- a dry run may never require or
+    # produce a tracked result file.
+    assert is_scratch_run_name(marker.stem)
+
+
+def test_dry_run_step_always_runs_even_when_its_marker_exists(tmp_path, monkeypatch):
+    """`always_run` keeps a repeated dry run from being skipped by a stale marker."""
+    step = run_training.plan_dry_run_steps()[0]
+    assert step.always_run is True
+    assert step.is_done() is False
+
+
 def test_write_status_renders_table(tmp_path):
     rows = [
         {"name": "pretrain", "status": "running", "started": "t", "duration": "-", "result": "-"}

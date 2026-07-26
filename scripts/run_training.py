@@ -107,6 +107,29 @@ def plan_steps(limit_eval: int | None = None) -> list[Step]:
     return steps
 
 
+def plan_dry_run_steps() -> list[Step]:
+    """The one-step `--dry-run` plan: `pop smoke` through the real orchestrator plumbing.
+
+    The done-marker is derived from ``SmokeConfig.results_name`` rather than hardcoded, so
+    it names the file `pop smoke` actually writes. Hardcoding it drifted once already: the
+    marker said ``results/smoke.json``, which is a *committed* result the smoke command
+    deliberately never touches (the clobber guard moved local runs to ``smoke_local``). A
+    marker that is always present makes the post-step existence check in ``main`` vacuous,
+    so a smoke run that exited 0 without writing anything still reported a successful dry
+    run -- the exact plumbing failure --dry-run exists to catch before any GPU time.
+    """
+    from pop.config import SmokeConfig
+
+    return [
+        Step(
+            "smoke",
+            _pop("smoke"),
+            RESULTS_DIR / f"{SmokeConfig().results_name}.json",
+            always_run=True,
+        )
+    ]
+
+
 def preflight() -> None:
     """Fail fast (before any GPU time) if the repo/config wiring is off."""
     if not (REPO_ROOT / "pyproject.toml").is_file():
@@ -266,7 +289,7 @@ def main(argv: list[str] | None = None) -> int:
     run_dir.mkdir(parents=True, exist_ok=True)
 
     if args.dry_run:
-        steps = [Step("smoke", _pop("smoke"), RESULTS_DIR / "smoke.json", always_run=True)]
+        steps = plan_dry_run_steps()
     else:
         steps = plan_steps(args.limit_eval)
 

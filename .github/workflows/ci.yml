@@ -7,6 +7,16 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    strategy:
+      # Both legs always report: a 3.11-only break is the thing this matrix exists to
+      # surface, so it must not be masked by cancelling the moment 3.12 goes red.
+      fail-fast: false
+      matrix:
+        # The README badge and `requires-python = ">=3.11,<3.13"` claim both versions.
+        # 3.11 is the floor because Colab lags (see pyproject.toml); before this matrix
+        # nothing had ever executed the project on it, so the claim was untested.
+        python: ["3.11", "3.12"]
+    name: test (py${{ matrix.python }})
     steps:
       - uses: actions/checkout@v7
 
@@ -16,7 +26,7 @@ jobs:
         uses: astral-sh/setup-uv@v9.0.0
 
       - name: Set up Python
-        run: uv python install 3.12
+        run: uv python install ${{ matrix.python }}
 
       - name: Set up JDK 17 (temurin)
         uses: actions/setup-java@v5
@@ -25,12 +35,19 @@ jobs:
           java-version: "17"
 
       - name: Install dependencies
-        run: uv sync --frozen
+        run: uv sync --frozen --python ${{ matrix.python }}
+
+      # Everything below this line that is not the test suite runs on 3.12 only. Lint,
+      # format, the JDK smoke, the reproduce path and the clean-tree check are all
+      # interpreter-independent, so running them twice buys nothing; the 3.11 leg exists
+      # to answer one question -- does the code run there -- and answers it in ~1 minute.
 
       - name: Lint (ruff check)
+        if: matrix.python == '3.12'
         run: uv run ruff check .
 
       - name: Format check (ruff format)
+        if: matrix.python == '3.12'
         run: uv run ruff format --check .
 
       - name: Test (excluding JDK-dependent tests)
@@ -40,12 +57,14 @@ jobs:
         # Writes results/execbench_local_validate_references.json -- the gitignored scratch
         # name. It must never land on results/execbench_validate_references.json, which is
         # the committed 201/201 reference validation docs/report.md cites.
+        if: matrix.python == '3.12'
         run: uv run pop execbench --validate-references --bench quixbugs --limit 2
 
       - name: CPU reproduce path (smoke + figures + docs)
         # The three commands the README tells every visitor to run. They were never
         # exercised in CI despite being the primary user journey; all three are fast
         # (~9s / ~1s / ~1s).
+        if: matrix.python == '3.12'
         run: |
           uv run pop smoke
           uv run python scripts/figures/make_all.py
@@ -65,5 +84,6 @@ jobs:
         # Everything the study actually rests on -- results/, the derived CSVs, the docs --
         # stays under the strict check. README step 5 documents the same caveat for anyone
         # re-rendering locally.
+        if: matrix.python == '3.12'
         run: |
           git diff --exit-code -- . ':(exclude)docs/figures/*.png'

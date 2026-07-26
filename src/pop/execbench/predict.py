@@ -29,11 +29,16 @@ if TYPE_CHECKING:
 def read_buggy_source(bench: str, entry: dict) -> str:
     """Read the buggy source file text for one manifest ``entry`` in ``bench``.
 
-    Mirrors what the harness itself reads: ``BENCHMARKS_DIR / bench / entry["buggy_file"]``.
-    This whole-file text is what gets fed to a model as input -- see the modeling note in
+    Resolves through ``harness.bench_source_path`` -- the same resolver the harness uses
+    (``harness.run_bug``) -- rather than composing the path by hand, so ``bench`` is
+    validated as a bare directory name and ``buggy_file`` is confined to
+    ``benchmarks/<bench>/``. Both are read out of a data file: a manifest a contributor
+    or a dropped-in benchmark supplies, and a ``bench`` that ``pop execbench
+    --predictions`` takes from an untrusted JSONL. This whole-file text is what gets fed
+    to a model as input -- see the modeling note in
     ``scripts/gen_execbench_predictions.py``.
     """
-    return (harness.BENCHMARKS_DIR / bench / entry["buggy_file"]).read_text(encoding="utf-8")
+    return harness.bench_source_path(bench, entry["buggy_file"]).read_text(encoding="utf-8")
 
 
 def build_prediction_records(

@@ -291,6 +291,100 @@ def test_build_lora_generator_explicit_kwargs_override_defaults(monkeypatch):
 
 
 # ---------------------------------------------------------------------------
+# the REAL LoRA closure (_default_lora_generator), driven with fakes -- no model
+# load, no adapter, no download. Twin of the arm-C test in tests/test_rag.py.
+# ---------------------------------------------------------------------------
+
+
+class _FakeLoraTokenizer:
+    pad_token = None
+    eos_token = "<|endoftext|>"
+    padding_side = "right"
+    clean_up_tokenization_spaces = True
+
+
+class _FakeLoraPipeline:
+    """Honours `return_full_text`, so a regression to prompt-echoing output is visible."""
+
+    def __init__(self, tokenizer):
+        self.tokenizer = tokenizer
+        self.model = type("M", (), {"generation_config": type("G", (), {"max_length": 20})()})()
+        self.calls: list[dict] = []
+
+    def __call__(self, prompts, **kwargs):
+        self.calls.append(kwargs)
+        if kwargs.get("return_full_text") is False:
+            return [[{"generated_text": "FIXED"}] for _ in prompts]
+        return [[{"generated_text": p + "FIXED"}] for p in prompts]
+
+
+@pytest.fixture
+def fake_lora_stack(monkeypatch):
+    """Fake out transformers + peft so `_default_lora_generator` runs offline.
+
+    The lazy `transformers` attributes are read before being patched: the first read
+    swaps the object registered in `sys.modules["transformers"]`, and the function under
+    test re-resolves its imports at call time (same reason as tests/test_rag.py's
+    `fake_pipeline` fixture).
+    """
+    import sys
+
+    import peft
+    import transformers
+
+    tokenizer = _FakeLoraTokenizer()
+    pipe = _FakeLoraPipeline(tokenizer)
+    for name in ("pipeline", "AutoTokenizer", "AutoModelForCausalLM"):
+        _ = getattr(transformers, name)  # materialize the lazy module before patching
+    tf = sys.modules["transformers"]
+    monkeypatch.setattr(tf, "pipeline", lambda *a, **k: pipe)
+    monkeypatch.setattr(
+        tf, "AutoTokenizer", type("T", (), {"from_pretrained": staticmethod(lambda *a: tokenizer)})
+    )
+    monkeypatch.setattr(
+        tf,
+        "AutoModelForCausalLM",
+        type("M", (), {"from_pretrained": staticmethod(lambda *a, **k: object())}),
+    )
+    monkeypatch.setattr(
+        sys.modules["peft"],
+        "PeftModel",
+        type(
+            "P",
+            (),
+            {"from_pretrained": staticmethod(lambda *a: type("E", (), {"eval": lambda s: None})())},
+        ),
+    )
+    assert peft is not None
+    return pipe
+
+
+def test_lora_generator_returns_only_the_completion(fake_lora_stack):
+    """The LoRA arm must emit the completion alone -- the prompt never reaches `extract_fix`."""
+    from pop.train.lora import _default_lora_generator
+
+    gen = _default_lora_generator("base", "adapter", {"max_new_tokens": 8})
+    prompt = "### Fix this:\npublic int add() {}\n"
+    out = gen([prompt])
+
+    assert out == ["FIXED"]
+    assert prompt not in out[0]
+    assert fake_lora_stack.calls[0]["return_full_text"] is False
+    assert fake_lora_stack.calls[0]["max_new_tokens"] == 8
+
+
+def test_lora_generator_configures_the_tokenizer_for_batched_decoding(fake_lora_stack):
+    """Same pad-token / left-padding contract as the arm-C generator."""
+    from pop.train.lora import _default_lora_generator
+
+    _default_lora_generator("base", "adapter", {})
+
+    assert fake_lora_stack.tokenizer.pad_token == fake_lora_stack.tokenizer.eos_token
+    assert fake_lora_stack.tokenizer.padding_side == "left"
+    assert fake_lora_stack.model.generation_config.max_length is None
+
+
+# ---------------------------------------------------------------------------
 # pop lora-generate CLI write path (generate_lora_fixes monkeypatched -> canned text)
 # ---------------------------------------------------------------------------
 

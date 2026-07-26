@@ -20,6 +20,20 @@ EXECBENCH_VALIDATE_RESULTS_NAME = "execbench_local_validate_references"
 EXECBENCH_PREDICTIONS_RESULTS_NAME = "execbench_local_predictions"
 
 
+def _at_least_one(value: str) -> int:
+    """argparse type for a cap that must select at least one item.
+
+    A bare `type=int` accepted `--limit 0` (an empty slice: the harness then ran nothing and
+    still reported a result) and `--limit -1` (a *negative* slice: `entries[:-1]` quietly ran
+    every bug but the last). Both are usage mistakes with silently wrong output, so they are
+    rejected at parse time rather than diagnosed downstream.
+    """
+    number = int(value)
+    if number < 1:
+        raise argparse.ArgumentTypeError(f"must be at least 1 (got {number})")
+    return number
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="pop",
@@ -190,7 +204,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
     execbench_parser.add_argument(
         "--limit",
-        type=int,
+        type=_at_least_one,
         default=None,
         help="Cap the number of bugs run per benchmark (default: no cap)",
     )
@@ -572,6 +586,20 @@ def _limit_per_bench(tasks: list[tuple[str, str, str]], limit: int) -> list[tupl
     return kept
 
 
+def _no_bugs_selected(reason: str) -> int:
+    """Refuse an execbench run with an empty task list, before anything is written.
+
+    `aggregate([])` returns ``{"n": 0, "compile_rate": 0.0, "pass_rate": 0.0}``, which is
+    indistinguishable from a real 0%-pass measurement in `results/*.json`. Worse, the
+    validate-references path then computed ``failures = [r for r in results if not r.passed]``
+    over an empty list and returned 0 -- reporting "every reference passed" for a run that
+    executed nothing, on the very command that backs the study's 201/201 integrity claim.
+    `pop eval` refuses the same way (`evaluate_predictions` raises on empty preds/refs).
+    """
+    print(f"pop execbench: no bugs selected ({reason})", file=sys.stderr)
+    return 2
+
+
 def _run_execbench(args: argparse.Namespace) -> int:
     import json
     from concurrent.futures import ThreadPoolExecutor
@@ -615,6 +643,9 @@ def _run_execbench(args: argparse.Namespace) -> int:
                 fixed_path = harness_mod.bench_source_path(bench, entry["fixed_file"])
                 candidate_src = fixed_path.read_text(encoding="utf-8")
                 tasks.append((entry["bug_id"], bench, candidate_src))
+
+        if not tasks:
+            return _no_bugs_selected("--bench / --limit selected no bugs to validate")
 
         def _run(task: tuple[str, str, str]):
             bug_id, bench, candidate_src = task
@@ -687,6 +718,9 @@ def _run_execbench(args: argparse.Namespace) -> int:
 
     if args.limit is not None:
         tasks = _limit_per_bench(tasks, args.limit)
+
+    if not tasks:
+        return _no_bugs_selected(f"{predictions_path} holds no usable prediction records")
 
     def _run_pred(task: tuple[str, str, str]):
         bug_id, bench, candidate_src = task

@@ -51,7 +51,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))  # sibling gen_scaling_
 from gen_scaling_configs import iter_config_specs  # noqa: E402
 
 RESULTS_DIR = REPO_ROOT / "results"
-OUT_PATH = RESULTS_DIR / "scaling_data.csv"
+OUT_NAME = "scaling_data.csv"
+OUT_PATH = RESULTS_DIR / OUT_NAME
 
 CSV_FIELDS = ["arm", "axis", "x", "codebleu", "syntax", "seed"]
 
@@ -132,7 +133,7 @@ def write_csv(rows: list[dict], out_path: Path = OUT_PATH) -> Path:
     return out_path
 
 
-def main(argv: list[str] | None = None) -> int:
+def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument(
         "--results-dir",
@@ -141,13 +142,30 @@ def main(argv: list[str] | None = None) -> int:
     )
     parser.add_argument(
         "--out",
-        default=str(OUT_PATH),
-        help="output CSV path (default: results/scaling_data.csv)",
+        default=None,
+        help=f"output CSV path (default: <results-dir>/{OUT_NAME})",
     )
-    args = parser.parse_args(argv)
+    return parser
+
+
+def resolve_out(args: argparse.Namespace) -> Path:
+    """Where to write, defaulting *beside the inputs* rather than into the repo's results/.
+
+    ``--out`` used to default to the committed ``results/scaling_data.csv`` no matter what
+    ``--results-dir`` said, so ``--results-dir /tmp/partial`` read the partial directory and
+    overwrote a published file with a silently truncated version (``build_rows`` degrades to
+    fewer rows rather than failing). Deriving the default from ``--results-dir`` keeps the
+    plain no-flags invocation writing exactly where it always did, because ``--results-dir``
+    itself defaults to ``results/``.
+    """
+    return Path(args.out) if args.out is not None else Path(args.results_dir) / OUT_NAME
+
+
+def main(argv: list[str] | None = None) -> int:
+    args = build_parser().parse_args(argv)
 
     rows = build_rows(Path(args.results_dir))
-    path = write_csv(rows, Path(args.out))
+    path = write_csv(rows, resolve_out(args))
     n_data = sum(r["axis"] == "data" for r in rows)
     n_pt = sum(r["axis"] == "ptcompute" for r in rows)
     print(f"wrote {path} ({len(rows)} rows: {n_data} data-axis, {n_pt} ptcompute-axis)")

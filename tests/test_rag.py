@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import sys
 
 import numpy as np
 import pytest
@@ -476,6 +477,138 @@ def test_build_generator_explicit_gen_kwargs_override_greedy_default(monkeypatch
 
     gen_mod.build_generator("m", vllm_generator_factory=fake_vllm_factory, temperature=0.7)
     assert made["sampling"]["temperature"] == 0.7  # caller override wins over greedy default
+
+
+# ---------------------------------------------------------------------------
+# the REAL transformers closure (_default_transformers_generator), driven with a
+# fake `pipeline` -- no model download. This is the function that turns model
+# output into arm-C predictions, so it gets executed, not just dispatched to.
+# ---------------------------------------------------------------------------
+
+_FAKE_COMPLETION = "public int add(int a, int b) { return a + b; }"
+
+
+class _FakeTokenizer:
+    pad_token_id = None
+    pad_token = None
+    eos_token = "<|endoftext|>"
+    padding_side = "right"
+    clean_up_tokenization_spaces = True
+
+
+class _FakeGenerationConfig:
+    max_length = 20
+
+
+class _FakeModel:
+    def __init__(self) -> None:
+        self.generation_config = _FakeGenerationConfig()
+
+
+class _FakePipeline:
+    """Mimics `transformers.pipeline("text-generation")`'s return_full_text contract.
+
+    With `return_full_text=False` it yields the completion alone. Otherwise (the
+    library default) it yields *re-decoded prompt* + completion -- and the re-decoded
+    prompt is deliberately NOT byte-identical to the input string here (a trailing
+    newline is lost), which is exactly the round-trip drift that made the old
+    prefix-strip fall through and return the whole prompt.
+    """
+
+    def __init__(self) -> None:
+        self.tokenizer = _FakeTokenizer()
+        self.model = _FakeModel()
+        self.calls: list[dict] = []
+
+    def __call__(self, prompts, **kwargs):
+        self.calls.append(kwargs)
+        if kwargs.get("return_full_text") is False:
+            return [[{"generated_text": _FAKE_COMPLETION}] for _ in prompts]
+        return [[{"generated_text": p.strip() + _FAKE_COMPLETION}] for p in prompts]
+
+
+@pytest.fixture
+def fake_pipeline(monkeypatch):
+    """Swap `transformers.pipeline` for the fake above, so the closure runs with no model.
+
+    The attribute is *read* before it is patched, on purpose. `transformers` installs a
+    lazy module, and resolving one of its lazy attributes for the first time replaces the
+    object registered in ``sys.modules["transformers"]``. Patching the pre-read object
+    would therefore write to an orphan: `_default_transformers_generator` re-resolves
+    `from transformers import pipeline` at call time against `sys.modules`, get the real
+    loader, and try to download the model (observed: an outbound request to
+    huggingface.co). Read first, then patch whatever `sys.modules` ended up holding.
+    """
+    import transformers
+
+    _ = transformers.pipeline  # materialize the lazy module before choosing the target
+    pipe = _FakePipeline()
+    monkeypatch.setattr(sys.modules["transformers"], "pipeline", lambda *a, **k: pipe)
+    return pipe
+
+
+def test_transformers_generator_never_returns_the_prompt(fake_pipeline):
+    """A prompt the pipeline does not echo back byte-identically must not leak into output.
+
+    The old implementation recovered the completion with
+    ``full_text[len(prompt):] if full_text.startswith(prompt) else full_text`` -- so when
+    the re-decoded prompt drifted by a single character the ELSE branch returned prompt +
+    completion, and `extract_fix` would then pick a retrieved exemplar's *fixed* method
+    out of the KB block and emit it as the model's prediction.
+    """
+    import pop.rag.generate as gen_mod
+
+    exemplar = 'public String greet(String n) { return "Hello " + n; }'
+    prompt = f"### Example fixed method:\n{exemplar}\n### Fix this:\npublic int add() {{}}\n"
+
+    gen = gen_mod._default_transformers_generator("m", {"max_new_tokens": 8})
+    out = gen([prompt])
+
+    assert out == [_FAKE_COMPLETION]
+    assert exemplar not in out[0]  # a retrieved exemplar must never become the prediction
+    assert prompt not in out[0]
+
+
+def test_transformers_generator_asks_the_pipeline_to_strip_the_prompt(fake_pipeline):
+    """The prompt is stripped by the tokenizer-aware pipeline, not by string surgery.
+
+    Same contract as the LoRA arm's twin (`pop.train.lora._default_lora_generator`), so
+    the two arms cannot drift apart on how a completion is recovered.
+    """
+    import pop.rag.generate as gen_mod
+
+    gen = gen_mod._default_transformers_generator("m", {"max_new_tokens": 8, "batch_size": 4})
+    gen(["p1", "p2"])
+
+    assert fake_pipeline.calls[0]["return_full_text"] is False
+    assert fake_pipeline.calls[0]["max_new_tokens"] == 8  # caller gen_kwargs still forwarded
+
+
+def test_transformers_generator_configures_the_tokenizer_for_batched_decoding(fake_pipeline):
+    """Decoder-only batching needs a pad token and left padding (Qwen ships neither)."""
+    import pop.rag.generate as gen_mod
+
+    gen_mod._default_transformers_generator("m", {})
+
+    assert fake_pipeline.tokenizer.pad_token == fake_pipeline.tokenizer.eos_token
+    assert fake_pipeline.tokenizer.padding_side == "left"
+    assert fake_pipeline.model.generation_config.max_length is None
+
+
+def test_transformers_generator_handles_a_bare_dict_result(monkeypatch):
+    """Some pipeline versions return a bare dict per prompt rather than a 1-element list."""
+    import transformers
+
+    import pop.rag.generate as gen_mod
+
+    class _FlatPipeline(_FakePipeline):
+        def __call__(self, prompts, **kwargs):
+            return [{"generated_text": _FAKE_COMPLETION} for _ in prompts]
+
+    _ = transformers.pipeline  # see the fake_pipeline fixture for why this read comes first
+    monkeypatch.setattr(sys.modules["transformers"], "pipeline", lambda *a, **k: _FlatPipeline())
+    gen = gen_mod._default_transformers_generator("m", {})
+    assert gen(["p1", "p2"]) == [_FAKE_COMPLETION, _FAKE_COMPLETION]
 
 
 # ---------------------------------------------------------------------------

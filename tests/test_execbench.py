@@ -661,3 +661,84 @@ class TestLimitPerBench:
 
         tasks = [("q0", "quixbugs", "s"), ("h0", "humaneval_java", "s")]
         assert _limit_per_bench(tasks, 99) == tasks
+
+
+# --- empty-run guards: a run that executed nothing must not report success -------------------
+
+
+class TestEmptyRunIsRejected:
+    """`aggregate([])` yields ``pass_rate: 0.0`` over ``n: 0``, which reads as a legitimate
+    result. Nothing upstream used to reject an empty task list, so
+    ``--validate-references --limit 0`` executed no bug, wrote that record, found no failures
+    and returned 0 -- "all 0 references validated" on the study's own integrity check.
+    `pop eval` already refuses the analogous case (`metrics.evaluate_predictions` raises on
+    empty preds/refs); these guards make `pop execbench` match it."""
+
+    @staticmethod
+    def _fake_jdk(monkeypatch):
+        from pop.execbench import harness as harness_mod
+
+        monkeypatch.setattr(
+            harness_mod,
+            "jdk_identity",
+            lambda jdk=None: {"jdk": None, "java": "java", "version": "17.0.1"},
+        )
+        ran: list[tuple] = []
+        monkeypatch.setattr(harness_mod, "run_bug", lambda *a, **k: ran.append(a))
+        return ran
+
+    def test_validate_references_over_an_empty_manifest_fails_instead_of_claiming_success(
+        self, tmp_path, monkeypatch, capsys
+    ):
+        from pop.cli import main
+        from pop.execbench import harness as harness_mod
+
+        monkeypatch.chdir(tmp_path)
+        ran = self._fake_jdk(monkeypatch)
+        monkeypatch.setattr(harness_mod, "load_manifest", lambda bench: [])
+
+        rc = main(["execbench", "--validate-references", "--bench", "quixbugs"])
+        err = capsys.readouterr().err
+
+        assert rc == 2, "a run that validated nothing must not exit 0"
+        assert "no bugs selected" in err
+        assert not ran
+        assert not (tmp_path / "results").exists(), "no zero-row results file may be written"
+
+    def test_empty_predictions_file_fails_instead_of_writing_a_zero_percent_result(
+        self, tmp_path, monkeypatch, capsys
+    ):
+        from pop.cli import main
+
+        monkeypatch.chdir(tmp_path)
+        ran = self._fake_jdk(monkeypatch)
+        predictions = tmp_path / "empty.jsonl"
+        predictions.write_text("", encoding="utf-8")
+
+        rc = main(["execbench", "--predictions", str(predictions), "--bench", "quixbugs"])
+        err = capsys.readouterr().err
+
+        assert rc == 2
+        assert "no bugs selected" in err
+        assert not ran
+        assert not (tmp_path / "results").exists()
+
+    @pytest.mark.parametrize("bad", ["0", "-1"])
+    def test_limit_below_one_is_rejected_by_the_parser(self, bad, tmp_path):
+        """`--limit 0` selected an empty slice rather than erroring; it is a usage mistake."""
+        result = subprocess.run(
+            [sys.executable, "-m", "pop.cli", "execbench", "--validate-references", "--limit", bad],
+            capture_output=True,
+            text=True,
+            cwd=tmp_path,
+        )
+        assert result.returncode == 2
+        assert "--limit" in result.stderr
+        assert "at least 1" in result.stderr
+
+    def test_limit_of_one_is_still_accepted(self):
+        """The guard must not move the boundary: 1 is a legitimate cap."""
+        from pop.cli import build_parser
+
+        args = build_parser().parse_args(["execbench", "--validate-references", "--limit", "1"])
+        assert args.limit == 1

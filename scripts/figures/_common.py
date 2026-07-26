@@ -22,6 +22,8 @@ from pathlib import Path
 
 import matplotlib
 
+from pop.eval.metrics import is_scratch_run_name
+
 matplotlib.use("Agg")  # deterministic + headless; MUST precede the pyplot import
 
 import matplotlib.pyplot as plt  # noqa: E402
@@ -79,12 +81,18 @@ def load_finetune_results(results_dir: Path = RESULTS_DIR) -> dict[str, dict]:
     Returns just the ``metrics`` sub-dict per run (``em``, ``em_raw``,
     ``codebleu``, ``syntax_valid_rate``, ``n``). Missing directory -> empty map,
     so callers never crash when a results set has not been produced yet.
+
+    Gitignored ``*_local*`` scratch runs are skipped: these figures are committed and
+    rebuilt by ``make_all.py`` on every documented reproduce run, so a local experiment
+    must not be able to redraw a published plot.
     """
     results_dir = Path(results_dir)
     out: dict[str, dict] = {}
     if not results_dir.is_dir():
         return out
     for path in sorted(results_dir.glob("finetune_*_test.json")):
+        if is_scratch_run_name(path.stem):
+            continue
         name = path.stem.removesuffix("_test")
         out[name] = load_result(path).get("metrics", {})
     return out
