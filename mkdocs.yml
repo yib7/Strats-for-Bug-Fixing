@@ -16,6 +16,12 @@ site_url: https://yib7.github.io/Strats-for-Bug-Fixing/
 repo_url: https://github.com/yib7/Strats-for-Bug-Fixing
 repo_name: yib7/Strats-for-Bug-Fixing
 
+# Setting `repo_url` also puts an "Edit on ..." link at the top of every page, and mkdocs builds
+# that link from `edit/master/docs/` unless told otherwise. This repository's only branch is
+# `main`, so the default sends every visitor who clicks it to a GitHub 404. Keep in step with the
+# default branch.
+edit_uri: edit/main/docs/
+
 theme:
   name: readthedocs
   # The theme's default (`highlightjs: true`) injects highlight.js and its stylesheet from

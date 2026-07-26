@@ -52,6 +52,104 @@
     color: #000;
 }
 
+/* The same 4.5:1 problem in the theme's chrome. Two places put near-white 16px bold text on the
+ * theme's header blue (#2980b9): the sidebar brand block on desktop (#fcfcfc, 4.19:1) and the
+ * mobile top bar (#fff, 4.30:1). Neither is large text -- 16px bold is 12pt, under the 14pt-bold
+ * threshold -- so AA wants 4.5:1 and both miss. #2471a3 is the blue already used for content
+ * links above, not a new hue, and takes them to 5.16:1 and 5.09:1.
+ */
+.wy-side-nav-search,
+.wy-nav-top {
+    background-color: #2471a3;
+}
+
+/* --- Keyboard focus (WCAG 2.4.7) ------------------------------------------------------------ */
+
+/* The theme clears the browser's focus ring on text inputs (`input[type=text]:focus{outline:0}`)
+ * and offers `border-color:#333` in its place -- which its own, more specific
+ * `.wy-side-nav-search input[type=text]{border-color:#2472a4}` then overrides. Net effect: the
+ * search box, the only form control on the site, looks identical focused and unfocused, so a
+ * keyboard user tabbing into it has no idea where they are. Draw one ring for every interactive
+ * element instead. `currentColor` means the ring inherits whatever colour the element already
+ * uses against its own background, so it is legible in the content column, in the dark sidebar
+ * and on the blue header without three separate colour choices. `:focus-visible` keeps it off
+ * mouse clicks, which is why the theme wanted it gone in the first place.
+ */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+[tabindex]:focus-visible {
+    outline: 3px solid currentColor;
+    outline-offset: 2px;
+    border-radius: 2px;
+}
+
+/* --- Sidebar footer bar --------------------------------------------------------------------- */
+
+/* The theme lays this 300px bar out as right-aligned inline spans: the repo link, then
+ * "« Previous" and "Next »". `yib7/Strats-for-Bug-Fixing` does not fit in what is left, so on
+ * every page it wraps to three or four lines and spills out of the bar, over the nav above it.
+ * Lay the row out as flex instead -- the repo name takes the slack and ellipsises, the page links
+ * keep their width. The theme's clearfix pseudo-elements would become stray flex items, so they
+ * go. This bar is `display:none` under 768px, so none of this reaches mobile.
+ */
+.rst-versions .rst-current-version {
+    display: flex;
+    align-items: center;
+    gap: 0.75em;
+    padding: 10px 12px;
+    text-align: left;
+}
+
+.rst-versions .rst-current-version::before,
+.rst-versions .rst-current-version::after {
+    display: none;
+}
+
+.rst-versions .rst-current-version > span:first-child {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.rst-versions .rst-current-version > span:first-child > a {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.rst-versions .rst-current-version > span + span {
+    flex: 0 0 auto;
+    white-space: nowrap;
+}
+
+/* --- Wide tables ---------------------------------------------------------------------------- */
+
+/* Tables wider than the content column scroll inside `.wy-table-responsive`, which is correct,
+ * but on a platform with overlay scrollbars nothing says so: the report's method table and the
+ * architecture page's tables just look cut off at the right edge. Styling the scrollbar opts the
+ * container out of overlay behaviour, so the bar is drawn permanently -- and only on the tables
+ * that actually overflow, since `overflow-x` is `auto`. The thumb is 3.3:1 on its track, over
+ * the 3:1 that WCAG 1.4.11 asks of a UI component.
+ */
+.wy-table-responsive {
+    scrollbar-width: thin;
+    scrollbar-color: #7f8c8d #f3f6f6;
+}
+
+.wy-table-responsive::-webkit-scrollbar {
+    height: 10px;
+}
+
+.wy-table-responsive::-webkit-scrollbar-track {
+    background: #f3f6f6;
+}
+
+.wy-table-responsive::-webkit-scrollbar-thumb {
+    background: #7f8c8d;
+    border-radius: 5px;
+}
+
 /* --- Figures -------------------------------------------------------------------------------- */
 
 /* Frame the figures so they read as figures rather than as loose images. Applies to the three
