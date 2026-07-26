@@ -91,6 +91,7 @@ explicit = true
 addopts = "--strict-markers --strict-config"
 markers = [
     "jdk: marks tests that require a local JDK installation",
+    "allow_network: opts a test out of the suite's socket-level offline guard (see tests/conftest.py)",
 ]
 
 [tool.ruff]

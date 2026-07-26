@@ -96,7 +96,7 @@ Each notebook in `notebooks/` is one GPU stage of that batch:
 | `src/pop/train/` | the training entry points (pretrain, finetune, LoRA), the `pop smoke` dry run, and GPU precision handling |
 | `src/pop/rag/` | BM25 and CodeBERT retrievers, prompt building, and batched generation (vLLM when usable) |
 | `src/pop/eval/` | normalization, the Track 1 metrics, and bootstrap confidence intervals |
-| `src/pop/execbench/` | the Track 2 harness: JDK discovery, compile-and-test, outcome classification, pass@k |
+| `src/pop/execbench/` | the Track 2 harness: JDK discovery, compile-and-test, outcome classification, and pass-rate aggregation (the `pass_at_k` estimator ships alongside it but is unused: one greedy sample per bug makes pass@1 the pass rate) |
 
 The rest of the repo, top level:
 

@@ -2,7 +2,15 @@
 
 Both classes share the interface ``index(pairs) -> None`` / ``retrieve(query,
 k) -> list[dict]`` where ``pairs`` and the returned exemplars are
-``{"buggy": str, "fixed": str}`` dicts.
+``{"buggy": str, "fixed": str}`` dicts. The contract is:
+
+- ``retrieve`` before any ``index`` call raises ``RuntimeError``;
+- after ``index``, ``retrieve`` returns ``[]`` when ``k <= 0`` or the knowledge
+  base is empty, and at most ``min(k, len(pairs))`` exemplars otherwise.
+
+"Indexed" is therefore tracked separately from "holds a searchable index": an
+empty knowledge base builds no index in the dense retriever, and reporting that
+as "called before index()" would blame the caller for something they did do.
 
 **Leakage guard**: the knowledge base indexed here must be the ``train``
 split only. These classes do not enforce that at runtime (they take whatever
@@ -39,20 +47,29 @@ class BM25Retriever:
     """Sparse lexical retriever over the ``buggy`` side of KB pairs, via bm25s."""
 
     def __init__(self) -> None:
+        self._indexed = False
         self._model: bm25s.BM25 | None = None
         self._pairs: list[dict] = []
 
     def index(self, pairs: list[dict]) -> None:
         self._pairs = list(pairs)
+        self._indexed = True
+        if not self._pairs:
+            # bm25s cannot build a model over an empty corpus: it means-over-nothing for the
+            # average document length (two RuntimeWarnings) and then dies on
+            # `max(vocab_dict.values())` with `ValueError: max() iterable argument is empty`.
+            # `retrieve` reports [] off `_pairs`, so the absent model is never consulted.
+            self._model = None
+            return
         corpus_tokens = [tokenize_code(pair["buggy"]) for pair in self._pairs]
         model = bm25s.BM25()
         model.index(corpus_tokens, show_progress=False)
         self._model = model
 
     def retrieve(self, query: str, k: int) -> list[dict]:
-        if self._model is None:
+        if not self._indexed:
             raise RuntimeError("BM25Retriever.retrieve() called before index()")
-        if k <= 0 or not self._pairs:
+        if k <= 0 or not self._pairs or self._model is None:
             return []
 
         k_eff = min(k, len(self._pairs))
@@ -92,6 +109,7 @@ class CodeBERTRetriever:
         self._model_name = model_name
         self._encode_fn = encode_fn
         self._batch_size = batch_size
+        self._indexed = False
         self._pairs: list[dict] = []
         self._index: faiss.IndexFlatIP | None = None
 
@@ -126,7 +144,11 @@ class CodeBERTRetriever:
 
     def index(self, pairs: list[dict]) -> None:
         self._pairs = list(pairs)
+        self._indexed = True
         if not self._pairs:
+            # No vectors to build a FAISS index from -- and no dimensionality to build it
+            # with, since that comes from the encoder's output. `retrieve` reports [] off
+            # `_pairs`, so the absent index is never consulted.
             self._index = None
             return
 
@@ -145,9 +167,9 @@ class CodeBERTRetriever:
         self._index = index
 
     def retrieve(self, query: str, k: int) -> list[dict]:
-        if self._index is None:
+        if not self._indexed:
             raise RuntimeError("CodeBERTRetriever.retrieve() called before index()")
-        if k <= 0 or not self._pairs:
+        if k <= 0 or not self._pairs or self._index is None:
             return []
 
         encode = self._get_encode_fn()

@@ -8,7 +8,7 @@ import sys
 import numpy as np
 import pytest
 
-from pop.rag.generate import build_generator, generate_with_resume
+from pop.rag.generate import build_generator, generate_with_resume, write_partial_identity
 from pop.rag.prompt import build_messages, extract_fix, render_prompt
 from pop.rag.retrievers import BM25Retriever, CodeBERTRetriever
 
@@ -158,6 +158,47 @@ def test_codebert_retriever_before_index_raises():
     retriever = CodeBERTRetriever(encode_fn=_fake_encode_fn)
     with pytest.raises(RuntimeError):
         retriever.retrieve("add", k=1)
+
+
+# --- the shared empty-KB contract, asserted against *both* implementations ---------------
+#
+# The module docstring promises one interface for both classes. These are parametrized over
+# both so a third retriever added against that contract cannot quietly diverge: CodeBERT used
+# to leave `self._index = None` for an empty KB and then blame the caller for never having
+# indexed, while BM25 returned [].
+
+
+def _both_retrievers():
+    return [
+        pytest.param(BM25Retriever(), id="bm25"),
+        pytest.param(CodeBERTRetriever(encode_fn=_fake_encode_fn), id="codebert"),
+    ]
+
+
+@pytest.mark.parametrize("retriever", _both_retrievers())
+def test_retrieve_before_index_raises(retriever):
+    with pytest.raises(RuntimeError, match="before index"):
+        retriever.retrieve("add", k=1)
+
+
+@pytest.mark.parametrize("retriever", _both_retrievers())
+def test_retrieve_after_indexing_an_empty_kb_returns_empty(retriever):
+    retriever.index([])
+    assert retriever.retrieve("add", k=1) == []
+
+
+@pytest.mark.parametrize("retriever", _both_retrievers())
+def test_retrieve_k_zero_returns_empty(retriever):
+    retriever.index(KB_PAIRS)
+    assert retriever.retrieve("add", k=0) == []
+
+
+@pytest.mark.parametrize("retriever", _both_retrievers())
+def test_reindexing_an_empty_kb_over_a_populated_one_returns_empty(retriever):
+    retriever.index(KB_PAIRS)
+    assert retriever.retrieve("add", k=1) != []
+    retriever.index([])
+    assert retriever.retrieve("add", k=1) == []
 
 
 def test_codebert_retriever_does_not_import_torch_without_default_encode(monkeypatch):
@@ -698,6 +739,7 @@ def test_resume_discards_a_torn_trailing_write(tmp_path):
 
     prompts = [f"p{i}" for i in range(4)]
     refs = [f"r{i}" for i in range(4)]
+    write_partial_identity(partial, prompts, refs)
     seen: list[str] = []
 
     def generate(chunk):
@@ -719,6 +761,7 @@ def test_resume_discards_a_trailing_line_that_is_not_json(tmp_path):
         '{"prediction": "fix:p0", "reference": "r0"}\n{"predi\n',
         encoding="utf-8",
     )
+    write_partial_identity(partial, ["p0", "p1"], ["r0", "r1"])
 
     n = generate_with_resume(
         ["p0", "p1"], ["r0", "r1"], out, lambda c: [f"fix:{p}" for p in c], chunk_size=2
@@ -733,6 +776,7 @@ def test_intact_partial_is_left_alone(tmp_path):
     out = tmp_path / "predictions.jsonl"
     partial = tmp_path / "predictions.jsonl.partial"
     partial.write_text('{"prediction": "fix:p0", "reference": "r0"}\n', encoding="utf-8")
+    write_partial_identity(partial, ["p0", "p1"], ["r0", "r1"])
 
     seen: list[str] = []
 
@@ -742,3 +786,133 @@ def test_intact_partial_is_left_alone(tmp_path):
 
     generate_with_resume(["p0", "p1"], ["r0", "r1"], out, generate, chunk_size=2)
     assert seen == ["p1"], "a complete record must not be regenerated"
+
+
+# --- resume identity: a partial from a *different* run must not be reused -----------------
+
+
+def _interrupt_after_first_chunk(prompts, refs, out):
+    """Run `generate_with_resume` until it dies on the second chunk; leaves a partial."""
+
+    calls: list[list[str]] = []
+
+    def flaky(chunk):
+        calls.append(list(chunk))
+        if len(calls) == 2:
+            raise RuntimeError("simulated disconnect")
+        return [f"fix:{p}" for p in chunk]
+
+    with pytest.raises(RuntimeError):
+        generate_with_resume(prompts, refs, out, flaky, chunk_size=2)
+
+
+def test_resume_discards_a_partial_whose_prompts_changed(tmp_path, capsys):
+    """The k/retriever/config changed, so the finished lines answer different prompts."""
+    out = tmp_path / "predictions.jsonl"
+    partial = tmp_path / "predictions.jsonl.partial"
+
+    _interrupt_after_first_chunk([f"p{i}" for i in range(5)], [f"r{i}" for i in range(5)], out)
+    assert len(partial.read_text(encoding="utf-8").splitlines()) == 2
+
+    seen: list[str] = []
+
+    def generate(chunk):
+        seen.extend(chunk)
+        return [f"fix:{p}" for p in chunk]
+
+    # Same length, same references -- only the prompts differ (a different k, say).
+    new_prompts = [f"K3 {i}" for i in range(5)]
+    n = generate_with_resume(new_prompts, [f"r{i}" for i in range(5)], out, generate, chunk_size=2)
+
+    assert n == 5
+    assert seen == new_prompts, "every prompt must be regenerated, not just the unfinished ones"
+    preds = [json.loads(x)["prediction"] for x in out.read_text(encoding="utf-8").splitlines()]
+    assert preds == [f"fix:{p}" for p in new_prompts]
+    assert "fix:p0" not in preds, "a prediction for a different prompt leaked into the output"
+    assert "does not match" in capsys.readouterr().err
+
+
+def test_resume_discards_a_partial_whose_references_changed(tmp_path):
+    """Same prompts, different split -- the references identify the task too."""
+    out = tmp_path / "predictions.jsonl"
+    prompts = [f"p{i}" for i in range(5)]
+
+    _interrupt_after_first_chunk(prompts, [f"train{i}" for i in range(5)], out)
+
+    seen: list[str] = []
+
+    def generate(chunk):
+        seen.extend(chunk)
+        return [f"fix:{p}" for p in chunk]
+
+    generate_with_resume(prompts, [f"test{i}" for i in range(5)], out, generate, chunk_size=2)
+
+    assert seen == prompts
+    refs = [json.loads(x)["reference"] for x in out.read_text(encoding="utf-8").splitlines()]
+    assert refs == [f"test{i}" for i in range(5)], "a stale reference survived the resume"
+
+
+def test_resume_discards_a_partial_when_limit_grew(tmp_path):
+    """Re-running with a larger --limit than the interrupted run used."""
+    out = tmp_path / "predictions.jsonl"
+
+    _interrupt_after_first_chunk([f"p{i}" for i in range(4)], [f"r{i}" for i in range(4)], out)
+
+    prompts = [f"p{i}" for i in range(8)]
+    seen: list[str] = []
+
+    def generate(chunk):
+        seen.extend(chunk)
+        return [f"fix:{p}" for p in chunk]
+
+    n = generate_with_resume(prompts, [f"r{i}" for i in range(8)], out, generate, chunk_size=4)
+
+    assert n == 8
+    assert seen == prompts
+
+
+def test_resume_discards_a_partial_with_no_identity_sidecar(tmp_path, capsys):
+    """A partial left by a version that predates the identity check has unknown provenance."""
+    out = tmp_path / "predictions.jsonl"
+    partial = tmp_path / "predictions.jsonl.partial"
+    partial.write_text('{"prediction": "stale", "reference": "r0"}\n', encoding="utf-8")
+
+    seen: list[str] = []
+
+    def generate(chunk):
+        seen.extend(chunk)
+        return [f"fix:{p}" for p in chunk]
+
+    generate_with_resume(["p0", "p1"], ["r0", "r1"], out, generate, chunk_size=2)
+
+    assert seen == ["p0", "p1"]
+    assert "stale" not in out.read_text(encoding="utf-8")
+    assert "no identity record" in capsys.readouterr().err
+
+
+def test_resume_reuses_a_partial_whose_identity_matches(tmp_path):
+    """The whole point of the checkpoint: a matching run resumes where it stopped."""
+    out = tmp_path / "predictions.jsonl"
+    prompts = [f"p{i}" for i in range(5)]
+    refs = [f"r{i}" for i in range(5)]
+
+    _interrupt_after_first_chunk(prompts, refs, out)
+
+    seen: list[str] = []
+
+    def generate(chunk):
+        seen.extend(chunk)
+        return [f"fix:{p}" for p in chunk]
+
+    n = generate_with_resume(prompts, refs, out, generate, chunk_size=2)
+
+    assert n == 5
+    assert seen == ["p2", "p3", "p4"], "matching work was regenerated"
+
+
+def test_finished_run_leaves_no_identity_sidecar_behind(tmp_path):
+    out = tmp_path / "predictions.jsonl"
+    generate_with_resume(["p0"], ["r0"], out, lambda c: ["fix"], chunk_size=2)
+
+    leftovers = sorted(p.name for p in tmp_path.iterdir())
+    assert leftovers == ["predictions.jsonl"]

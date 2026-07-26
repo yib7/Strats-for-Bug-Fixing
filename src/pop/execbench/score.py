@@ -14,6 +14,15 @@ def pass_at_k(n: int, c: int, k: int) -> float:
     estimate. Numerically stable: works in log-free product form over `n - c` terms rather
     than the naive `1 - C(n-c, k) / C(n, k)` binomial-coefficient ratio (which overflows for
     even moderately large `n`).
+
+    **Nothing in this study calls it.** Track 2 draws exactly one greedy sample per bug, and
+    at n=1 the estimator degenerates to `c`, so pass@1 is just `aggregate()`'s `pass_rate` --
+    which is what `scripts/build_execbench_agreement_csv.py` and `docs/report.md` read. It is
+    kept, tested and documented rather than deleted because it is the piece that would have
+    to be right the moment anyone samples k>1 (temperature sampling, best-of-n reranking),
+    and re-deriving a numerically stable form of Eq. 1 later is exactly the kind of thing
+    that gets done wrong. Treat a call site appearing here as a signal that the sampling
+    regime changed and the surrounding aggregation needs revisiting too.
     """
     if n < 0 or c < 0:
         raise ValueError(f"n and c must be >= 0 (got n={n}, c={c})")

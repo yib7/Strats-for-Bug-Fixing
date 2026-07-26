@@ -453,6 +453,39 @@ def test_jdk_identity_reports_a_readable_error_when_java_is_missing(monkeypatch)
     assert "FileNotFoundError(2," not in info["error"]  # not a raw repr
 
 
+# --- load_manifest memoisation must not leak across tests -----------------------------------
+#
+# These two run in file order and are a pair: the first deliberately poisons the manifest
+# cache with a fixture, the second asserts the real manifest is what comes back afterwards.
+# Without `tests/conftest.py`'s `_clear_manifest_cache` fixture the second one fails, which is
+# exactly the order-dependent failure the fixture exists to make impossible.
+
+
+def test_load_manifest_can_be_pointed_at_a_fixture_benchmarks_dir(tmp_path, monkeypatch):
+    from pop.execbench import harness as harness_mod
+
+    (tmp_path / "quixbugs").mkdir()
+    (tmp_path / "quixbugs" / "manifest.json").write_text(
+        '[{"bug_id": "POISON", "buggy_file": "x.java"}]', encoding="utf-8"
+    )
+    monkeypatch.setattr(harness_mod, "BENCHMARKS_DIR", tmp_path)
+
+    assert harness_mod.load_manifest("quixbugs") == [{"bug_id": "POISON", "buggy_file": "x.java"}]
+
+
+def test_load_manifest_is_not_poisoned_by_an_earlier_tests_fixture_dir():
+    bug_ids = {entry["bug_id"] for entry in load_manifest("quixbugs")}
+    assert "POISON" not in bug_ids, "the manifest cache leaked across tests"
+    assert len(bug_ids) > 1
+
+
+def test_load_manifest_hands_out_a_fresh_list_each_call():
+    """The cache is shared; a caller mutating what it gets back must not corrupt it."""
+    first = load_manifest("quixbugs")
+    first.append({"bug_id": "APPENDED-BY-CALLER"})
+    assert {e["bug_id"] for e in load_manifest("quixbugs")}.isdisjoint({"APPENDED-BY-CALLER"})
+
+
 # --- _run_with_timeout: bounded capture of untrusted output (no JDK; uses this interpreter) ---
 
 
@@ -512,6 +545,38 @@ class TestRunWithTimeoutIsBounded:
         )
         rc, _ = _run_with_timeout([sys.executable, "-c", program], cwd=Path.cwd(), timeout_s=120)
         assert rc == 3, "child exited on its own; it was not killed by the timeout"
+
+    def test_snapshotting_the_capture_while_it_is_still_being_written_does_not_raise(self):
+        """`reader.join(5)` is best-effort: a grandchild that outlived `_kill_tree` keeps the
+        drain thread appending while the main thread joins the blocks into a string. A bare
+        `"".join(deque)` raises `RuntimeError: deque mutated during iteration` there, and
+        `run_bug`'s catch-all would file a mere timeout as a `harness_error` in results/."""
+        import threading
+
+        from pop.execbench.harness import _BoundedCapture
+
+        capture = _BoundedCapture(max_blocks=4)
+        stop = threading.Event()
+        writer_failed: list[BaseException] = []
+
+        def write_forever() -> None:
+            try:
+                while not stop.is_set():
+                    capture.append("x" * 512)
+            except BaseException as exc:  # noqa: BLE001 -- reported, not swallowed
+                writer_failed.append(exc)
+
+        writer = threading.Thread(target=write_forever, daemon=True)
+        writer.start()
+        try:
+            for _ in range(5000):
+                capture.text()  # must never raise while `writer` is appending
+        finally:
+            stop.set()
+            writer.join(10)
+
+        assert not writer_failed
+        assert capture.dropped, "the window should have overflowed 4 blocks by now"
 
     def test_non_utf8_bytes_do_not_crash_the_capture(self):
         from pop.execbench.harness import _run_with_timeout

@@ -142,6 +142,44 @@ compile / 0.0% pass, identical to arm A, which is what pins the whole-file-vs-me
 shared by both T5 arms. The cells are idempotent: they skip if the artifact is already on Drive.
 Re-render figures afterwards with `python scripts/figures/make_all.py`.
 
+## Re-running a config that already has a committed result
+
+Every `results/*.json` in this repo does double duty: it is a published measurement **and**
+it is the done-marker the orchestrators (`scripts/run_training.py`, `run_rag.py`,
+`run_scaling.py`) use to decide whether a step still needs doing. On a fresh clone all of
+them already exist, so a full sweep will happily retrain and regenerate, then **skip every
+eval step** and leave the committed numbers in place — unlinked from the models you just
+trained. That is the safe default, not an accident, but it is silent, so know the rules:
+
+- **`pop eval` / `pop execbench` refuse to overwrite a committed result.** `write_results`
+  raises `FileExistsError` (`pop` exits 1) for any name that is not scratch. Scratch means
+  the name contains `_local`, which is gitignored (`results/*_local*.json`) and freely
+  replaceable — that is why `pop smoke` writes `results/smoke_local.json` and never touches
+  the committed `results/smoke.json`.
+- **To genuinely reproduce a number, delete that one file first**, then re-run the step.
+  The orchestrator then sees the marker missing and runs it, and `write_results` has nothing
+  to refuse. Do this deliberately, one file at a time, and diff the result against what git
+  still has for it.
+- **To compare without touching the published set, pass a different `--name`.** Anything
+  with `_local` in it (`--name rag_bm25_k3_local_test`) is scratch: gitignored, overwritable,
+  and excluded from the derived CSVs, which filter scratch names out of their globs so a
+  local experiment cannot leak into `results/execbench_agreement.csv` or the figures.
+- **An empty run is rejected rather than recorded.** `pop execbench` exits 2 with
+  `no bugs selected` if `--bench`/`--limit`/the predictions file select nothing, instead of
+  writing a legitimate-looking `pass_rate: 0.0` over `n: 0` — and, in the
+  `--validate-references` case, instead of exiting 0 as though 201/201 references had passed.
+- **The CSV builders write beside their inputs.** `scripts/build_scaling_csv.py` and
+  `scripts/build_execbench_agreement_csv.py` default `--out` to
+  `<--results-dir>/<name>.csv`, so pointing `--results-dir` at a scratch directory keeps the
+  committed CSVs untouched. With no flags they still write into `results/`, which is what
+  `scripts/figures/make_all.py` and the documented reproduce step expect.
+
+A partially generated predictions file is a separate mechanism and needs no cleanup:
+`pop rag` / `pop lora-generate` checkpoint into `<output>.partial`, resume onto it only when
+its sidecar `.partial.meta` proves it answers the same prompts and references, and discard it
+with a note on stderr otherwise. Changing `k`, the retriever, the split or `--limit` and
+re-running is therefore safe — it restarts that config rather than mixing old predictions in.
+
 ## What each run produces
 
 Every arm writes `results/<name>.json` following the `pop.eval.metrics.write_results` schema

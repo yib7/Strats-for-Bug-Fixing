@@ -14,6 +14,7 @@ logic can be unit tested against canned javac/JUnit stdout+returncode fixtures.
 from __future__ import annotations
 
 import dataclasses
+import functools
 import json
 import os
 import platform
@@ -62,8 +63,6 @@ _JVM_UTF8_PROPS = (
 # `javac` is itself a Java program; `-J` forwards an option to its launcher VM.
 _JAVAC_UTF8_PROPS = tuple(f"-J{prop}" for prop in _JVM_UTF8_PROPS)
 _PACKAGE_RE = re.compile(r"^\s*package\s+[\w.]+\s*;", re.MULTILINE)
-
-_MANIFEST_CACHE: dict[str, list[dict]] = {}
 
 
 class JdkNotFoundError(ValueError):
@@ -114,11 +113,31 @@ def _bench_dir(bench: str) -> Path:
     return BENCHMARKS_DIR / bench
 
 
+@functools.cache
+def _load_manifest_cached(bench: str) -> tuple[dict, ...]:
+    """Parse and memoise one benchmark's manifest.
+
+    Memoised because `run_bug` -> `get_bug_entry` -> here happens once per bug on every
+    `--jobs` worker, and the manifests are static vendored data. `functools.cache` rather
+    than a hand-rolled module dict: it comes with `cache_clear` (which `tests/conftest.py`
+    calls between tests, so a test that points `BENCHMARKS_DIR` at a fixture cannot leave a
+    poisoned entry for whatever runs next) and its lookup is a single dict operation instead
+    of the two a `if bench not in cache` did, so two workers racing a cold cache duplicate at
+    worst the parse, never a half-written entry.
+    """
+    path = _bench_dir(bench) / "manifest.json"
+    return tuple(json.loads(path.read_text(encoding="utf-8")))
+
+
 def load_manifest(bench: str) -> list[dict]:
-    if bench not in _MANIFEST_CACHE:
-        path = _bench_dir(bench) / "manifest.json"
-        _MANIFEST_CACHE[bench] = json.loads(path.read_text(encoding="utf-8"))
-    return _MANIFEST_CACHE[bench]
+    # A fresh list per call: the cached tuple is shared, and handing callers a mutable
+    # container that every other caller also holds is how a cache turns into a data race.
+    return list(_load_manifest_cached(bench))
+
+
+def clear_manifest_cache() -> None:
+    """Drop every memoised manifest. Used by the test suite's isolation fixture."""
+    _load_manifest_cached.cache_clear()
 
 
 def bench_source_path(bench: str, rel: str) -> Path:
@@ -288,6 +307,35 @@ def _kill_tree(proc: subprocess.Popen) -> None:
         pass
 
 
+class _BoundedCapture:
+    """A subprocess's output as a thread-safe sliding window over the most recent blocks.
+
+    The lock is not about `deque.append`, which is atomic on its own. It is about the
+    *reader*: `reader.join(5)` in `_run_with_timeout` is best-effort, so if a grandchild
+    survived `_kill_tree` and is still writing, the drain thread is still appending when the
+    main thread joins the blocks into a string -- and `"".join(some_deque)` raises
+    `RuntimeError: deque mutated during iteration` if the deque changes mid-iteration.
+    `run_bug`'s broad `except Exception` would catch it, but it would record a bug that
+    merely timed out as a `harness_error` in `results/*.json`. One lock acquisition per
+    64 KiB block is not measurable next to the subprocess it is reading.
+    """
+
+    def __init__(self, max_blocks: int = _MAX_CAPTURE_BLOCKS) -> None:
+        self._blocks: deque[str] = deque(maxlen=max_blocks)
+        self._lock = threading.Lock()
+        self.dropped = False
+
+    def append(self, block: str) -> None:
+        with self._lock:
+            if len(self._blocks) == self._blocks.maxlen:
+                self.dropped = True
+            self._blocks.append(block)
+
+    def text(self) -> str:
+        with self._lock:
+            return "".join(self._blocks)
+
+
 def _run_with_timeout(cmd: list[str], cwd: Path, timeout_s: int) -> tuple[int | None, str]:
     """Run `cmd`; returns (returncode, combined stdout+stderr) or (None, tail) on timeout.
 
@@ -322,11 +370,9 @@ def _run_with_timeout(cmd: list[str], cwd: Path, timeout_s: int) -> tuple[int | 
         **popen_kwargs,
     )
 
-    blocks: deque[str] = deque(maxlen=_MAX_CAPTURE_BLOCKS)
-    dropped = False
+    capture = _BoundedCapture()
 
     def _drain() -> None:
-        nonlocal dropped
         stream = proc.stdout
         if stream is None:
             return
@@ -335,9 +381,7 @@ def _run_with_timeout(cmd: list[str], cwd: Path, timeout_s: int) -> tuple[int | 
                 block = stream.read(_READ_BLOCK_CHARS)
                 if not block:
                     return
-                if len(blocks) == _MAX_CAPTURE_BLOCKS:
-                    dropped = True
-                blocks.append(block)  # deque.append is atomic; no lock needed
+                capture.append(block)
         except (OSError, ValueError):
             return  # the pipe was closed under us (kill/cleanup) -- keep what we have
 
@@ -362,8 +406,8 @@ def _run_with_timeout(cmd: list[str], cwd: Path, timeout_s: int) -> tuple[int | 
         except OSError:
             pass
 
-    out = "".join(blocks)
-    if dropped:
+    out = capture.text()
+    if capture.dropped:
         out = f"[pop: kept only the last ~{_MAX_CAPTURE_CHARS} characters of output]\n{out}"
     return (None if timed_out else proc.returncode), out
 
