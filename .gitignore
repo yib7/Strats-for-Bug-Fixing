@@ -75,16 +75,27 @@ Thumbs.db
 # ...but the vendored JUnit/Hamcrest jars are part of the execution harness and ARE tracked
 !benchmarks/lib/*.jar
 
-# secrets - real values stay local; .env.example is the committed template
+# secrets - real values stay local; .env.example is the committed template.
+# Unlike the tooling guards above, this block is deliberately kept wide even where nothing
+# matches today: a committed secret cannot be un-published, so the cost of a dead pattern
+# here is a line of text and the cost of a missing one is a rotation.
 .env
 .env.*
 !.env.example
 *.env
+.envrc
 secrets.*
+credentials.*
 *.pem
 *.key
 *.p12
 *.pfx
+# SSH/GPG private keys carry no extension for `*.key` to catch.
+id_rsa
+id_ecdsa
+id_ed25519
+*.jks
+*.keystore
 .netrc
 .npmrc
 .pypirc

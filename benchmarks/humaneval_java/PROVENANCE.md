@@ -25,10 +25,33 @@ On that reading, redistributing this subset with attribution to all three layers
 inference is **not** a substitute for an explicit grant, however: the vendored snapshot itself
 carries none, so its status is best described as *permissive by lineage, unstated at the snapshot*.
 
-The material is vendored read-only for research benchmark use (execution-harness testing),
-consistent with how the dataset is used across the APR research community. No `LICENSE` file is
-fabricated; this note stands in its place, and attribution to OpenAI, the CLM/ASSET authors, and
-ASSERT-KTH is carried in the repo's credits.
+### Decision: ship it, with all three layers attributed
+
+This was weighed and settled before the v1.0.0 release; it is a closed decision, recorded here so a
+reader can follow the reasoning rather than re-litigate it.
+
+The snapshot's silence is an **absent statement, not a refusal**. ASSERT-KTH/human-eval-java
+describes itself as a repackaging of the CLM replication package's Java port; it does not claim new
+authorship over the ported programs, and it is the CLM package — BSD 3-Clause — that produced them
+from OpenAI's MIT-licensed problem set. Redistributing this subset while satisfying the upstream
+conditions therefore stays inside the only grants anyone has actually made over this material. What
+satisfying them looks like in practice: nothing is modified, nothing is relicensed, no `LICENSE`
+file is fabricated for the snapshot, the BSD 3-Clause notice and disclaimer are reproduced verbatim
+in [`CREDITS.md`](../../CREDITS.md), and all three layers are named there and here.
+
+Two alternatives were considered and rejected:
+
+- **Drop the benchmark.** It supplies 161 of the 201 bugs the execution harness runs. Losing it
+  guts the execution-vs-CodeBLEU comparison that is the study's headline finding, at no gain in
+  license certainty for the QuixBugs half that would remain.
+- **Re-derive the Java port from lin-tan/clm directly.** This produces the same artifacts under the
+  same BSD 3-Clause terms. It removes one attribution layer from the chain but improves nothing
+  about the grant, while discarding the ability to state the exact upstream commit vendored.
+
+The residual risk is that ASSERT-KTH turns out to hold a copyright interest in the snapshot that it
+has never asserted and would want to restrict. The material is vendored read-only for research
+benchmark use, which is how this dataset is used across the APR literature. If ASSERT-KTH later
+states terms, this note and `CREDITS.md` get updated to match them.
 
 ## What was vendored
 
