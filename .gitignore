@@ -72,7 +72,11 @@ Thumbs.db
 *.tar.gz
 *.tgz
 *.7z
-# ...but the vendored JUnit/Hamcrest jars are part of the execution harness and ARE tracked
+*.jar
+# ...but the vendored JUnit/Hamcrest jars are part of the execution harness and ARE tracked.
+# The negation only works because `*.jar` above it ignores jars in the first place -- without
+# that line this exception matches nothing, and a jar downloaded anywhere else in the tree
+# (a JDK's own jars, a stray dependency) would be committable.
 !benchmarks/lib/*.jar
 
 # secrets - real values stay local; .env.example is the committed template.
