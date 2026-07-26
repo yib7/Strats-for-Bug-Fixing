@@ -104,8 +104,8 @@ at pass@1 = 0.](docs/figures/execution_vs_codebleu.png)
 
 ## Read the full study
 
-The site is published at **<https://yib7.github.io/Strats-for-Bug-Fixing/>**. To read it offline
-instead, `uv run python -m mkdocs build` renders the same thing into `./site`:
+The site is published at **<https://yib7.github.io/Strats-for-Bug-Fixing/>**. Step 5 of the setup
+below renders the same thing into `./site` if you would rather read it offline:
 
 ![The built study site: a left nav with Home, Architecture, Study report and Measurement notes; the
 four-arm results table showing CodeBLEU and execution pass@1 per arm; and the headline CodeBLEU and
@@ -136,8 +136,8 @@ syntax-valid figure below it.](docs/media/docs-site.png)
 | Requirement | Detail |
 |---|---|
 | **`git` and `uv`** | The only two tools you install yourself. Step 2 has the `uv` one-liner; `uv` then supplies the interpreter and every package. |
-| **Python 3.11 or 3.12** | **3.13 and newer cannot install this project.** `codebleu` 0.7.0 requires `tree-sitter` 0.22.x, which publishes wheels for cp39–cp312 only. Step 3 fetches a private CPython 3.12 for you, so you do not need one on `PATH`. |
-| **~2.2 GB of free disk** | A 1.1 GB virtual environment plus 1.1 GB in `uv`'s shared download cache. `torch` is most of both. |
+| **Python 3.11 or 3.12** | **3.13 and newer cannot install this project.** `codebleu` 0.7.0 requires `tree-sitter` 0.22.x, which publishes wheels for cp39–cp312 only. If your machine has no compatible interpreter, step 3 fetches a private CPython 3.12 (68 MB) rather than asking you to install one. |
+| **~1.2 GB of free disk** | `uv` unpacks 1.1 GB into its shared cache and hardlinks `.venv` from it, so the two trees mostly share blocks. Budget 2.2 GB if the cache and the project sit on different drives, where `uv` has to copy instead. `torch` is most of it either way. |
 | **Nothing else** | No GPU, no account, no API key, no environment variable, no compiler. Past the package downloads in step 3, the walkthrough below makes no network requests at all. |
 
 A **JDK 17 or newer** on `PATH` is needed for one thing only: the Java execution harness
@@ -152,8 +152,9 @@ but no one has run it, so it is not a support claim.
 
 Nothing here retrains anything. Every number in the report was produced on a GPU and is committed
 under `results/`; these steps rebuild the study's outputs from those committed measurements. Clone
-to first result took **96 seconds** on a fresh Windows 11 machine with an empty package cache.
-Budget more if your connection is slower, since step 3 downloads about 1.1 GB.
+to first result took **42 seconds** on Windows 11 with an empty `uv` cache: 1 s to clone, 3 s to
+install `uv`, 19 s for step 3 and 19 s for the first `pop smoke`. Step 3 pulls about 300 MB of
+wheels, so budget more if your connection is slower.
 
 **Step 1: clone the repo.**
 
@@ -188,9 +189,11 @@ uv run pop smoke
 ```
 
 Tokenizer training → pretraining → finetuning → generation → scoring, on tiny committed fixtures.
-It prints a summary table and writes `results/smoke_local.json`, which is gitignored, so an ad-hoc
-run can never overwrite a published measurement. Expect about a minute the first time (Python is
-byte-compiling the packages it just installed) and about 9 seconds on every run after that.
+It scrolls a few hundred lines of SentencePiece trainer output and progress bars, then prints the
+summary table you are looking for and writes `results/smoke_local.json`, which is gitignored, so an
+ad-hoc run can never overwrite a published measurement. Expect about 20 seconds the first time
+(Python is byte-compiling the packages it just installed) and about 9 seconds on every run after
+that.
 
 **Step 5: rebuild the figures and the docs site** *(optional; skip it if you only wanted to
 confirm the install works)*.
@@ -208,7 +211,7 @@ That is expected; `git checkout docs/figures` puts the committed copies back.
 ### Anything else worth running
 
 ```bash
-uv run pytest                    # the test suite, 386 tests, ~55 s (add -m "not jdk" if you have no JDK)
+uv run pytest                    # the test suite, 414 tests, ~55 s (add -m "not jdk" if you have no JDK)
 uv run pop --help                # all ten subcommands
 uv run pop execbench --validate-references --jobs 4   # needs a JDK; 201/201 in ~40 s
 ```
