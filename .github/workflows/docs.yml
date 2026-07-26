@@ -41,7 +41,10 @@ jobs:
         run: uv run python -m mkdocs build --strict
 
       - name: Upload the built site
-        uses: actions/upload-pages-artifact@v3
+        # v4 stopped including dotfiles in the artifact. `mkdocs build` emits none into `site/`
+        # (checked: no dot-prefixed entries), so the site is unaffected -- but a future dotfile
+        # there, a `.nojekyll` say, would be dropped silently rather than fail the build.
+        uses: actions/upload-pages-artifact@v5
         with:
           path: site
 
@@ -57,4 +60,4 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
