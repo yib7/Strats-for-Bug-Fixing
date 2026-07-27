@@ -8,7 +8,6 @@ Heavy imports (torch/transformers/datasets) are deliberately deferred inside
 from __future__ import annotations
 
 import logging
-import os
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -92,6 +91,7 @@ def run_pretrain(cfg: PretrainConfig, *, report_to: list[str] | None = None) -> 
     from pop.tokenizer.wrapper import PopTokenizer
     from pop.train.precision import cap_gpu_memory, scale_micro_batch, training_precision
     from pop.train.span_corruption import DataCollatorForT5, SpanCorruptionDataset
+    from pop.train.tracking import wandb_report_to
 
     random.seed(cfg.seed)
     torch.manual_seed(cfg.seed)
@@ -130,7 +130,7 @@ def run_pretrain(cfg: PretrainConfig, *, report_to: list[str] | None = None) -> 
             micro_batch * grad_accum,
         )
     if report_to is None:
-        report_to = ["wandb"] if os.environ.get("WANDB_API_KEY") else []
+        report_to = wandb_report_to()
 
     output_dir = Path(cfg.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)

@@ -73,3 +73,11 @@ The full-study commands do use the network, and only these two third parties:
 
 No credential is ever written to `results/*.json`, to a checkpoint, or to a log. `WANDB_API_KEY` is
 read as a presence check only and its value is never passed on by `pop`.
+
+One thing worth knowing about the W&B row, because it is not obvious and it is not `pop`'s doing:
+the W&B SDK ships its own crash reporter, pointed at a Sentry endpoint of theirs, and it is on by
+default. It captures local variables along with the exception, and inside `wandb.init` those locals
+include a settings object whose text form spells out your API key. A run that simply fails to reach
+W&B would therefore send the key somewhere you did not ask for. Whenever `pop` turns the W&B
+integration on it also sets `WANDB_ERROR_REPORTING=false`, which switches that reporter off; export
+`WANDB_ERROR_REPORTING=true` if you are debugging the SDK and want it back.

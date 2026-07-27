@@ -4,6 +4,13 @@ on:
   push:
   pull_request:
 
+# Nothing in this workflow uses the token: it installs, lints, tests, and diffs the tree.
+# Declaring the floor here rather than inheriting it means the repository's
+# "default workflow permissions" setting (currently `read`) can be changed in the web UI
+# without silently widening what a CI run could do. `docs.yml` already does the same.
+permissions:
+  contents: read
+
 jobs:
   test:
     runs-on: ubuntu-latest

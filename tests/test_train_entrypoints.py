@@ -8,6 +8,7 @@ data/tokenizer fixtures so no network access is needed.
 
 from __future__ import annotations
 
+import os
 from pathlib import Path
 
 import pytest
@@ -282,6 +283,63 @@ def test_trainers_default_to_wandb_only_when_the_key_is_set():
         param = inspect.signature(fn).parameters["report_to"]
         assert param.default is None, f"{fn.__name__}: default must stay 'auto' (None)"
         assert param.kind is inspect.Parameter.KEYWORD_ONLY
+
+
+def test_enabling_wandb_also_disables_wandbs_own_crash_reporting(monkeypatch):
+    """Regression: turning on the wandb integration used to hand the user's API key to
+    Sentry.
+
+    W&B's SDK boots its own Sentry client from a hardcoded DSN
+    (`wandb/analytics/sentry.py`, `o151352.ingest.sentry.io`) using sentry-sdk's defaults,
+    which include `include_local_variables=True`. A failure inside `wandb.init` is captured
+    with its stack frames' locals, and those include the `Settings` repr -- which spells out
+    `api_key='<your key>'`. Measured with a canary key exported: one instrumented
+    `run_finetune` produced 2 Sentry events containing the canary verbatim and resolved
+    `o151352.ingest.sentry.io` four times. With the opt-out below: 0 events, no lookup.
+
+    So `WANDB_API_KEY` must reach W&B and nothing else, which is what
+    `docs/index.md`'s telemetry section promises.
+    """
+    from pop.train.tracking import wandb_report_to
+
+    monkeypatch.delenv("WANDB_ERROR_REPORTING", raising=False)
+    monkeypatch.delenv("WANDB_API_KEY", raising=False)
+
+    # Key unset: no integration, and nothing about the environment is touched.
+    assert wandb_report_to() == []
+    assert "WANDB_ERROR_REPORTING" not in os.environ
+
+    # Key set: integration on, crash reporting off.
+    monkeypatch.setenv("WANDB_API_KEY", "pretend-this-is-set")
+    assert wandb_report_to() == ["wandb"]
+    assert os.environ["WANDB_ERROR_REPORTING"] == "false"
+
+
+def test_the_wandb_crash_reporting_opt_out_is_a_default_not_an_override(monkeypatch):
+    """Someone debugging the W&B SDK must still be able to turn its reporting back on."""
+    from pop.train.tracking import wandb_report_to
+
+    monkeypatch.setenv("WANDB_API_KEY", "pretend-this-is-set")
+    monkeypatch.setenv("WANDB_ERROR_REPORTING", "true")
+
+    assert wandb_report_to() == ["wandb"]
+    assert os.environ["WANDB_ERROR_REPORTING"] == "true"
+
+
+def test_a_blank_env_value_counts_as_unset(monkeypatch):
+    """`.env.example` ships every optional variable empty and documents sourcing the file,
+    so `set -a; . ./.env` exports `""`. A blank key must not switch tracking on, and a blank
+    `WANDB_ERROR_REPORTING` must not be mistaken for a deliberate override."""
+    from pop.train.tracking import wandb_report_to
+
+    monkeypatch.setenv("WANDB_API_KEY", "")
+    monkeypatch.delenv("WANDB_ERROR_REPORTING", raising=False)
+    assert wandb_report_to() == []
+
+    monkeypatch.setenv("WANDB_API_KEY", "pretend-this-is-set")
+    monkeypatch.setenv("WANDB_ERROR_REPORTING", "")
+    assert wandb_report_to() == ["wandb"]
+    assert os.environ["WANDB_ERROR_REPORTING"] == "false"
 
 
 def _spy_training_arguments(monkeypatch) -> dict:

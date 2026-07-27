@@ -27,7 +27,6 @@ is its one-shot wrapper).
 from __future__ import annotations
 
 import logging
-import os
 import random
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
@@ -156,6 +155,7 @@ def run_lora(cfg: LoRAConfig) -> Path:
 
     from pop.data.refinement import load_refinement_pairs, subsample
     from pop.train.precision import cap_gpu_memory, training_precision
+    from pop.train.tracking import wandb_report_to
 
     random.seed(cfg.seed)
     torch.manual_seed(cfg.seed)
@@ -204,7 +204,7 @@ def run_lora(cfg: LoRAConfig) -> Path:
     # cross-entropy logits tensor alone blows past the 0.85 memory cap on a full-length batch). The
     # config specifies a memory-safe micro-batch x grad-accum directly instead; feed it verbatim.
     micro_batch, grad_accum = cfg.batch_size, cfg.gradient_accumulation_steps
-    report_to = ["wandb"] if os.environ.get("WANDB_API_KEY") else []
+    report_to = wandb_report_to()
 
     output_dir = Path(cfg.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
