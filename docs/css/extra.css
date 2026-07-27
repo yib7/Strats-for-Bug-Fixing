@@ -84,6 +84,20 @@ input:focus-visible,
     border-radius: 2px;
 }
 
+/* The generic `input:focus-visible` above has specificity (0,1,1) -- lower than the theme's own
+ * `input[type=text]:focus{outline:0}` (0,2,1), which still wins the cascade regardless of source
+ * order because specificity is compared before it. Net effect measured on the built site: the
+ * search box -- a `type=text` input, the exact element this section names as the one form control
+ * on the site -- keeps computed `outline-style: none` on focus, so the fix above is a no-op for
+ * its stated target. Match the theme's selector so specificity ties at (0,2,1); this stylesheet
+ * loads after theme.css (see `extra_css` in mkdocs.yml), so the tie is won on source order.
+ */
+input[type=text]:focus-visible {
+    outline: 3px solid currentColor;
+    outline-offset: 2px;
+    border-radius: 2px;
+}
+
 /* --- Sidebar footer bar --------------------------------------------------------------------- */
 
 /* The theme lays this 300px bar out as right-aligned inline spans: the repo link, then
