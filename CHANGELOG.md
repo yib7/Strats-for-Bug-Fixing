@@ -25,8 +25,10 @@ First public release. The study is complete and every number in it traces to a c
 
 - `pop` command line tool covering data preparation, tokenizer training, the three training modes,
   evaluation, RAG, and the execution harness.
-- The CPU path reproduces the study's figures and site from committed results in about 96 seconds
-  from a cold clone. Nothing in it retrains a model or needs a GPU.
+- The CPU path reproduces the study's figures and site from committed results in about 42 seconds
+  from a cold clone. Nothing in it retrains a model or needs a GPU. (This entry originally said 96
+  seconds, an estimate that was never measured; 42 s is the measured clone-to-first-result time on
+  Windows 11 with an empty `uv` cache.)
 - 386 tests, hermetic and network-free. CI runs lint, format, the suite, a real JDK harness smoke
   and the documented CPU reproduce path on every push.
 - Documentation site with the full report, measurement notes, and an architecture page.

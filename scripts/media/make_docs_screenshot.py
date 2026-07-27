@@ -26,8 +26,9 @@ DEFAULT_OUT = REPO_ROOT / "docs" / "media" / "docs-site.png"
 VIEWPORT = (1440, 1100)
 SCALE = 2
 # Cropped in captured (2x) pixels: the theme's content column ends at 2599, so 2640 leaves a thin
-# margin, and 2100 cuts just below the headline figure rather than mid-sentence.
-CROP = (2640, 2100)
+# margin, and 2280 cuts in the gap below the headline figure rather than through it or mid-sentence.
+# Re-measure this height whenever docs/index.md gains or loses content above the figure.
+CROP = (2640, 2280)
 
 BROWSERS = (
     "C:/Program Files/Google/Chrome/Application/chrome.exe",

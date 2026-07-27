@@ -1,13 +1,20 @@
 # Storyboard for docs/media/reproduce.gif, rendered by scripts/media/make_readme_gif.py.
 #
-# Every output line below is real stdout/stderr, captured by running the command above it in a
-# clean checkout on Windows 11 (Python 3.12, Temurin 21). Two edits were applied, and only these
-# two:
+# Every output line below is real stdout/stderr, captured by redirecting each command to a file
+# (`<cmd> > log 2>&1`) in a checkout on Windows 11 (Python 3.12, Temurin 21). Three edits were
+# applied, and only these three:
 #
 #   1. The clone's absolute path is rewritten to C:\code\Strats-for-Bug-Fixing, so the recording
 #      carries no home directory.
 #   2. Long runs of progress output are cut, and every cut is marked in the recording by a `~`
 #      line stating how much was removed. No output line is reworded, reordered or invented.
+#   3. tqdm draws its bar with block glyphs on a terminal and with `#` when its output is
+#      redirected. The two surviving progress lines are shown with the block glyphs, which is
+#      what a reader running the command in a terminal sees.
+#
+# pytest is captured at COLUMNS=100 so its progress rows match this recording's terminal width.
+# Re-recording: re-run each command, paste the current output here, then
+# `uv run python scripts/media/make_readme_gif.py`.
 #
 # Directives:
 #   $ cmd    type this command at the prompt
@@ -28,9 +35,9 @@ $ uv run pop smoke
 -   model_prefix: outputs\smoke\tokenizer
 -   model_type: UNIGRAM
 -   vocab_size: 512
-~ [ 297 of 318 lines cut here: sentencepiece EM training, transformers, tqdm ]
-- Writing model shards: 100%|██████████| 1/1 [00:00<00:00, 493.33it/s]
-- Loading weights: 100%|██████████| 47/47 [00:00<00:00, 8530.54it/s]
+~ [ 279 of 300 lines cut here: sentencepiece EM training, transformers, tqdm ]
+- Writing model shards: 100%|██████████| 1/1 [00:00<00:00, 285.02it/s]
+- Loading weights: 100%|██████████| 47/47 [00:00<00:00, 7833.59it/s]
 >
 * pop smoke -- summary
 > ----------------------------------------
@@ -67,13 +74,13 @@ $ uv run python -m mkdocs build
 # Beat 4: the test suite.
 # ---------------------------------------------------------------------------------------------
 $ uv run pytest -q
-> ............................................................................................ [ 23%]
-> ............................................................................................ [ 47%]
-> ............................................................................................ [ 71%]
-> ............................................................................................ [ 95%]
-> ..................                                                                           [100%]
+> ............................................................................................ [ 20%]
+> ............................................................................................ [ 41%]
+> ............................................................................................ [ 61%]
+> ............................................................................................ [ 82%]
+> ................................................................................             [100%]
 ~ [ warnings summary cut: 11 torch pin_memory UserWarnings ]
-* 386 passed, 11 warnings in 55.05s
+* 448 passed, 11 warnings in 58.57s
 . 2400
 
 # ---------------------------------------------------------------------------------------------

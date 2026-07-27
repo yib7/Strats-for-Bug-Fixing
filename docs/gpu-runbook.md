@@ -211,12 +211,13 @@ pop execbench --predictions outputs/execbench/A_all.jsonl --name execbench_A
 **Arm B (from-scratch T5)** measured 0.0% compile / 0.0% pass, identical to arm A. Same as arm A
 but `--model outputs/finetune_B_seed0/best` and `--name execbench_B`.
 
-**Arm C (RAG Qwen)**: pick the best RAG config from Step 1 (highest CodeBLEU, e.g. `rag_bm25_k3`):
+**Arm C (RAG Qwen)**: pick the highest-CodeBLEU RAG config from Step 1. In the committed study that
+is `rag_codebert_k1` (0.6517); re-run yours and take whichever config actually wins:
 
 ```bash
-python scripts/gen_execbench_predictions.py --arm rag --config configs/rag_bm25_k3.yaml \
+python scripts/gen_execbench_predictions.py --arm rag --config configs/rag_codebert_k1.yaml \
   --bench quixbugs      --out outputs/execbench/C_quixbugs.jsonl
-python scripts/gen_execbench_predictions.py --arm rag --config configs/rag_bm25_k3.yaml \
+python scripts/gen_execbench_predictions.py --arm rag --config configs/rag_codebert_k1.yaml \
   --bench humaneval_java --out outputs/execbench/C_humaneval_java.jsonl
 cat outputs/execbench/C_*.jsonl > outputs/execbench/C_all.jsonl
 pop execbench --predictions outputs/execbench/C_all.jsonl --name execbench_C

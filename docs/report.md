@@ -222,18 +222,22 @@ Several of these are negative results, and they are reported as such.
    registers a match whenever a model makes one. T5 simply does not make them.
 
 7. **Execution is the discriminating lens: only the LLM arms fix real bugs, and the T5 arms' 0% is a
-   domain mismatch, not a null result.** C and D fix 26–36% of the 201 real bugs; the
-   CodeBLEU-competitive T5 arms A and B both fix **zero**, at an identical 0.0% compile / 0.0% pass, so
-   the failure is the shared architecture, not one seed. The T5 arms' 0.0% pass (100% `compile_error` on
-   both QuixBugs and HumanEval-Java) is not evidence the harness is broken, since the same harness
-   passes reference patches 201/201 (`results/execbench_validate_references.json`). It is a
-   **whole-file-vs-method domain mismatch**: T5 was trained and evaluated on CodeXGLUE's *abstracted
-   single-method* snippets, but the execution benchmark feeds *whole concrete Java files* (real
-   class/import/field context, real identifiers). T5 never learned to handle that input shape, so its
-   output never compiles. The instruction-tuned Qwen arms, by contrast, generalize (zero-shot in C, or
-   with light adaptation in D) to whole-file input despite never being finetuned on it. This is itself
-   a finding about T5's brittleness to input-distribution shift versus the LLMs' broader
-   generalization, not proof that arm A "learned nothing" (see Limitations).
+   domain mismatch, not a null result.**
+
+      - C and D fix 26–36% of the 201 real bugs; the CodeBLEU-competitive T5 arms A and B both fix
+        **zero**, at an identical 0.0% compile / 0.0% pass, so the failure is the shared architecture,
+        not one seed.
+      - The T5 arms' 0.0% pass (100% `compile_error` on both QuixBugs and HumanEval-Java) is not
+        evidence the harness is broken, since the same harness passes reference patches 201/201
+        (`results/execbench_validate_references.json`).
+      - It is a **whole-file-vs-method domain mismatch**: T5 was trained and evaluated on CodeXGLUE's
+        *abstracted single-method* snippets, but the execution benchmark feeds *whole concrete Java
+        files* (real class/import/field context, real identifiers). T5 never learned to handle that
+        input shape, so its output never compiles.
+      - The instruction-tuned Qwen arms, by contrast, generalize (zero-shot in C, or with light
+        adaptation in D) to whole-file input despite never being finetuned on it.
+      - This is itself a finding about T5's brittleness to input-distribution shift versus the LLMs'
+        broader generalization, not proof that arm A "learned nothing" (see Limitations).
 
 ## Limitations
 
@@ -254,11 +258,14 @@ Several of these are negative results, and they are reported as such.
   exists, but its smallest published size is 30B-A3B, so the 1.5B tier has no Qwen3-Coder equivalent
   to swap in. Comparing against it would change the parameter budget as well as the model generation,
   which is a different experiment.
-- **Provenance caveat.** Every `results/*.json` carries `git_sha: unknown`: the Colab runs executed
-  from an uploaded code zip with no `.git`, so the exact commit that produced each batch is not
-  embedded in the artifacts. The committed `results/*.json` are therefore the source of truth, and
-  every number in this report was cross-checked directly against its source file (the A/B finetune
-  batch is additionally written up in `results/phase2_summary.md`). Reproducing the runs from
+- **Provenance caveat.** No number here traces to a commit. All 33 per-run `results/*.json` carry
+  `git_sha: unknown`: the Colab runs executed from an uploaded code zip with no `.git`, so the exact
+  commit that produced each batch is not embedded in the artifacts. The two locally produced files,
+  `smoke.json` and `execbench_validate_references.json`, do carry a sha, but from history that has
+  since been rewritten, so they do not resolve either. The committed `results/*.json` are therefore
+  the source of truth, and every number in this report was cross-checked directly against its source
+  file (the A/B finetune batch is additionally written up in `results/phase2_summary.md`).
+  Reproducing the runs from
   scratch, rather than trusting the committed JSONs, requires re-executing the notebooks on a GPU
   (`docs/gpu-reproduction.md`).
 

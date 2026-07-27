@@ -14,7 +14,7 @@ the finding.
 
 ![Terminal recording of the CPU reproduce path. `pop smoke` runs the tokenizer, pretrain, finetune,
 generate and score stages and prints its summary table; the figure script rewrites three PNGs;
-mkdocs builds the site in 0.16 s; pytest reports 386 passed; and the Java execution harness
+mkdocs builds the site in 0.16 s; pytest reports 448 passed; and the Java execution harness
 validates 201 of 201 reference patches at pass_rate 1.0.](docs/media/reproduce.gif)
 
 Every command in that recording runs on a laptop CPU from a clean clone, with no GPU and no API
@@ -211,7 +211,7 @@ That is expected; `git checkout docs/figures` puts the committed copies back.
 ### Anything else worth running
 
 ```bash
-uv run pytest                    # the test suite, 414 tests, ~55 s (add -m "not jdk" if you have no JDK)
+uv run pytest                    # the test suite, 448 tests, ~60 s (add -m "not jdk" if you have no JDK)
 uv run pop --help                # all ten subcommands
 uv run pop execbench --validate-references --jobs 4   # needs a JDK; 201/201 in ~40 s
 ```
@@ -246,6 +246,8 @@ For the full GPU reproduction (pretrain → finetune → RAG → LoRA → execut
 
 ## What this does not show
 
+- This is a measurement study, not a bug-fixing tool. Nothing here is production software, and
+  none of these numbers is a state-of-the-art claim. The best arm still fails 64% of the bugs.
 - One decoding setting. Greedy, 256 new tokens, every arm. No beam-search pass was run.
 - CodeBLEU is a surface proxy. An edit that is valid but different, or that does not compile at
   all, can still score well on it. That is why Track 2 exists.
@@ -254,9 +256,14 @@ For the full GPU reproduction (pretrain → finetune → RAG → LoRA → execut
   whole concrete Java files they were never trained on.
 - The larger base is Qwen2.5-Coder-1.5B-Instruct. Qwen3-Coder exists, but its smallest published
   size is 30B-A3B, so the 1.5B tier has no Qwen3-Coder equivalent to swap in and rerun.
-- Every `results/*.json` carries `git_sha: unknown`, because the Colab runs executed from an
-  uploaded zip with no `.git`. The committed JSONs are the source of truth, and every number in the
-  report was cross-checked against its own file.
+- What would come next, in order: method-level extraction and splicing back into the surrounding
+  file, so the T5 arms get a fair execution score instead of a structural zero; then a beam-5
+  decode on A_ep10, to show rather than argue that beam search does not recover exact match.
+- No study number traces to a commit. All 33 per-run `results/*.json` carry `git_sha: unknown`,
+  because the Colab runs executed from an uploaded zip with no `.git`. (The two files produced
+  locally, `smoke.json` and `execbench_validate_references.json`, do carry a sha, but from history
+  that has since been rewritten, so those no longer resolve either.) The committed JSONs are the
+  source of truth, and every number in the report was cross-checked against its own file.
 
 ## License
 
