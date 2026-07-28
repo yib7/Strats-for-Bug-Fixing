@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "pop"
-version = "0.1.0"
+version = "1.0.1"
 description = "pretrain-or-prompt: does pretraining a small T5 beat prompting a larger LLM with RAG for Java bug fixing?"
 readme = "README.md"
 # Floor 3.11 (not 3.12): Google Colab runtimes may lag a Python version behind; keep source
