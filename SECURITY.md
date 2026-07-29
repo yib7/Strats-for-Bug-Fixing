@@ -3,7 +3,7 @@
 ## Reporting a vulnerability
 
 Report privately through GitHub's [security advisory
-form](https://github.com/yib7/Strats-for-Bug-Fixing/security/advisories/new). Please do not open a
+form](https://github.com/yib7/pretrain-or-prompt/security/advisories/new). Please do not open a
 public issue for something exploitable.
 
 Include what you ran, what happened, and the commit you were on. Expect a first reply within about

@@ -101,7 +101,7 @@ input[type=text]:focus-visible {
 /* --- Sidebar footer bar --------------------------------------------------------------------- */
 
 /* The theme lays this 300px bar out as right-aligned inline spans: the repo link, then
- * "« Previous" and "Next »". `yib7/Strats-for-Bug-Fixing` does not fit in what is left, so on
+ * "« Previous" and "Next »". `yib7/pretrain-or-prompt` does not fit in what is left, so on
  * every page it wraps to three or four lines and spills out of the bar, over the nav above it.
  * Lay the row out as flex instead -- the repo name takes the slack and ellipsises, the page links
  * keep their width. The theme's clearfix pseudo-elements would become stray flex items, so they

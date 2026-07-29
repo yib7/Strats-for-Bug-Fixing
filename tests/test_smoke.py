@@ -276,7 +276,7 @@ def test_notebooks_install_from_the_drive_zip_not_a_git_branch():
         )
         assert "git clone" not in code, f"{name} must not git clone a branch"
         if "github.com" in source:
-            assert "github.com/yib7/Strats-for-Bug-Fixing" in source, name
+            assert "github.com/yib7/pretrain-or-prompt" in source, name
 
 
 # ---- results/smoke.json (committed from the verified run) ----

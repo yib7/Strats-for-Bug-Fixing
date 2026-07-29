@@ -49,7 +49,7 @@ uv run python scripts/figures/make_all.py   # render docs/figures/*.png
 uv run python -m mkdocs build               # build this site into ./site
 ```
 
-The [repository README](https://github.com/yib7/Strats-for-Bug-Fixing) has the step-by-step version,
+The [repository README](https://github.com/yib7/pretrain-or-prompt) has the step-by-step version,
 including how to install `uv`.
 
 ## Network and telemetry

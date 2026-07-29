@@ -9,12 +9,12 @@ use_directory_urls: true
 # `404.html` against `/` -- so on a project Pages site (served under /<repo>/) every stylesheet,
 # script and icon the 404 page asks for resolves one directory too high and 404s in turn, leaving an
 # unstyled error page. Keep this in step with the Pages deployment.
-site_url: https://yib7.github.io/Strats-for-Bug-Fixing/
+site_url: https://yib7.github.io/pretrain-or-prompt/
 
 # Puts a "GitHub" link in the theme's sidebar, so a reader who arrives on the site can get to the
 # code without having to guess the URL.
-repo_url: https://github.com/yib7/Strats-for-Bug-Fixing
-repo_name: yib7/Strats-for-Bug-Fixing
+repo_url: https://github.com/yib7/pretrain-or-prompt
+repo_name: yib7/pretrain-or-prompt
 
 # Setting `repo_url` also puts an "Edit on ..." link at the top of every page, and mkdocs builds
 # that link from `edit/master/docs/` unless told otherwise. This repository's only branch is

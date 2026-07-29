@@ -1,7 +1,7 @@
 name: Docs
 
 # Builds the MkDocs site and publishes it to GitHub Pages at
-# https://yib7.github.io/Strats-for-Bug-Fixing/
+# https://yib7.github.io/pretrain-or-prompt/
 #
 # Pages is set to build from GitHub Actions, so the site tracks `main`: every push here rebuilds
 # and redeploys it. `workflow_dispatch` stays on so the site can be rebuilt by hand without an
